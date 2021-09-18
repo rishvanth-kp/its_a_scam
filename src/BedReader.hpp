@@ -1,5 +1,5 @@
 /*
-* GenomcRegion: class to store genomic intervals
+* BedReader: class to read bed files 
 * Copyright (C) 2021 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -22,20 +22,25 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
+#include <fstream>
 
 #include "GenomicRegion.hpp"
 
+using std::vector;
+using std::string;
+
 class BedReader {
 public:
-  BedReader(const string &file);
+  BedReader(const string &in_file);
   ~BedReader();
 
-  GenomicRegion read_line();
-  vector<GenomicRegion> read_file(); 
+  bool read_bed3_line(GenomicRegion &g);
+  void read_bed3_file(vector<GenomicRegion> &g); 
 
 private:
-
-
+  std::ifstream in; 
+  
 };
 
 #endif
