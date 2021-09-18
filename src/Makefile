@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-PROGS = aligned_regions
+PROGS = rna_seq_qc
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -36,7 +36,7 @@ all: $(PROGS)
 
 $(PROGS): 
 
-aligned_regions: aligned_regions.cpp GenomicRegion.o BedReader.o
+rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 %.o: %.cpp %.hpp

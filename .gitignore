@@ -31,5 +31,7 @@
 *.out
 *.app
 
+rna_seq_qc
+
 # vim temp files
 *.swp

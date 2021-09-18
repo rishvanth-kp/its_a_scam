@@ -47,10 +47,10 @@ public:
   size_t get_end() const { return end; }
   char get_strand() const { return strand; }
   
-  void set_name(string n) { name = n; }
-  void set_start(size_t s) { start = s; }
-  void set_end(size_t e) { end = e; }
-  void set_stand(size_t st) { strand = st; }
+  void set_name(const string n) { name = n; }
+  void set_start(const size_t s) { start = s; }
+  void set_end(const size_t e) { end = e; }
+  void set_stand(const size_t st) { strand = st; }
 
   bool overlaps(GenomicRegion &a) const;
 
@@ -64,6 +64,6 @@ private:
   bool is_valid() const;
 };
 
+
+
 #endif
-
-
