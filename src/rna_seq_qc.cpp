@@ -1,5 +1,5 @@
 /*
-* GenomcRegion: class to store genomic intervals
+* rna_seq_qc: determines rna-seq QC metrics
 * Copyright (C) 2021 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <unistd.h>
 
 #include "BedReader.hpp"
 
@@ -27,18 +29,35 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+static string
+print_usage(const string &name) {
+  std::ostringstream oss;
+  oss << name << " [options]" << endl
+      << "\t-g gtf_file.gtf (required)" << endl
+      << "\t-v verbose (default: false)" << endl;
+  return oss.str();
+}
 
 int
 main(int argc, char *argv[]) {
   try {
-      
-    cout << "test" << endl;
+  
+    string gtf_file;
+    bool VERBOSE{false};
 
-    BedReader a("test.bed");
-    vector<GenomicRegion> b;
-    a.read_bed3_file(b); 
+    int opt;
+    while ((opt = getopt(argc, argv, "g:v")) != -1) {
+      if (opt == 'g')
+        gtf_file = optarg;
+      else if (opt == 'v')
+        VERBOSE = true;
+      else
+        throw std::runtime_error(print_usage(argv[0]));
+    }
 
-    cout << b.size() << endl;
+    if (gtf_file.empty())
+      throw std::runtime_error(print_usage(argv[0]));
+
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
