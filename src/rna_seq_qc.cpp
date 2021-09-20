@@ -23,7 +23,7 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "BedReader.hpp"
+#include "GtfReader.hpp"
 
 using std::cout;
 using std::cerr;
@@ -57,6 +57,10 @@ main(int argc, char *argv[]) {
 
     if (gtf_file.empty())
       throw std::runtime_error(print_usage(argv[0]));
+
+    GtfReader gtf(gtf_file);
+    GtfEntry a;
+    gtf.read_gtf_line(a);
 
   }
   catch (std::exception &e) {
