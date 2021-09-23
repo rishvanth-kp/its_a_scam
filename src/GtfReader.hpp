@@ -30,6 +30,21 @@ using std::string;
 using std::vector;
 using std::pair;
 
+/*
+// GTF format
+// GTF uses a 9 column tab delimated format.
+// The first 8 columans are mandatroy
+// 1: sequence name. E.g. Chr1.
+// 2: source: porgram/source that generated the frature
+// 3: feature: E.g. gene, transcript
+// 4: start: 1-based start position of feature 
+// 5: end: inclusive end position of feature
+// 6: score: 
+// 7: strand: strand of feature. '+', '-', or '.'
+// 8: frame:  
+// 9: attributes: semicolon seperated list of tag-value paris
+//      tag and value are separated with a space
+*/
 struct GtfEntry {
   string name;
   string source;
@@ -54,6 +69,7 @@ private:
   std::ifstream in; 
   
   void parse_gtf_line(const string &in, GtfEntry &g);
+
 };
 
 

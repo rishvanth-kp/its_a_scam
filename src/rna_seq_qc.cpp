@@ -41,7 +41,7 @@ print_usage(const string &name) {
 int
 main(int argc, char *argv[]) {
   try {
-  
+
     string gtf_file;
     bool VERBOSE{false};
 
@@ -61,7 +61,7 @@ main(int argc, char *argv[]) {
     GtfReader gtf(gtf_file);
     GtfEntry a;
     gtf.read_gtf_line(a);
-
+    gtf.read_gtf_line(a);
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
