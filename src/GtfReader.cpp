@@ -96,7 +96,9 @@ GtfReader::parse_gtf_line(const string &in, GtfEntry &g) {
   // attrbutes are ';' separated
   // key and value of an attribute are ' ' separated
   // there is also a space after a ';'
-  while (end != in.length()) {
+  // prabably a bad design: start and end has a value of 0 if there are no
+  //  attribures becase of roll-over of string::nops
+  while (end && end != in.length()) {
     pair<string, string> attr;
 
     end = in.find(' ', start);
@@ -108,7 +110,7 @@ GtfReader::parse_gtf_line(const string &in, GtfEntry &g) {
     attr.second = in.substr(start, end - start);
     ++end;
     start = end + 1;
-    cout << "value: " << attr.second << endl;
+    cout << "value: " << attr.second << endl << endl;
 
     g.attribute.push_back(attr);
   }

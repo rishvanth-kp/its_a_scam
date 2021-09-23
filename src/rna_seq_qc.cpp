@@ -19,6 +19,7 @@
 
 
 #include <iostream>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <unistd.h>
@@ -28,6 +29,8 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::vector;
+using std::string;
 
 static string
 print_usage(const string &name) {
@@ -59,9 +62,8 @@ main(int argc, char *argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
 
     GtfReader gtf(gtf_file);
-    GtfEntry a;
-    gtf.read_gtf_line(a);
-    gtf.read_gtf_line(a);
+    vector<GtfEntry> a;
+    gtf.read_gtf_file(a);
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
