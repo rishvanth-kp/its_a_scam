@@ -41,12 +41,12 @@ public:
     if (!is_valid())
       throw std::runtime_error("Invalid genomic interval"); 
   }
-  
+
   string get_name() const { return name; }
   size_t get_start() const { return start; }
   size_t get_end() const { return end; }
   char get_strand() const { return strand; }
-  
+
   void set_name(const string n) { name = n; }
   void set_start(const size_t s) { start = s; }
   void set_end(const size_t e) { end = e; }

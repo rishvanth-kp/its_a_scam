@@ -40,7 +40,7 @@ BedReader::~BedReader () {
 void
 split_string (const string &in, vector<string> &tokens,
               const char delim = '\t') {
-  
+
   tokens.clear();
   size_t start = 0;
   size_t end = in.find(delim);
@@ -64,7 +64,7 @@ BedReader::read_bed3_line (GenomicRegion &g) {
     g.set_end(atoi(tokens[2].c_str()));
     return true;
   } 
-  
+
   return false;
 }
 

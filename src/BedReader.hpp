@@ -40,7 +40,7 @@ public:
 
 private:
   std::ifstream in; 
-  
+
 };
 
 #endif

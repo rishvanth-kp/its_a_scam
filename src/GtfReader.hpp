@@ -67,7 +67,7 @@ public:
 
 private:
   std::ifstream in; 
-  
+
   void parse_gtf_line(const string &in, GtfEntry &g);
 
 };
