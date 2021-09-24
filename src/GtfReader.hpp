@@ -23,12 +23,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <utility>
 #include <fstream>
+#include <unordered_map>
 
 using std::string;
 using std::vector;
-using std::pair;
+using std::unordered_map;
 
 /*
 // GTF format
@@ -54,8 +54,30 @@ struct GtfEntry {
   double score;
   char strand;
   size_t frame;
-  vector<pair<string, string>> attribute;
+  unordered_map<string, string> attribute;
 }; 
+
+
+struct GencodeGtfEntry {
+  string name;
+  string source;
+  string feature;
+  size_t start;
+  size_t end;
+  char strand;
+  size_t frame;
+
+  //attributes
+  string gene_id;
+  string transcript_id;
+  string gene_type;
+  string gene_name;
+  string transcript_type;
+  string transcript_name;
+  size_t exon_number;
+  string exon_id;
+};
+
 
 class GtfReader {
 public:
@@ -64,6 +86,9 @@ public:
 
   bool read_gtf_line(GtfEntry &g);
   void read_gtf_file(vector<GtfEntry> &g);     
+
+  bool read_gencode_gtf_line(GencodeGtfEntry &g);
+  void read_gencode_gtf_file(vector<GencodeGtfEntry> &g);
 
 private:
   std::ifstream in; 

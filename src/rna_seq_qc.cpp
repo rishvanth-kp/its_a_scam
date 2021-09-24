@@ -62,8 +62,9 @@ main(int argc, char *argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
 
     GtfReader gtf(gtf_file);
-    vector<GtfEntry> a;
-    gtf.read_gtf_file(a);
+    vector<GencodeGtfEntry> a;
+    gtf.read_gencode_gtf_file(a);
+
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

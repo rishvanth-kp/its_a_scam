@@ -32,15 +32,15 @@ GtfReader::GtfReader(const string &in_file) {
 
   // Gobble comment lines
   string line;
-  while (in.peek() == '#') {
+  while (in.peek() == '#')
     getline(in, line);
-    cout << "comm: " << line << endl; 
-  }
 }
+
 
 GtfReader::~GtfReader() {
   in.close();
 }
+
 
 bool
 GtfReader::read_gtf_line(GtfEntry &g) {
@@ -52,15 +52,72 @@ GtfReader::read_gtf_line(GtfEntry &g) {
   return false;
 }
 
+
 void
 GtfReader::read_gtf_file(vector<GtfEntry> &g) {
   string line;
-  GtfEntry a; 
   while (getline(in, line)) {
+    GtfEntry a; 
     parse_gtf_line(line, a);
     g.push_back(a); 
   }
 }
+
+
+static string 
+remove_quote(const string &in) {
+  if (in.length() > 0) 
+    return in.substr(1, in.length() - 2);
+  else 
+    return "";
+} 
+
+static void
+gtf_to_gencode_gtf(GtfEntry &in, GencodeGtfEntry &out) {
+
+  out.name = in.name;
+  out.source = in.source;
+  out.feature = in.feature;
+  out.start = in.start;
+  out.end = in.end;
+  out.strand = in.strand;
+  out.frame = in.frame;
+
+  out.gene_id = remove_quote(in.attribute["gene_id"]);
+  out.transcript_id = remove_quote(in.attribute["transcript_id"]);
+  out.gene_type = remove_quote(in.attribute["gene_type"]);
+  out.gene_name = remove_quote(in.attribute["gene_name"]);
+  out.transcript_type = remove_quote(in.attribute["transcript_type"]);
+  out.transcript_name = remove_quote(in.attribute["transcript_name"]);
+  out.exon_number = atoi(in.attribute["exon_number"].c_str());
+  out.exon_id = remove_quote(in.attribute["exon_id"]); 
+
+}
+
+bool 
+GtfReader::read_gencode_gtf_line(GencodeGtfEntry &g) {
+  string line;
+  if (getline(in, line)) {
+    GtfEntry a;
+    parse_gtf_line(line, a);
+    gtf_to_gencode_gtf(a, g);  
+  }
+  return false;
+}
+
+
+void 
+GtfReader::read_gencode_gtf_file(vector<GencodeGtfEntry> &g) {
+  string line;
+  while (getline(in, line)) {
+    GtfEntry a;
+    GencodeGtfEntry b;
+    parse_gtf_line(line, a); 
+    gtf_to_gencode_gtf(a, b);
+    g.push_back(b);
+  }
+}
+
 
 void
 GtfReader::parse_gtf_line(const string &in, GtfEntry &g) {
@@ -71,7 +128,6 @@ GtfReader::parse_gtf_line(const string &in, GtfEntry &g) {
   for (size_t i = 0; i < 8; ++i) {
     end = in.find('\t', start);
     required.push_back(in.substr(start, end - start));
-    cout << required.back() << endl;
     start = ++end;
   }
 
@@ -99,19 +155,16 @@ GtfReader::parse_gtf_line(const string &in, GtfEntry &g) {
   // prabably a bad design: start and end has a value of 0 if there are no
   //  attribures becase of roll-over of string::nops
   while (end && end != in.length()) {
-    pair<string, string> attr;
-
+    string key, val;
     end = in.find(' ', start);
-    attr.first = in.substr(start, end - start);
+    key = in.substr(start, end - start);
     start = ++end;
-    cout << "key: " << attr.first << endl;
 
     end = in.find(';', start);
-    attr.second = in.substr(start, end - start);
+    val = in.substr(start, end - start);
     ++end;
     start = end + 1;
-    cout << "value: " << attr.second << endl << endl;
 
-    g.attribute.push_back(attr);
+    g.attribute[key] = val;
   }
 }
