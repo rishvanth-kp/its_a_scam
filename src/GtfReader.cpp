@@ -100,7 +100,8 @@ GtfReader::read_gencode_gtf_line(GencodeGtfEntry &g) {
   if (getline(in, line)) {
     GtfEntry a;
     parse_gtf_line(line, a);
-    gtf_to_gencode_gtf(a, g);  
+    gtf_to_gencode_gtf(a, g); 
+    return true; 
   }
   return false;
 }
@@ -121,7 +122,6 @@ GtfReader::read_gencode_gtf_file(vector<GencodeGtfEntry> &g) {
 
 void
 GtfReader::parse_gtf_line(const string &in, GtfEntry &g) {
-  cout << "parsing: " << in << endl;
   // parse the first 8 required fields
   vector<string> required;
   size_t start = 0, end;

@@ -21,6 +21,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <map>
 #include <sstream>
 #include <unistd.h>
 
@@ -29,6 +30,7 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::map;
 using std::vector;
 using std::string;
 
@@ -62,8 +64,18 @@ main(int argc, char *argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
 
     GtfReader gtf(gtf_file);
-    vector<GencodeGtfEntry> a;
-    gtf.read_gencode_gtf_file(a);
+    GencodeGtfEntry a;
+    size_t count = 0;
+    size_t exon_count = 0;
+    while (gtf.read_gencode_gtf_line(a)) {
+      ++count;
+      if (a.feature == "exon")
+        ++exon_count;
+    }
+
+    cout << "Number of entries: " << count << endl; 
+    cout << "Number of exons: " << exon_count << endl;
+
 
   }
   catch (std::exception &e) {
