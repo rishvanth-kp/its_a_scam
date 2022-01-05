@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 #include "GtfReader.hpp"
+#include "GenomicArray.hpp"
 
 using std::cout;
 using std::cerr;
@@ -67,15 +68,22 @@ main(int argc, char *argv[]) {
     GencodeGtfEntry a;
     size_t count = 0;
     size_t exon_count = 0;
+
+    GenomicArray exons;
+
     while (gtf.read_gencode_gtf_line(a)) {
       ++count;
-      if (a.feature == "exon")
+      if (a.feature == "exon") {
         ++exon_count;
+      }
+      exons.add_entry(a.name, a.start, a.end, a.feature, a.gene_name, a.gene_id);
     }
 
     cout << "Number of entries: " << count << endl; 
     cout << "Number of exons: " << exon_count << endl;
-
+  
+    cout << "chrom count: " << exons.chrom_count() << endl;
+    cout << "Array count: " << exons.entry_count() << endl;  
 
   }
   catch (std::exception &e) {

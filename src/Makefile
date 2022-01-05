@@ -37,7 +37,7 @@ all: $(PROGS)
 $(PROGS): 
 
 rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o \
-              GtfReader.o
+              GtfReader.o GenomicArray.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 %.o: %.cpp %.hpp
