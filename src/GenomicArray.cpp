@@ -57,7 +57,7 @@ GenomicArray::add_entry(string chr, size_t start, size_t end,
   }
   else {
     ++n_entry;
-    chr_map->second.insert(pair<size_t, ArrayEntry>(start, in);
+    chr_map->second.insert(pair<size_t, ArrayEntry>(start, in));
   }
 
  
