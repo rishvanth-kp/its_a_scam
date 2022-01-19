@@ -23,19 +23,25 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <unordered_map>
 
 #include "GtfReader.hpp"
 
 using std::string;
 using std::vector;
+using std::unordered_map;
 
 class PreprocessGff {
 public:
-  PreprocessGff(const string &gff_file, const string &chrom_size_file);
+  PreprocessGff(const string &chrom_size_file, bool verbose=false);
   ~PreprocessGff();
 
 private:
-};
+  unordered_map<string, size_t> chrom_sizes;
+  bool VERBOSE; 
 
+  void read_chrom_sizes(const string &chrom_size_file);
+};
 
 #endif

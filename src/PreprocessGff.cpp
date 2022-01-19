@@ -23,11 +23,35 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-PreprocessGff::PreprocessGff(const string &gff_file,
-                             const string &chrom_size_file) {
-  cout << gff_file << endl;
-  cout << chrom_size_file << endl;
+PreprocessGff::PreprocessGff(const string &chrom_size_file, 
+                             bool verbose) {
+  VERBOSE = verbose;
+  read_chrom_sizes(chrom_size_file);
 }
 
 PreprocessGff::~PreprocessGff() {
 };
+
+void
+PreprocessGff::read_chrom_sizes(const string &chrom_size_file) {
+
+  if (VERBOSE)
+    cerr << "READING CHROM SIZES FROM " << chrom_size_file << endl;
+  
+  std::ifstream in(chrom_size_file);
+  if (!in) 
+    throw std::runtime_error("cannot open " + chrom_size_file);     
+
+  string line;
+  while (getline(in, line)) {
+    size_t split = line.find('\t');
+    string chrom = line.substr(0, split);
+    size_t sz = std::stoi(line.substr(split));
+    chrom_sizes[chrom] = sz; 
+  }
+
+  in.close();
+  
+  if (VERBOSE)
+    cerr << chrom_sizes.size() << " CHROM SIZES INSERTED" << endl;
+}

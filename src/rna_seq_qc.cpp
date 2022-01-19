@@ -27,6 +27,7 @@
 
 #include "GtfReader.hpp"
 #include "GenomicArray.hpp"
+#include "PreprocessGff.hpp"
 
 using std::cout;
 using std::cerr;
@@ -39,7 +40,8 @@ static string
 print_usage(const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
-      << "\t-g gtf_file.gtf (required)" << endl
+      << "\t-g gtf file (required)" << endl
+      << "\t-c chrom size file (required)" << endl
       << "\t-v verbose (default: false)" << endl;
   return oss.str();
 }
@@ -49,41 +51,25 @@ main(int argc, char *argv[]) {
   try {
 
     string gtf_file;
+    string chrom_size_file;
     bool VERBOSE{false};
 
     int opt;
-    while ((opt = getopt(argc, argv, "g:v")) != -1) {
+    while ((opt = getopt(argc, argv, "g:c:v")) != -1) {
       if (opt == 'g')
         gtf_file = optarg;
+      else if (opt == 'c')
+        chrom_size_file = optarg;
       else if (opt == 'v')
         VERBOSE = true;
       else
         throw std::runtime_error(print_usage(argv[0]));
     }
 
-    if (gtf_file.empty())
+    if (gtf_file.empty() || chrom_size_file.empty())
       throw std::runtime_error(print_usage(argv[0]));
 
-    GtfReader gtf(gtf_file);
-    GencodeGtfEntry a;
-    size_t count = 0;
-    size_t exon_count = 0;
-
-    GenomicArray exons;
-
-    while (gtf.read_gencode_gtf_line(a)) {
-      ++count;
-      if (a.feature == "exon") {
-        ++exon_count;
-      }
-      exons.add_entry(a.name, a.start, a.end, a.feature, a.gene_name, a.gene_id);
-    }
-
-    cout << "Number of entries: " << count << endl; 
-    cout << "Number of exons: " << exon_count << endl;
-  
-    cout << "chrom count: " << exons.chrom_count() << endl;
-    cout << "Array count: " << exons.entry_count() << endl;  
+    PreprocessGff gff_processor(chrom_size_file, VERBOSE);
 
   }
   catch (std::exception &e) {
