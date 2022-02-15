@@ -70,6 +70,7 @@ main(int argc, char *argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
 
     PreprocessGff gff_processor(chrom_size_file, VERBOSE);
+    gff_processor.parse_genome_features(gtf_file); 
 
   }
   catch (std::exception &e) {

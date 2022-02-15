@@ -37,6 +37,9 @@ public:
   PreprocessGff(const string &chrom_size_file, bool verbose=false);
   ~PreprocessGff();
 
+  void parse_genome_features(const string &gff_file);
+
+
 private:
   unordered_map<string, size_t> chrom_sizes;
   bool VERBOSE; 
