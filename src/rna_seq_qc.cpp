@@ -73,7 +73,12 @@ main(int argc, char *argv[]) {
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
     // gff_processor.parse_genome_features(gtf_file); 
     StepVector step_vec;
-
+    step_vec.add(5, 25, 1);
+    step_vec.add(10, 25, 1);
+    step_vec.add(10, 20, 3);
+    step_vec.add(2, 5, 2);   
+    step_vec.add(2, 6, 2);
+ 
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

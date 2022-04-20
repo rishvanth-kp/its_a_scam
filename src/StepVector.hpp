@@ -1,5 +1,5 @@
 /*
-* GenomcRegion: class to store genomic intervals
+* StepVector: 
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -28,9 +28,21 @@ using std::map;
 class StepVector {
 public:
   StepVector();
+  
+  // add element
+  void add(const size_t start, const size_t end, const size_t val);
+  // access elements in range
+  // access value at a location
+  size_t at(const size_t pos) const;
+
+  // print elements
+  void print_elements();
+  
 
 private:
 
+  map<size_t, size_t> step_vec;
+  bool VERBOSE;
 };
 
 #endif
