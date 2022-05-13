@@ -72,12 +72,13 @@ main(int argc, char *argv[]) {
 
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
     // gff_processor.parse_genome_features(gtf_file); 
-    StepVector<float> step_vec;
-    step_vec.add(5, 25, 1.2);
-    step_vec.add(10, 25, 1.2);
-    step_vec.add(10, 20, 3.2);
-    step_vec.add(2, 5, 2.2);   
-    step_vec.add(2, 6, 2.2);
+    StepVector<string> step_vec;
+    step_vec.add(5, 25, "a");
+    step_vec.add(10, 25, "b");
+    step_vec.add(10, 20, "c");
+    // step_vec.add(10, 20, 3.2);
+    // step_vec.add(2, 5, 2.2);   
+    // step_vec.add(2, 6, 2.2);
  
   }
   catch (std::exception &e) {

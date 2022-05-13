@@ -65,29 +65,34 @@ StepVector<T>::add(const size_t start,
                 const size_t end, 
                 const T val) {
 
-  cout << endl;
-  cout << "Adding: " << start << " " << end << " " << val << endl;
+  // cout << endl;
+  // cout << "Adding: " << start << " " << end << " " << val << endl;
 
   // Inserting at the end
+  // if the end postion is an an existing element, there is nothing to 
+  // be done
   typename map<size_t, T>::iterator end_it = step_vec.lower_bound(end);
+  // ending after the end of all existing entries, add default value.
   if (end_it == step_vec.end()) {
-    cout << "End next element at end" << endl;
-    end_it = step_vec.insert(pair<size_t, T>(end, 0)).first;
+    // cout << "End next element at end" << endl;
+    T default_val{};
+    end_it = step_vec.insert(pair<size_t, T>(end, default_val)).first;
   }
+  // ending before the end of exisiting entries, 
   else if (!(end_it->first == end)) {
     T prev_val = (--end_it)->second;
-    cout << "insering end prev val: " << prev_val << endl;
+    // cout << "insering end prev val: " << prev_val << endl;
     end_it = step_vec.insert(pair<size_t, T>(end, prev_val)).first;
   }
-  else {
-    cout << "ending at an exitsting element" << endl;
-  }
+  // else {
+  //   cout << "ending at an exitsting element" << endl;
+  // }
   
   // Inserting at the start
   typename map<size_t, T>::iterator start_it = step_vec.lower_bound(start);
   if (start_it->first == start) {
     // If the element exists, update it's value. 
-    cout << "start exists" << endl;
+    // cout << "start exists" << endl;
     start_it->second += val;
 
     // Iterator points to the start element. Increment to point to 
@@ -97,17 +102,16 @@ StepVector<T>::add(const size_t start,
   else {
     // If an element does not exist, insert a new element with
     // the current value added to the previous element's value. 
-    cout << "start does not exist" << endl;
-    T prev_val;
+    // cout << "start does not exist" << endl;
     if (start_it == step_vec.begin()) {
-      prev_val = 0;
+      start_it = 
+        step_vec.insert(pair<size_t, T>(start, val)).first;
     }
     else {
-      prev_val = (--start_it)->second;
+      T prev_val = (--start_it)->second;
+      start_it = 
+        step_vec.insert(pair<size_t, T>(start, prev_val + val)).first;
     }
-    cout << "prev val: " << prev_val << endl;
-    start_it = 
-      step_vec.insert(pair<size_t, T>(start, prev_val + val)).first;
 
     // Iterator points to the inserted element 
     // Increment to point to next element
@@ -115,15 +119,15 @@ StepVector<T>::add(const size_t start,
   }
 
   // Modifying values in [start + 1. end)
-  cout << "inserting in the middle" << endl;
-  cout << start_it->first << "\t" << end_it->first << endl;
+  // cout << "inserting in the middle" << endl;
+  // cout << start_it->first << "\t" << end_it->first << endl;
   for (auto it = start_it; it != end_it; ++it) {
-    T prev_val = it->second;
-    cout << "prev val: " << prev_val << endl;
+    // T prev_val = it->second;
+    // cout << "prev val: " << prev_val << endl;
     it->second += val;
   }
 
-  print_elements(); 
+  // print_elements(); 
 }
 
 
@@ -146,6 +150,7 @@ StepVector<T>::print_elements() {
   for (auto it = step_vec.begin(); it != step_vec.end(); ++it) {
     cout << it->first << "\t" << it->second << endl;
   }
+  cout << endl;
 }
 
 
