@@ -26,6 +26,7 @@
 #include <map>
 #include <unordered_map>
 
+
 using std::pair;
 using std::vector;
 using std::string;
@@ -60,5 +61,4 @@ private:
   size_t n_chrom;
   size_t n_entry;
 };
-
 #endif

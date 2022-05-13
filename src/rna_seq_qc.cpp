@@ -28,7 +28,7 @@
 #include "GtfReader.hpp"
 #include "GenomicArray.hpp"
 #include "PreprocessGff.hpp"
-#include "StepVector.hpp"
+#include "GenomicStepVector.hpp"
 
 using std::cout;
 using std::cerr;
@@ -72,10 +72,10 @@ main(int argc, char *argv[]) {
 
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
     // gff_processor.parse_genome_features(gtf_file); 
-    StepVector<string> step_vec;
-    step_vec.add(5, 25, "a");
-    step_vec.add(10, 25, "b");
-    step_vec.add(10, 20, "c");
+    GenomicStepVector<size_t> step_vec;
+    step_vec.add("chr1", 5, 25, 1);
+    step_vec.add("chr2", 10, 25, 2);
+    step_vec.add("chr1", 10, 20, 3);
     // step_vec.add(10, 20, 3.2);
     // step_vec.add(2, 5, 2.2);   
     // step_vec.add(2, 6, 2.2);
