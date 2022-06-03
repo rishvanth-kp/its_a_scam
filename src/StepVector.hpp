@@ -21,6 +21,7 @@
 #define STEP_VECTOR_HPP
 
 #include <iostream>
+#include <vector>
 #include <map>
 
 using std::map;
@@ -28,6 +29,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::pair;
+using std::vector;
 
 template<typename T>
 class StepVector {
@@ -37,6 +39,8 @@ public:
   // add element
   void add(const size_t start, const size_t end, const T val);
   // access elements in range
+  void at_range(const size_t start, const size_t end, 
+                vector<pair<size_t, T>>& out) const;
   // access value at a location
   size_t at(const size_t pos) const;
 
@@ -136,10 +140,20 @@ size_t
 StepVector<T>::at(const size_t pos) const {
   typename map<size_t, T>::const_iterator it = step_vec.upper_bound(pos);
   if (it == step_vec.begin())
-    return 0;
+    return T{};
   else 
     return (--it)->second;
   
+}
+
+template<typename T>
+void
+StepVector<T>::at_range(const size_t start, const size_t end,
+                        vector<pair<size_t, T>>& out) const {
+
+  typename map<size_t, T>::const_iterator start_it, end_it;
+  start_it = step_vec.upper_bound(start);
+  end_it = step_vec.upper_bound(end);
 }
 
 

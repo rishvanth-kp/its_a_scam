@@ -39,7 +39,7 @@ public:
   GenomicStepVector();  
 
   void add(const string chr, const size_t start, const size_t end, const T val);
-   
+  void at(const string chr, const size_t start, const size_t end) const; 
 
   size_t chrom_count() const { return n_chrom; }
   size_t entry_count() const { return n_entry; }  
@@ -47,8 +47,9 @@ public:
 private: 
   size_t n_chrom{};
   size_t n_entry{};
- 
-  unordered_map<string, StepVector<T>> genomic_vector;
+
+  typedef unordered_map<string, StepVector<T>> GenomicStepVectorType; 
+  GenomicStepVectorType genomic_vector;
 };
 
 
@@ -64,7 +65,7 @@ GenomicStepVector<T>::add(const string chr, const size_t start,
   cout << "adding entry" << endl;
   cout << chr << "\t" << start << "\t" << end << "\t" << val << endl;
 
-  typename unordered_map<string, StepVector<T>>::iterator chr_map;
+  typename GenomicStepVectorType::iterator chr_map;
   chr_map = genomic_vector.find(chr);
   if (chr_map == genomic_vector.end()) {
     cout << "adding new chrom" << endl;
@@ -77,6 +78,25 @@ GenomicStepVector<T>::add(const string chr, const size_t start,
     chr_map->second.add(start, end, val); 
     ++n_entry;
     chr_map->second.print_elements();
+  }
+}
+
+template<typename T>
+void
+GenomicStepVector<T>::at(const string chr, const size_t start,
+                         const size_t end) const {
+  
+  cout << "accessing entry" << endl;
+  cout << chr << "\t" << start << "\t" << end << endl;
+  
+  typename GenomicStepVectorType::const_iterator chr_map;
+  chr_map = genomic_vector.find(chr);
+  if (chr_map != genomic_vector.end()) {
+    cout << chr_map->second.at(start) << endl;
+    cout << chr_map->second.at(end) << endl;
+  }
+  else {
+    cerr << "chromosome does not exist" << endl;
   }
 }
 
