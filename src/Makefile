@@ -38,6 +38,7 @@ $(PROGS):
 
 rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o \
               GtfReader.o GenomicArray.o PreprocessGff.o \
+							SamReader.o \
               StepVector.hpp GenomicStepVector.hpp
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
