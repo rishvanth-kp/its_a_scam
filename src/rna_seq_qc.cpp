@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 #include "GtfReader.hpp"
+#include "SamReader.hpp"
 #include "GenomicArray.hpp"
 #include "PreprocessGff.hpp"
 #include "GenomicStepVector.hpp"
@@ -71,7 +72,7 @@ main(int argc, char *argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
 
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
-    // gff_processor.parse_genome_features(gtf_file); 
+    // gff_processor.parse_genome_features(gtf_file);
     GenomicStepVector<size_t> step_vec;
     step_vec.add("chr1", 5, 25, 1);
     step_vec.add("chr2", 10, 25, 2);
@@ -80,9 +81,14 @@ main(int argc, char *argv[]) {
     step_vec.at("chr1", 1, 100);
     step_vec.at("chr2", 10, 25);
     // step_vec.add(10, 20, 3.2);
-    // step_vec.add(2, 5, 2.2);   
+    // step_vec.add(2, 5, 2.2);
     // step_vec.add(2, 6, 2.2);
- 
+
+    SamReader sam_file(gtf_file);
+    sam_file.read_sam_line();
+    sam_file.read_sam_line();
+    sam_file.read_sam_line();
+
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

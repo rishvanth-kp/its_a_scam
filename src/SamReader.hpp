@@ -1,5 +1,5 @@
 /*
-* BedReader: class to read SAM files 
+* BedReader: class to read SAM files
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,9 @@
 #include <iostream>
 #include <string>
 
+#include "htslib/hts.h"
+#include "htslib/sam.h"
+
 using std::string;
 
 class SamReader {
@@ -30,8 +33,14 @@ public:
   SamReader(const string &in_file);
   ~SamReader();
 
+  bool read_sam_line();
+
 private:
-  
+
+  htsFile *hts;
+  sam_hdr_t *header;
+  bam1_t *b;
+  kstring_t sam_entry;
 };
 
 #endif

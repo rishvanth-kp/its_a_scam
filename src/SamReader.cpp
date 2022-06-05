@@ -1,5 +1,5 @@
 /*
-* BedReader: class to read SAM files 
+* BedReader: class to read SAM files
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -26,8 +26,33 @@ using std::string;
 
 SamReader::SamReader(const string &in_file) {
   cout << "Opening sam file: " << in_file << endl;
+
+  if (!(hts = hts_open(in_file.c_str(), "r")))
+    throw std::runtime_error("Cannot open SAM/BAM file: " + in_file);
+
+  if (hts_get_format(hts)->category != sequence_data)
+    throw std::runtime_error(in_file + " is not a sequence file");
+
+  if (!(header = sam_hdr_read(hts)))
+    throw std::runtime_error("No header in " + in_file);
+
+  if (!(b = bam_init1()))
+    throw std::runtime_error("Failed to initialize bam");
+
+  ks_initialize(&sam_entry);
 }
 
 SamReader::~SamReader() {
+  hts_close(hts);
+  sam_hdr_destroy(header);
+  bam_destroy1(b);
+  ks_free(&sam_entry);
+}
 
+bool
+SamReader::read_sam_line() {
+  cout << "reading sam line" << endl;
+  sam_read1(hts, header, b);
+  sam_format1(header, b, &sam_entry);
+  cout << sam_entry.s << endl;
 }
