@@ -1,5 +1,5 @@
 /*
-* BedReader: class to read SAM files
+* SamReader: class to read SAM files
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ SamReader::SamReader(const string &in_file) {
     throw std::runtime_error("Failed to initialize bam");
 
   ks_initialize(&sam_entry);
+  eof = false;
 }
 
 SamReader::~SamReader() {
@@ -51,8 +52,19 @@ SamReader::~SamReader() {
 
 bool
 SamReader::read_sam_line() {
-  cout << "reading sam line" << endl;
-  sam_read1(hts, header, b);
-  sam_format1(header, b, &sam_entry);
-  cout << sam_entry.s << endl;
+  int read_ret = 0;
+  if ((read_ret = sam_read1(hts, header, b)) >= 0) {
+    int fmt_ret = 0;
+    if ((fmt_ret = sam_format1(header, b, &sam_entry)) <= 0) {
+      throw std::runtime_error("error reading sam entry");
+    }
+    cout << sam_entry.s << endl;
+  }
+  else if (read_ret == -1)
+    eof = true;
+  else
+    throw std::runtime_error("error reading sam entry");
+
+
+  return !eof;
 }

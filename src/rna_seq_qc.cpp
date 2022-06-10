@@ -85,9 +85,7 @@ main(int argc, char *argv[]) {
     // step_vec.add(2, 6, 2.2);
 
     SamReader sam_file(gtf_file);
-    sam_file.read_sam_line();
-    sam_file.read_sam_line();
-    sam_file.read_sam_line();
+    while(sam_file.read_sam_line()) {};
 
   }
   catch (std::exception &e) {

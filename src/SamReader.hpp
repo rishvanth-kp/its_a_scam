@@ -1,5 +1,5 @@
 /*
-* BedReader: class to read SAM files
+* SamReader: class to read SAM files
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ private:
   sam_hdr_t *header;
   bam1_t *b;
   kstring_t sam_entry;
+  bool eof;
 };
 
 #endif
