@@ -21,20 +21,37 @@
 #define SAM_ENTRY_HPP
 
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 using std::string;
+using std::string;
+using std::vector;
 
 class SamEntry {
 public:
 
-  SamEntry(string line);
+  SamEntry() {};
+  SamEntry(const string &line);
   ~SamEntry();
+
+  void parse_entry(const string &line);
 
   string qname;
   uint16_t flag;
   string rname;
   uint32_t pos;
+  uint16_t mapq;
+  string cigar;
+  string rnext;
+  uint32_t pnext;
+  int tlen;
+  string seq;
+  string qual;
+
+  string tag_string;
+  vector<string> tags;
 };
 
 #endif

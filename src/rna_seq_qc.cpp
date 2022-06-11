@@ -74,6 +74,8 @@ main(int argc, char *argv[]) {
 
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
     // gff_processor.parse_genome_features(gtf_file);
+
+/*
     GenomicStepVector<size_t> step_vec;
     step_vec.add("chr1", 5, 25, 1);
     step_vec.add("chr2", 10, 25, 2);
@@ -84,9 +86,13 @@ main(int argc, char *argv[]) {
     // step_vec.add(10, 20, 3.2);
     // step_vec.add(2, 5, 2.2);
     // step_vec.add(2, 6, 2.2);
+*/
 
+    SamEntry s;
     SamReader sam_file(gtf_file);
-    sam_file.read_sam_line();
+    while (sam_file.read_sam_line(s)) {
+      cout << s.mapq << endl;
+    }
 
   }
   catch (std::exception &e) {

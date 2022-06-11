@@ -51,14 +51,14 @@ SamReader::~SamReader() {
 }
 
 bool
-SamReader::read_sam_line() {
+SamReader::read_sam_line(SamEntry &entry) {
   int read_ret = 0;
   if ((read_ret = sam_read1(hts, header, b)) >= 0) {
     int fmt_ret = 0;
     if ((fmt_ret = sam_format1(header, b, &sam_entry)) <= 0) {
       throw std::runtime_error("error reading sam entry");
     }
-    cout << sam_entry.s << endl;
+    entry.parse_entry(sam_entry.s);
   }
   else if (read_ret == -1)
     eof = true;

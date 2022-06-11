@@ -23,11 +23,40 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-SamEntry::SamEntry(string line) {
-  cout << line << endl;
-  
-} 
+SamEntry::SamEntry(const string &line) {
+  parse_entry(line);
+}
 
 SamEntry::~SamEntry() {
 
+}
+
+void
+SamEntry::parse_entry(const string &line) {
+
+  std::istringstream iss(line);
+  iss >> qname >> flag >> rname >> pos >> mapq >> cigar
+      >> rnext >> pnext >> tlen >>  seq >> qual;
+
+  tags.clear();
+  string tag;
+  while (iss >> tag) {
+    tags.push_back(tag);
+  }
+
+  /*
+  cout << qname << endl;
+  cout << flag << endl;
+  cout << rname << endl;
+  cout << pos << endl;
+  cout << mapq << endl;
+  cout << cigar << endl;
+  cout << rnext << endl;
+  cout << pnext << endl;
+  cout << tlen << endl;
+  cout << seq << endl;
+  cout << qual << endl;
+  for (size_t i = 0; i < tags.size(); ++i)
+    cout << tags[i] << endl;
+  */
 }

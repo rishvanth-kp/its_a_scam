@@ -23,6 +23,8 @@
 #include <iostream>
 #include <string>
 
+#include "SamEntry.hpp"
+
 #include "htslib/hts.h"
 #include "htslib/sam.h"
 
@@ -33,7 +35,7 @@ public:
   SamReader(const string &in_file);
   ~SamReader();
 
-  bool read_sam_line();
+  bool read_sam_line(SamEntry &entry);
 
 private:
 
