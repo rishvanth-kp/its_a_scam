@@ -24,10 +24,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 
 using std::string;
 using std::string;
 using std::vector;
+using std::pair;
 
 class SamEntry {
 public:
@@ -53,5 +55,11 @@ public:
   string tag_string;
   vector<string> tags;
 };
+
+
+using CigarTuples = vector<pair<char, size_t>>;
+
+void
+cigar_string_to_tuple(const SamEntry &e, CigarTuples &tuples);
 
 #endif

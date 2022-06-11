@@ -60,3 +60,24 @@ SamEntry::parse_entry(const string &line) {
     cout << tags[i] << endl;
   */
 }
+
+
+
+void
+cigar_string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
+
+  tuples.clear();
+
+  size_t start_pos = 0;
+  size_t end_pos = e.cigar.find_first_of("MIDNSHP=X");
+
+  while (end_pos != string::npos) {
+
+    tuples.push_back(std::make_pair(
+      e.cigar[end_pos],
+      std::stoi(e.cigar.substr(start_pos, end_pos - start_pos))));
+
+    start_pos = ++end_pos;
+    end_pos = e.cigar.find_first_of("MIDNSHP=X", end_pos);
+  }
+}
