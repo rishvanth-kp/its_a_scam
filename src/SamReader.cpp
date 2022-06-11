@@ -25,7 +25,6 @@ using std::endl;
 using std::string;
 
 SamReader::SamReader(const string &in_file) {
-  cout << "Opening sam file: " << in_file << endl;
 
   if (!(hts = hts_open(in_file.c_str(), "r")))
     throw std::runtime_error("Cannot open SAM/BAM file: " + in_file);

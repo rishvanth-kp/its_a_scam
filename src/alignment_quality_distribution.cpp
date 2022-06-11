@@ -21,9 +21,11 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <fstream>
 #include <unistd.h>
 
 #include "SamReader.hpp"
+#include "SamEntry.hpp"
 
 using std::cout;
 using std::cerr;
@@ -49,7 +51,7 @@ main(int argc, char *argv[]) {
 
     int opt;
     while ((opt = getopt(argc, argv, "a:o:")) != -1) {
-      if (opt == 'g')
+      if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'o')
         out_file = optarg;
@@ -61,7 +63,24 @@ main(int argc, char *argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
+    SamReader reader(aln_file);
+    SamEntry entry;
 
+    std::ofstream hist_file(out_file + "_hist.txt");
+
+    constexpr size_t MaxMapq = 255;
+    vector<size_t> mapq_dist(MaxMapq, 0);
+
+    while (reader.read_sam_line(entry)) {
+      ++mapq_dist[entry.mapq];
+    }
+
+    hist_file << "mapq" << "\t" << "count" << endl;
+    for (size_t i = 0; i < mapq_dist.size(); ++i) {
+      hist_file << i << "\t" << mapq_dist[i] << endl;
+    }
+
+    hist_file.close();
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
