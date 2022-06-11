@@ -32,6 +32,7 @@
 *.app
 
 rna_seq_qc
+alignment_score_distribution
 
 # vim temp files
 *.swp

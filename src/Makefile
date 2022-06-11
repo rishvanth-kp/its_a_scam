@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-PROGS = rna_seq_qc
+PROGS = rna_seq_qc alignment_quality_distribution
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -43,6 +43,8 @@ rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o \
               GtfReader.o GenomicArray.o PreprocessGff.o \
 							SamReader.o SamEntry.o \
               StepVector.hpp GenomicStepVector.hpp
+
+alignment_quality_distribution: SamReader.o SamEntry.o
 
 
 %.o: %.cpp %.hpp
