@@ -100,6 +100,18 @@ main(int argc, char *argv[]) {
            << tuples[i].second << endl;
     }
 
+    cout << SamFlags::is_set(s.flag, SamFlags::Flag::read_unamppd) << endl;
+    cout << SamFlags::is_set(s.flag, SamFlags::Flag::first_in_pair) << endl;
+
+    uint16_t f = 0;
+    f = SamFlags::set(f, SamFlags::Flag::read_paired);
+    cout << f << endl;
+    f = SamFlags::set(f, SamFlags::Flag::proper_pair);
+    cout << f << endl;
+    f = SamFlags::set(f, SamFlags::Flag::read_reverse);
+    cout << f << endl;
+    f = SamFlags::set(f, SamFlags::Flag::first_in_pair);
+    cout << f << endl;
 
 /*
     while (sam_file.read_sam_line(s)) {
