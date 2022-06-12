@@ -90,11 +90,11 @@ main(int argc, char *argv[]) {
 
     SamEntry s;
     SamReader sam_file(gtf_file);
-    CigarTuples tuples; 
+    SamCigar::CigarTuples tuples; 
   
     sam_file.read_sam_line(s);
     cout << s.cigar << endl;
-    cigar_string_to_tuple(s, tuples);
+    SamCigar::string_to_tuple(s, tuples);
     for (size_t i = 0; i < tuples.size(); ++i) {
       cout << tuples[i].first << "\t"
            << tuples[i].second << endl;

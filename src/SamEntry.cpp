@@ -64,7 +64,7 @@ SamEntry::parse_entry(const string &line) {
 
 
 void
-cigar_string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
+SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
 
   tuples.clear();
 

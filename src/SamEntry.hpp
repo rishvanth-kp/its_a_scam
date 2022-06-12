@@ -57,9 +57,11 @@ public:
 };
 
 
-using CigarTuples = vector<pair<char, size_t>>;
+namespace SamCigar {
+  using CigarTuples = vector<pair<char, size_t>>;
 
-void
-cigar_string_to_tuple(const SamEntry &e, CigarTuples &tuples);
+  void
+  string_to_tuple(const SamEntry &e, CigarTuples &tuples);
+}
 
 #endif
