@@ -17,7 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-PROGS = rna_seq_qc alignment_quality_distribution
+PROGS = rna_seq_qc alignment_quality_distribution \
+          alignment_length_distribution
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -46,6 +47,7 @@ rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o \
 
 alignment_quality_distribution: SamReader.o SamEntry.o
 
+alignment_length_distribution: SamReader.o SamEntry.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)

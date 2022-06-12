@@ -33,6 +33,7 @@
 
 rna_seq_qc
 alignment_score_distribution
+alignment_length_distribution
 
 # vim temp files
 *.swp
