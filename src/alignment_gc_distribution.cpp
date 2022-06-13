@@ -76,7 +76,7 @@ main(int argc, char* argv[]) {
     uint16_t include_none = 0x0804;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:q:o:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:q:f:F:o:")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'o')
