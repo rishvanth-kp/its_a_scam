@@ -69,7 +69,7 @@ namespace SamFlags {
   enum class Flag : uint16_t {
     read_paired = 0x0001,
     proper_pair = 0x0002,
-    read_unamppd = 0x0004,
+    read_unmapped = 0x0004,
     mate_unmapped = 0x0008,
     read_reverse = 0x0010,
     mate_reverse = 0x0020,
@@ -78,8 +78,16 @@ namespace SamFlags {
     not_primary_aln = 0x0100,
     fail_qc = 0x0200,
     pcr_duplicate = 0x0400,
-    supplementart_aln = 0x0800
+    supplementary_aln = 0x0800
   };
+
+  constexpr bool is_any_set(const uint16_t flag, const uint16_t check) {
+    return (flag & check);
+  }
+
+  constexpr bool is_all_set(const uint16_t flag, const uint16_t check) {
+    return ((flag & check) == check);
+  }
 
   constexpr bool is_set(const uint16_t flag, Flag f) {
     return (static_cast<uint16_t>(f) & flag);
