@@ -100,7 +100,7 @@ main(int argc, char *argv[]) {
            << tuples[i].second << endl;
     }
 
-    cout << SamFlags::is_set(s.flag, SamFlags::Flag::read_unamppd) << endl;
+    cout << SamFlags::is_set(s.flag, SamFlags::Flag::read_unmapped) << endl;
     cout << SamFlags::is_set(s.flag, SamFlags::Flag::first_in_pair) << endl;
 
     uint16_t f = 0;
