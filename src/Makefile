@@ -18,7 +18,8 @@
 #
 
 PROGS = rna_seq_qc alignment_quality_distribution \
-          alignment_length_distribution
+          alignment_length_distribution \
+          alignment_gc_distribution
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -48,6 +49,8 @@ rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o \
 alignment_quality_distribution: SamReader.o SamEntry.o
 
 alignment_length_distribution: SamReader.o SamEntry.o
+
+alignment_gc_distribution: SamReader.o SamEntry.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)
