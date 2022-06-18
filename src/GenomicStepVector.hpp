@@ -92,8 +92,13 @@ GenomicStepVector<T>::at(const string chr, const size_t start,
   typename GenomicStepVectorType::const_iterator chr_map;
   chr_map = genomic_vector.find(chr);
   if (chr_map != genomic_vector.end()) {
-    cout << chr_map->second.at(start) << endl;
-    cout << chr_map->second.at(end) << endl;
+    vector<pair<size_t, T>> out;
+    chr_map->second.at_range(start, end, out);
+
+    cout << "out size: " << out.size() << endl;
+    for (auto it = out.begin(); it != out.end(); ++it) {
+      cout << it->first << "\t" << it->second << endl;
+    }  
   }
   else {
     cerr << "chromosome does not exist" << endl;

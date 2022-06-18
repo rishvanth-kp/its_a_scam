@@ -75,49 +75,17 @@ main(int argc, char *argv[]) {
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
     // gff_processor.parse_genome_features(gtf_file);
 
-/*
     GenomicStepVector<size_t> step_vec;
     step_vec.add("chr1", 5, 25, 1);
     step_vec.add("chr2", 10, 25, 2);
     step_vec.add("chr1", 10, 20, 3);
 
     step_vec.at("chr1", 1, 100);
-    step_vec.at("chr2", 10, 25);
+    step_vec.at("chr1", 2, 5);
     // step_vec.add(10, 20, 3.2);
     // step_vec.add(2, 5, 2.2);
     // step_vec.add(2, 6, 2.2);
-*/
 
-    SamEntry s;
-    SamReader sam_file(gtf_file);
-    SamCigar::CigarTuples tuples; 
-  
-    sam_file.read_sam_line(s);
-    cout << s.cigar << endl;
-    SamCigar::string_to_tuple(s, tuples);
-    for (size_t i = 0; i < tuples.size(); ++i) {
-      cout << tuples[i].first << "\t"
-           << tuples[i].second << endl;
-    }
-
-    cout << SamFlags::is_set(s.flag, SamFlags::Flag::read_unmapped) << endl;
-    cout << SamFlags::is_set(s.flag, SamFlags::Flag::first_in_pair) << endl;
-
-    uint16_t f = 0;
-    f = SamFlags::set(f, SamFlags::Flag::read_paired);
-    cout << f << endl;
-    f = SamFlags::set(f, SamFlags::Flag::proper_pair);
-    cout << f << endl;
-    f = SamFlags::set(f, SamFlags::Flag::read_reverse);
-    cout << f << endl;
-    f = SamFlags::set(f, SamFlags::Flag::first_in_pair);
-    cout << f << endl;
-
-/*
-    while (sam_file.read_sam_line(s)) {
-      cout << s.mapq << endl;
-    }
-*/
 
   }
   catch (std::exception &e) {
