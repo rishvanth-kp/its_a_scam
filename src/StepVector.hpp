@@ -56,7 +56,6 @@ private:
 
 template<typename T>
 StepVector<T>::StepVector() {
-  cout << "Step vector init" << endl;
 }
   
 

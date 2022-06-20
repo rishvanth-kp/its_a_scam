@@ -19,7 +19,7 @@
 
 PROGS = rna_seq_qc alignment_quality_distribution \
           alignment_length_distribution \
-          alignment_gc_distribution
+          alignment_gc_distribution coverage_test
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -51,6 +51,8 @@ alignment_quality_distribution: SamReader.o SamEntry.o
 alignment_length_distribution: SamReader.o SamEntry.o
 
 alignment_gc_distribution: SamReader.o SamEntry.o
+
+coverage_test: SamReader.o SamEntry.o StepVector.hpp GenomicStepVector.hpp 
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)

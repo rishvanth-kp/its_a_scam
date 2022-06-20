@@ -62,22 +62,19 @@ template<typename T>
 void
 GenomicStepVector<T>::add(const string chr, const size_t start,
                           const size_t end, const T val) {
-  cout << "adding entry" << endl;
-  cout << chr << "\t" << start << "\t" << end << "\t" << val << endl;
 
   typename GenomicStepVectorType::iterator chr_map;
   chr_map = genomic_vector.find(chr);
   if (chr_map == genomic_vector.end()) {
-    cout << "adding new chrom" << endl;
     genomic_vector[chr].add(start, end, val); 
     ++n_chrom;
     ++n_entry;
-    genomic_vector[chr].print_elements();
+    // genomic_vector[chr].print_elements();
   } 
   else {
     chr_map->second.add(start, end, val); 
     ++n_entry;
-    chr_map->second.print_elements();
+    // chr_map->second.print_elements();
   }
 }
 
@@ -86,16 +83,12 @@ void
 GenomicStepVector<T>::at(const string chr, const size_t start,
                          const size_t end) const {
   
-  cout << "accessing entry" << endl;
-  cout << chr << "\t" << start << "\t" << end << endl;
-  
   typename GenomicStepVectorType::const_iterator chr_map;
   chr_map = genomic_vector.find(chr);
   if (chr_map != genomic_vector.end()) {
     vector<pair<size_t, T>> out;
     chr_map->second.at_range(start, end, out);
 
-    cout << "out size: " << out.size() << endl;
     for (auto it = out.begin(); it != out.end(); ++it) {
       cout << it->first << "\t" << it->second << endl;
     }  
