@@ -59,9 +59,9 @@ BedReader::read_bed3_line (GenomicRegion &g) {
   if (getline(in, line)) {
     vector<string> tokens;
     split_string(line, tokens);
-    g.set_name(tokens[0]);
-    g.set_start(atoi(tokens[1].c_str()));
-    g.set_end(atoi(tokens[2].c_str()));
+    g.name = tokens[0];
+    g.start = atoi(tokens[1].c_str());
+    g.end = atoi(tokens[2].c_str());
     return true;
   } 
 

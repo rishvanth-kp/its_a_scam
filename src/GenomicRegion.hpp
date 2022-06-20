@@ -31,37 +31,21 @@ using std::string;
 
 class GenomicRegion {
 public:
-  GenomicRegion(string n="", size_t s=0, 
-                size_t e=std::numeric_limits<size_t>::max(), 
+  GenomicRegion(string n="", size_t s=0,
+                size_t e=std::numeric_limits<size_t>::max(),
                 char st='.') {
     name = n;
     start = s;
     end = e;
     strand = st;
-    if (!is_valid())
-      throw std::runtime_error("Invalid genomic interval"); 
   }
 
-  string get_name() const { return name; }
-  size_t get_start() const { return start; }
-  size_t get_end() const { return end; }
-  char get_strand() const { return strand; }
-
-  void set_name(const string n) { name = n; }
-  void set_start(const size_t s) { start = s; }
-  void set_end(const size_t e) { end = e; }
-  void set_stand(const size_t st) { strand = st; }
-
-  bool overlaps(GenomicRegion &a) const;
-
-private:
   // Following the BED convntion of half-open intervals
   string name;
   size_t start;
   size_t end;
   char strand;
 
-  bool is_valid() const;
 };
 
 

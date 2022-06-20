@@ -19,21 +19,3 @@
 
 #include "GenomicRegion.hpp"
 
-bool
-GenomicRegion::overlaps(GenomicRegion &g) const {
-  if (g.get_name() == name && 
-      (g.get_start() >= start && g.get_start() < end) || 
-      (g.get_end() >= start && g.get_end() < end))
-    return true;
-  else
-    return false; 
-}
-
-bool
-GenomicRegion::is_valid() const {
-  if (start < end &&
-      (strand == '.' || strand == '+' || strand == '-'))
-    return true;
-  else
-    return false;
-}
