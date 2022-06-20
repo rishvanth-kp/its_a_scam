@@ -1,5 +1,5 @@
 /*
-* StepVector: 
+* StepVector:
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -35,18 +35,18 @@ template<typename T>
 class StepVector {
 public:
   StepVector();
-  
+
   // add element
   void add(const size_t start, const size_t end, const T val);
   // access elements in range
-  void at_range(const size_t start, const size_t end, 
+  void at_range(const size_t start, const size_t end,
                 vector<pair<size_t, T>>& out) const;
   // access value at a location
   T at(const size_t pos) const;
 
   // print elements
   void print_elements();
-  
+
 
 private:
 
@@ -57,21 +57,21 @@ private:
 template<typename T>
 StepVector<T>::StepVector() {
 }
-  
+
 
 
 
 
 template<typename T>
-void 
-StepVector<T>::add(const size_t start, 
-                const size_t end, 
+void
+StepVector<T>::add(const size_t start,
+                const size_t end,
                 const T val) {
 
   if (start < end) {
 
     // Inserting at the end
-    // if the end postion is an an existing element, there is nothing to 
+    // if the end postion is an an existing element, there is nothing to
     // be done
     typename map<size_t, T>::iterator end_it = step_vec.lower_bound(end);
     // ending after the end of all existing entries, add default value.
@@ -80,7 +80,7 @@ StepVector<T>::add(const size_t start,
       T default_val{};
       end_it = step_vec.insert(pair<size_t, T>(end, default_val)).first;
     }
-    // ending before the end of exisiting entries, 
+    // ending before the end of exisiting entries,
     else if (!(end_it->first == end)) {
       T prev_val = (--end_it)->second;
       // cout << "insering end prev val: " << prev_val << endl;
@@ -89,33 +89,33 @@ StepVector<T>::add(const size_t start,
     // else {
     //   cout << "ending at an exitsting element" << endl;
     // }
-    
+
     // Inserting at the start
     typename map<size_t, T>::iterator start_it = step_vec.lower_bound(start);
     if (start_it->first == start) {
-      // If the element exists, update it's value. 
+      // If the element exists, update it's value.
       // cout << "start exists" << endl;
       start_it->second += val;
 
-      // Iterator points to the start element. Increment to point to 
+      // Iterator points to the start element. Increment to point to
       // next element
-      ++start_it; 
+      ++start_it;
     }
     else {
       // If an element does not exist, insert a new element with
-      // the current value added to the previous element's value. 
+      // the current value added to the previous element's value.
       // cout << "start does not exist" << endl;
       if (start_it == step_vec.begin()) {
-        start_it = 
+        start_it =
           step_vec.insert(pair<size_t, T>(start, val)).first;
       }
       else {
         T prev_val = (--start_it)->second;
-        start_it = 
+        start_it =
           step_vec.insert(pair<size_t, T>(start, prev_val + val)).first;
       }
 
-      // Iterator points to the inserted element 
+      // Iterator points to the inserted element
       // Increment to point to next element
      ++start_it;
     }
@@ -139,9 +139,9 @@ StepVector<T>::at(const size_t pos) const {
   typename map<size_t, T>::const_iterator it = step_vec.upper_bound(pos);
   if (it == step_vec.begin())
     return T{};
-  else 
+  else
     return (--it)->second;
-  
+
 }
 
 template<typename T>
@@ -167,24 +167,24 @@ StepVector<T>::at_range(const size_t start, const size_t end,
     for (auto it = start_it; it != end_it; ++it) {
       out.push_back(std::make_pair(it->first, it->second));
     }
-   
+
     if (end_it == step_vec.begin()) {
       out.push_back(std::make_pair(end, T{}));
     }
     else {
       --end_it;
-      if (end_it->first != end) 
+      if (end_it->first != end)
         out.push_back(std::make_pair(end, end_it->second));
     }
 
-  } 
+  }
 }
 
 
 template<typename T>
 void
 StepVector<T>::print_elements() {
-  
+
   for (auto it = step_vec.begin(); it != step_vec.end(); ++it) {
     cout << it->first << "\t" << it->second << endl;
   }

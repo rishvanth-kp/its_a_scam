@@ -117,7 +117,16 @@ main(int argc, char* argv[]) {
       }
     }
 
-    coverage.at("chr1", 0, 249250621);
+    GenomicRegion region("chr1", 0, 249250621);
+    vector<pair<GenomicRegion, size_t>> out;
+    coverage.at(region, out);
+    for (size_t i = 0; i < out.size(); ++i) {
+      cout << out[i].first.name << "\t"
+           << out[i].first.start << "\t"
+           << out[i].first.end << "\t"
+           << out[i].second << endl;
+    }
+    // coverage.at("chr1", 0, 249250621);
 
   }
   catch (const std::exception &e) {
