@@ -43,7 +43,6 @@ public:
   void add(const string chr, const size_t start, const size_t end, const T val);
   void add(const GenomicRegion &g, const T val);
 
-  void at(const string chr, const size_t start, const size_t end) const;
   void at(const GenomicRegion &g,
           vector<pair<GenomicRegion, T>> &out,
           bool keep_0 = false) const;
@@ -90,25 +89,6 @@ GenomicStepVector<T>::add(const GenomicRegion &g, const T val) {
   add(g.name, g.start, g.end, val);
 }
 
-template<typename T>
-void
-GenomicStepVector<T>::at(const string chr, const size_t start,
-                         const size_t end) const {
-
-  typename GenomicStepVectorType::const_iterator chr_map;
-  chr_map = genomic_vector.find(chr);
-  if (chr_map != genomic_vector.end()) {
-    vector<pair<size_t, T>> out;
-    chr_map->second.at_range(start, end, out);
-
-    for (auto it = out.begin(); it != out.end(); ++it) {
-      cout << it->first << "\t" << it->second << endl;
-    }
-  }
-  else {
-    cerr << "chromosome does not exist" << endl;
-  }
-}
 
 template<typename T>
 void

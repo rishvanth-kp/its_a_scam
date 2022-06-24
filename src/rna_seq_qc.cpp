@@ -79,9 +79,6 @@ main(int argc, char *argv[]) {
     step_vec.add("chr1", 5, 25, 1);
     step_vec.add("chr2", 10, 25, 2);
     step_vec.add("chr1", 10, 20, 3);
-
-    step_vec.at("chr1", 1, 100);
-    step_vec.at("chr1", 2, 5);
     // step_vec.add(10, 20, 3.2);
     // step_vec.add(2, 5, 2.2);
     // step_vec.add(2, 6, 2.2);
