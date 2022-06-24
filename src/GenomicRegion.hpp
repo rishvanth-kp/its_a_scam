@@ -31,7 +31,7 @@ using std::string;
 
 class GenomicRegion {
 public:
-  GenomicRegion(string n="", size_t s=0,
+  explicit GenomicRegion(string n="", size_t s=0,
                 size_t e=std::numeric_limits<size_t>::max(),
                 char st='.') {
     name = n;
@@ -48,6 +48,7 @@ public:
 
 };
 
-
+std::ostream&
+operator<<(std::ostream &out, const GenomicRegion &g);
 
 #endif

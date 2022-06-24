@@ -19,3 +19,10 @@
 
 #include "GenomicRegion.hpp"
 
+std::ostream&
+operator<<(std::ostream &out, const GenomicRegion &g) {
+  out << g.name << "\t"
+      << g.start << "\t"
+      << g.end;
+  return out;
+}

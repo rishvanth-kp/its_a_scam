@@ -52,7 +52,8 @@ alignment_length_distribution: SamReader.o SamEntry.o
 
 alignment_gc_distribution: SamReader.o SamEntry.o
 
-coverage_test: SamReader.o SamEntry.o StepVector.hpp GenomicStepVector.hpp 
+coverage_test: SamReader.o SamEntry.o GenomicRegion.o StepVector.hpp \
+									GenomicStepVector.hpp 
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)
