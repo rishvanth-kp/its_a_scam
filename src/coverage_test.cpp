@@ -49,6 +49,55 @@ print_usage(const string &name) {
   return oss.str();
 }
 
+class TestVec {
+public:
+  TestVec() = default;
+  TestVec(const string &in) {
+    cout << "string constructor" << endl;
+    vec.push_back(in);
+  }
+  TestVec(const TestVec &in) {
+    cout << "copy constructor" << endl;
+    for (size_t i = 0; i < in.size(); ++i) {
+      cout << in.at(i) << endl;
+      vec.push_back(in.at(i));
+    }
+    cout << "end copy" << endl;
+  }
+
+  TestVec& operator+(const string a) {
+    vec.push_back(a);
+    return *this;
+  }
+
+  TestVec& operator+(const TestVec &in) {
+    for (size_t i = 0; i < in.size(); ++i) {
+      vec.push_back(in.at(i));
+    }
+    return *this;
+  }
+
+  TestVec& operator+= (const TestVec &in) {
+    
+    for (size_t i = 0; i < in.size(); ++i) {
+      vec.push_back(in.at(i));
+    }
+    return *this;
+  }
+
+  size_t size() const { return vec.size(); }
+  string at(size_t i) const {
+    return vec[i];
+  }
+
+  void print_elem() {
+    for (size_t i = 0; i < vec.size(); ++i) 
+      cout << vec[i] << endl;
+  } 
+private:
+  vector<string> vec;
+};
+
 int
 main(int argc, char* argv[]) {
   try {
@@ -127,6 +176,29 @@ main(int argc, char* argv[]) {
            << out[i].second << endl;
     }
 
+/*
+    TestVec a{"foo"};
+    a + "foo1";
+    a.print_elem();
+
+    TestVec b{"bar"};
+    b + "bar2";
+    b + "bar3";
+    b + "bar4";
+    b.print_elem();
+
+    a = a + b;
+    a + "foo3";
+    a + "foo4";
+    a.print_elem();
+
+
+    GenomicStepVector<TestVec> gsv;
+    gsv.add("ch1", 3, 10, TestVec{"a"});
+    gsv.add("ch1", 3, 10, TestVec{"b"});
+    vector<pair<GenomicRegion, TestVec>> out2;
+    // gsv.at(GenomicRegion("ch1", 3, 10), out2);
+*/
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

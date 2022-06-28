@@ -37,7 +37,7 @@ public:
   StepVector();
 
   // add element
-  void add(const size_t start, const size_t end, const T val);
+  void add(const size_t start, const size_t end, const T &val);
   // access elements in range
   void at_range(const size_t start, const size_t end,
                 vector<pair<size_t, T>>& out) const;
@@ -66,7 +66,7 @@ template<typename T>
 void
 StepVector<T>::add(const size_t start,
                 const size_t end,
-                const T val) {
+                const T &val) {
 
   if (start < end) {
 
