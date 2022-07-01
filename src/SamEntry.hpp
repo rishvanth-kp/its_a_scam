@@ -58,7 +58,20 @@ public:
 
 
 namespace SamCigar {
-  using CigarTuples = vector<pair<char, size_t>>;
+
+  enum class Cigar : char {
+    aln_match = 'M',
+    ref_insert = 'I',
+    ref_del = 'D',
+    ref_skip = 'N',
+    soft_clip = 'S',
+    hard_clip = 'H',
+    padding = 'P',
+    seq_match = '=',
+    seq_mismatch = 'X'
+  };
+
+  using CigarTuples = vector<pair<Cigar, size_t>>;
 
   void
   string_to_tuple(const SamEntry &e, CigarTuples &tuples);

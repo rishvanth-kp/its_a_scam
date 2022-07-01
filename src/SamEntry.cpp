@@ -43,22 +43,6 @@ SamEntry::parse_entry(const string &line) {
   while (iss >> tag) {
     tags.push_back(tag);
   }
-
-  /*
-  cout << qname << endl;
-  cout << flag << endl;
-  cout << rname << endl;
-  cout << pos << endl;
-  cout << mapq << endl;
-  cout << cigar << endl;
-  cout << rnext << endl;
-  cout << pnext << endl;
-  cout << tlen << endl;
-  cout << seq << endl;
-  cout << qual << endl;
-  for (size_t i = 0; i < tags.size(); ++i)
-    cout << tags[i] << endl;
-  */
 }
 
 
@@ -74,7 +58,7 @@ SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
   while (end_pos != string::npos) {
 
     tuples.push_back(std::make_pair(
-      e.cigar[end_pos],
+      static_cast<SamCigar::Cigar>(e.cigar[end_pos]),
       std::stoi(e.cigar.substr(start_pos, end_pos - start_pos))));
 
     start_pos = ++end_pos;

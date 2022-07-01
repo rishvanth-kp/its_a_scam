@@ -105,15 +105,15 @@ main(int argc, char* argv[]) {
         // 'S' can only have 'H' between them and the end.
         // 'S' bases are present in SEQ, so remove them from aligned len.
         SamCigar::CigarTuples::iterator it = tuples.begin();
-        if (it->first == 'H')
+        if (it->first == SamCigar::Cigar::hard_clip)
           ++it;
-        if (it->first == 'S')
+        if (it->first == SamCigar::Cigar::soft_clip)
           clip_len += it->second;
 
         SamCigar::CigarTuples::reverse_iterator rit = tuples.rbegin();
-        if (rit->first == 'H')
+        if (rit->first == SamCigar::Cigar::hard_clip)
           ++rit;
-        if (rit->first == 'S')
+        if (rit->first == SamCigar::Cigar::soft_clip)
           clip_len += rit->second;
 
         ++read_len[seq_len];

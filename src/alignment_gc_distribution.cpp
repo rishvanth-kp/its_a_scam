@@ -112,15 +112,15 @@ main(int argc, char* argv[]) {
         SamCigar::string_to_tuple(entry, tuples);
 
         SamCigar::CigarTuples::iterator it = tuples.begin();
-        if (it->first == 'H')
+        if (it->first == SamCigar::Cigar::hard_clip)
           ++it;
-        if (it->first == 'S')
+        if (it->first == SamCigar::Cigar::soft_clip)
           start_pos += it->second;
 
         SamCigar::CigarTuples::reverse_iterator rit = tuples.rbegin();
-        if (rit->first == 'H')
+        if (rit->first == SamCigar::Cigar::hard_clip)
           ++rit;
-        if (rit->first == 'S')
+        if (rit->first == SamCigar::Cigar::soft_clip)
           end_pos -= rit->second;
 
         ++gc_dist[std::round(gc_content(entry.seq, start_pos, end_pos))];

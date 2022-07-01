@@ -141,6 +141,7 @@ main(int argc, char* argv[]) {
 
     GenomicStepVector<size_t> coverage;
 
+
     while (reader.read_sam_line(entry)) {
       if (entry.mapq >= min_mapq &&
           SamFlags::is_all_set(entry.flag, include_all) &&
@@ -157,19 +158,19 @@ main(int argc, char* argv[]) {
         // 'S' can only have 'H' between them and the end.
         // 'S' bases are present in SEQ, so remove them from aligned len.
         SamCigar::CigarTuples::iterator it = tuples.begin();
-        if (it->first == 'H')
+        if (it->first == SamCigar::Cigar::hard_clip)
           ++it;
-        if (it->first == 'S')
+        if (it->first == SamCigar::Cigar::soft_clip)
           clip_len += it->second;
 
         SamCigar::CigarTuples::reverse_iterator rit = tuples.rbegin();
-        if (rit->first == 'H')
+        if (rit->first == SamCigar::Cigar::hard_clip)
           ++rit;
-        if (rit->first == 'S')
+        if (rit->first == SamCigar::Cigar::soft_clip)
           clip_len += rit->second;
 
         size_t aln_len = seq_len - clip_len;
-        // coverage.add(entry.rname, entry.pos, entry.pos + aln_len, 1);
+        coverage.add(entry.rname, entry.pos, entry.pos + aln_len, 1);
       }
     }
 
@@ -182,22 +183,6 @@ main(int argc, char* argv[]) {
            << out[i].second << endl;
     }
 
-
-    GenomicStepVector<TestVec> gsv;
-    gsv.add("ch1", 3, 10, TestVec{"aaaa"});
-    gsv.add("ch1", 5, 14, TestVec{"bbbb"});
-    gsv.add("ch1", 7, 12, TestVec{"cccc"});
-    gsv.add("ch1", 20, 30, TestVec{"bcsdfsd"});
-    vector<pair<GenomicRegion, TestVec>> out2;
-    gsv.at(GenomicRegion("ch1", 3, 50), out2, true);
-    cout << "out size:" << out2.size() << endl;
-    for (size_t i = 0; i < out2.size(); ++i) {
-      cout << out2[i].first << "\t";
-      for (size_t j = 0; j < out2[i].second.size(); ++j) {
-        cout << out2[i].second.at(j) << "\t";
-      }
-      cout << endl;
-    }
   
   }
   catch (const std::exception &e) {
