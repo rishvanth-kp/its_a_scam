@@ -53,22 +53,15 @@ class TestVec {
 public:
   TestVec() = default;
   TestVec(const string &in) {
-    cout << "string constructor" << endl;
     vec.push_back(in);
   }
   TestVec(const TestVec &in) {
-    cout << "copy constructor" << endl;
+    vec.clear();
     for (size_t i = 0; i < in.size(); ++i) {
-      cout << in.at(i) << endl;
       vec.push_back(in.at(i));
     }
-    cout << "end copy" << endl;
   }
 
-  TestVec& operator+(const string a) {
-    vec.push_back(a);
-    return *this;
-  }
 
   TestVec& operator+(const TestVec &in) {
     for (size_t i = 0; i < in.size(); ++i) {
@@ -85,6 +78,19 @@ public:
     return *this;
   }
 
+  bool operator!=(const TestVec &in) {
+    bool mismatch = true; 
+    if (in.size() == vec.size()) {
+      size_t i = 0;
+      while ((i < in.size()) && (in.at(i) == vec[i])) 
+        ++i;
+      if (i == in.size())
+        mismatch = false;
+    }
+    
+    return mismatch;
+  }
+  
   size_t size() const { return vec.size(); }
   string at(size_t i) const {
     return vec[i];
@@ -163,7 +169,7 @@ main(int argc, char* argv[]) {
           clip_len += rit->second;
 
         size_t aln_len = seq_len - clip_len;
-        coverage.add(entry.rname, entry.pos, entry.pos + aln_len, 1);
+        // coverage.add(entry.rname, entry.pos, entry.pos + aln_len, 1);
       }
     }
 
@@ -171,34 +177,28 @@ main(int argc, char* argv[]) {
     vector<pair<GenomicRegion, size_t>> out;
     // coverage.at(region, out);
     coverage.at(GenomicRegion{"chr1", 0, 249250621}, out);
-    for (size_t i = 0; i < 5; ++i) {
+    for (size_t i = 0; i < out.size(); ++i) {
       cout << out[i].first << "\t"
            << out[i].second << endl;
     }
 
-/*
-    TestVec a{"foo"};
-    a + "foo1";
-    a.print_elem();
-
-    TestVec b{"bar"};
-    b + "bar2";
-    b + "bar3";
-    b + "bar4";
-    b.print_elem();
-
-    a = a + b;
-    a + "foo3";
-    a + "foo4";
-    a.print_elem();
-
 
     GenomicStepVector<TestVec> gsv;
-    gsv.add("ch1", 3, 10, TestVec{"a"});
-    gsv.add("ch1", 3, 10, TestVec{"b"});
+    gsv.add("ch1", 3, 10, TestVec{"aaaa"});
+    gsv.add("ch1", 5, 14, TestVec{"bbbb"});
+    gsv.add("ch1", 7, 12, TestVec{"cccc"});
+    gsv.add("ch1", 20, 30, TestVec{"bcsdfsd"});
     vector<pair<GenomicRegion, TestVec>> out2;
-    // gsv.at(GenomicRegion("ch1", 3, 10), out2);
-*/
+    gsv.at(GenomicRegion("ch1", 3, 50), out2, true);
+    cout << "out size:" << out2.size() << endl;
+    for (size_t i = 0; i < out2.size(); ++i) {
+      cout << out2[i].first << "\t";
+      for (size_t j = 0; j < out2[i].second.size(); ++j) {
+        cout << out2[i].second.at(j) << "\t";
+      }
+      cout << endl;
+    }
+  
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
