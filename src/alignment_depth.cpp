@@ -1,5 +1,5 @@
 /*
-* alignment_depth: conpute depth of aligned regions
+* alignment_depth: compute depth of aligned regions
 * Copyright (C) 2022 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,9 @@
 #include <fstream>
 #include <unistd.h>
 
-#include "SamReader.hpp"
 #include "SamEntry.hpp"
+#include "SamReader.hpp"
+#include "GenomicStepVector.hpp"
 
 using std::cout;
 using std::cerr;
@@ -77,6 +78,43 @@ main(int argc, char* argv[]) {
 
     if (aln_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
+    }
+
+    SamReader reader(aln_file);
+    SamEntry entry;
+    GenomicStepVector<size_t> coverage;
+
+    while (reader.read_sam_line(entry)) {
+      if (entry.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry.flag, include_all) &&
+          !SamFlags::is_any_set(entry.flag, include_none)) {
+
+        // cout << entry.qname << "\t" << entry.cigar << endl;
+
+        size_t aln_pos = entry.pos;
+        SamCigar::CigarTuples tuples;
+        SamCigar::string_to_tuple(entry, tuples);
+        for (auto it = tuples.begin(); it != tuples.end(); ++it) {
+          // cout << static_cast<char>(it->first) << "\t" << it->second << endl;
+          // matches and mismatches consumes query and referene, and
+          // contributes to coverage
+          if (it->first == SamCigar::Cigar::aln_match ||
+              it->first == SamCigar::Cigar::seq_match ||
+              it->first == SamCigar::Cigar::seq_mismatch) {
+
+              coverage.add(entry.qname, aln_pos, aln_pos + it->second + 1, 1);
+              aln_pos += it->second;
+          }
+          // deletion and skipped regions consumes only reference, and
+          // does not contribute to coverage
+          else if (it->first == SamCigar::Cigar::ref_del ||
+                   it->first == SamCigar::Cigar::ref_skip) {
+            aln_pos += it->second;
+          }
+          // insertions, clipped, and padded bases does not consume referece
+          // nothing to be done
+        }
+      }
     }
 
   }
