@@ -17,6 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include <sstream>
+
 #include "SamReader.hpp"
 
 using std::cout;
@@ -66,4 +68,36 @@ SamReader::read_sam_line(SamEntry &entry) {
 
 
   return !eof;
+}
+
+
+void
+SamReader::read_sam_header(string &hdr) {
+  hdr = sam_hdr_str(header);
+}
+
+
+void
+get_seq_lengths(const string &hdr, vector<GenomicRegion> &out) {
+  out.clear();
+  std::istringstream iss(hdr);
+  string line;
+  // @SQ header lines contain the reference sequence dictionaly
+  // SN tag contains the reference sequence name
+  // LN tag contains the reference sequence length. 1-based.
+  while(getline(iss, line)) {
+    if (line.substr(0, 3) == "@SQ") {
+      std::istringstream token(line);
+      string tag;
+      string rname;
+      size_t rlen;
+      while(token >> tag) {
+        if (tag.substr(0, 2) == "SN")
+          rname = tag.substr(3);
+        else if (tag.substr(0, 2) == "LN")
+          rlen = std::stoi(tag.substr(3));
+      }
+      out.push_back(GenomicRegion(rname, 0, rlen));
+    }
+  }
 }

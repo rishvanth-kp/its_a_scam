@@ -84,12 +84,16 @@ main(int argc, char* argv[]) {
     SamEntry entry;
     GenomicStepVector<size_t> coverage;
 
+    // parse genomic regions from sam file
+    vector<GenomicRegion> ref_chroms;
+    string header;
+    reader.read_sam_header(header);
+    get_seq_lengths(header, ref_chroms); 
+
     while (reader.read_sam_line(entry)) {
       if (entry.mapq >= min_mapq &&
           SamFlags::is_all_set(entry.flag, include_all) &&
           !SamFlags::is_any_set(entry.flag, include_none)) {
-
-        // cout << entry.qname << "\t" << entry.cigar << endl;
 
         size_t aln_pos = entry.pos;
         SamCigar::CigarTuples tuples;

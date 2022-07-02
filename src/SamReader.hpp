@@ -24,6 +24,7 @@
 #include <string>
 
 #include "SamEntry.hpp"
+#include "GenomicRegion.hpp"
 
 #include "htslib/hts.h"
 #include "htslib/sam.h"
@@ -36,14 +37,17 @@ public:
   ~SamReader();
 
   bool read_sam_line(SamEntry &entry);
+  void read_sam_header(string &hdr);
 
 private:
-
   htsFile *hts;
   sam_hdr_t *header;
   bam1_t *b;
   kstring_t sam_entry;
   bool eof;
 };
+
+void
+get_seq_lengths(const string &hdr, vector<GenomicRegion> &out);
 
 #endif
