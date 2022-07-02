@@ -107,8 +107,6 @@ main(int argc, char* argv[]) {
               it->first == SamCigar::Cigar::seq_match ||
               it->first == SamCigar::Cigar::seq_mismatch) {
 
-            cout << entry.rname << " " << aln_pos << " " 
-                 << aln_pos + it->second << endl;
             coverage.add(entry.rname, aln_pos, aln_pos + it->second, 1);
             aln_pos += it->second;
           }

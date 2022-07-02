@@ -90,7 +90,7 @@ get_seq_lengths(const string &hdr, vector<GenomicRegion> &out) {
       std::istringstream token(line);
       string tag;
       string rname;
-      size_t rlen;
+      size_t rlen{};
       while(token >> tag) {
         if (tag.substr(0, 2) == "SN")
           rname = tag.substr(3);
