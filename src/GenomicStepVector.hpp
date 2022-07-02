@@ -125,15 +125,24 @@ GenomicStepVector<T>::at(const GenomicRegion &g,
     chr_map->second.at_range(g.start, g.end, step_out);
 
     GenomicRegion region;
-    for (size_t i = 0; i < step_out.size() - 1; ++i) {
+    size_t i = 0;
+    while(i < step_out.size() - 1) {
+      size_t j = i + 1;
       if (keep_0 || (!keep_0 && step_out[i].second != T{})) {
+        while (j < step_out.size() - 1 &&
+               step_out[i].second == step_out[j].second) {
+          ++j;
+        }
         region.name = g.name;
         region.start = step_out[i].first;
-        region.end = step_out[i + 1].first;
+        region.end = step_out[j].first;
         out.push_back(make_pair(region, step_out[i].second));
       }
+      i = j;
     }
   }
 }
+
+
 
 #endif

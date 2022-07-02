@@ -30,6 +30,7 @@
 #include "SamEntry.hpp"
 #include "GenomicArray.hpp"
 #include "PreprocessGff.hpp"
+#include "GenomicRegion.hpp"
 #include "GenomicStepVector.hpp"
 
 using std::cout;
@@ -76,13 +77,20 @@ main(int argc, char *argv[]) {
     // gff_processor.parse_genome_features(gtf_file);
 
     GenomicStepVector<size_t> step_vec;
-    step_vec.add("chr1", 5, 25, 1);
-    step_vec.add("chr2", 10, 25, 2);
-    step_vec.add("chr1", 10, 20, 3);
-    // step_vec.add(10, 20, 3.2);
-    // step_vec.add(2, 5, 2.2);
-    // step_vec.add(2, 6, 2.2);
-
+    step_vec.add("chr1", 15, 20, 1);
+    step_vec.add("chr1", 3, 5, 2);
+    step_vec.add("chr1", 20, 21, 3);
+    step_vec.add("chr1", 21, 22, 3);
+    step_vec.add("chr1", 22, 23, 3);
+    step_vec.add("chr1", 23, 24, 3);
+    step_vec.add("chr1", 24, 31, 3);
+    vector<std::pair<GenomicRegion, size_t>> out;
+    step_vec.at(GenomicRegion("chr1", 0, 35), out, true);
+    for (size_t i = 0; i < out.size(); ++i) {
+      cout << out[i].first << "\t"
+           << out[i].second << endl;
+    }
+  
 
   }
   catch (std::exception &e) {

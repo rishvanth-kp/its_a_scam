@@ -181,7 +181,6 @@ StepVector<T>::at_range(const size_t start, const size_t end,
   }
 }
 
-
 template<typename T>
 void
 StepVector<T>::print_elements() {
