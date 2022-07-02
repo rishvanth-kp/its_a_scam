@@ -88,26 +88,29 @@ main(int argc, char* argv[]) {
     vector<GenomicRegion> ref_chroms;
     string header;
     reader.read_sam_header(header);
-    get_seq_lengths(header, ref_chroms); 
+    get_seq_lengths(header, ref_chroms);
 
+    // determine coverage
     while (reader.read_sam_line(entry)) {
       if (entry.mapq >= min_mapq &&
           SamFlags::is_all_set(entry.flag, include_all) &&
           !SamFlags::is_any_set(entry.flag, include_none)) {
 
-        size_t aln_pos = entry.pos;
+        // sam positons are 1-based
+        size_t aln_pos = entry.pos - 1;
         SamCigar::CigarTuples tuples;
         SamCigar::string_to_tuple(entry, tuples);
         for (auto it = tuples.begin(); it != tuples.end(); ++it) {
-          // cout << static_cast<char>(it->first) << "\t" << it->second << endl;
           // matches and mismatches consumes query and referene, and
           // contributes to coverage
           if (it->first == SamCigar::Cigar::aln_match ||
               it->first == SamCigar::Cigar::seq_match ||
               it->first == SamCigar::Cigar::seq_mismatch) {
 
-              coverage.add(entry.qname, aln_pos, aln_pos + it->second + 1, 1);
-              aln_pos += it->second;
+            cout << entry.rname << " " << aln_pos << " " 
+                 << aln_pos + it->second << endl;
+            coverage.add(entry.rname, aln_pos, aln_pos + it->second, 1);
+            aln_pos += it->second;
           }
           // deletion and skipped regions consumes only reference, and
           // does not contribute to coverage
@@ -121,6 +124,17 @@ main(int argc, char* argv[]) {
       }
     }
 
+    // write output
+    std::ofstream depth_file(out_prefix + "_depth.txt");
+    vector<pair<GenomicRegion, size_t>> out;
+    for (size_t i = 0; i < ref_chroms.size(); ++i) {
+      coverage.at(ref_chroms[i], out);
+      for (size_t j = 0; j < out.size(); ++j) {
+        depth_file << out[j].first << "\t"
+                   << out[j].second << endl;
+      }
+    }
+    depth_file.close();
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

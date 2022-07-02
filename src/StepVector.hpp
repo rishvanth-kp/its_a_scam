@@ -74,8 +74,9 @@ StepVector<T>::add(const size_t start,
     // if the end postion is an an existing element, there is nothing to
     // be done
     typename map<size_t, T>::iterator end_it = step_vec.lower_bound(end);
-    // ending after the end of all existing entries, add default value.
-    if (end_it == step_vec.end()) {
+    // ending before or after the end of all existing entries,
+    // add default value.
+    if (end_it == step_vec.begin() || end_it == step_vec.end()) {
       // cout << "End next element at end" << endl;
       T default_val{};
       end_it = step_vec.insert(pair<size_t, T>(end, default_val)).first;
