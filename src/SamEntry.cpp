@@ -65,3 +65,49 @@ SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
     end_pos = e.cigar.find_first_of("MIDNSHP=X", end_pos);
   }
 }
+
+bool
+SamTags::get_tag(const vector<string> &tags, const string &tag, string &value) {
+  value.clear();
+  bool found = false;
+  size_t i = 0;
+  // Sam tags have are in TAG:TYPE:VALUE format.
+  // TAG is always 2 characters and TYPE is always a single character
+  while (!found && (i < tags.size())) {
+    if (tags[i].substr(0, 2) == tag) {
+      value = tags[i].substr(5);
+      found = true;
+    }
+    ++i;
+  }
+  return found;
+}
+
+void
+SamTags::md_to_tuple(const string &md_tag,
+                     vector<pair<size_t, string>> &tuples) {
+
+  tuples.clear();
+
+  size_t len;
+  string op;
+
+  size_t start_pos = 0;
+  size_t end_pos = md_tag.find_first_of("ATGCatgc^");
+  len = std::stoi(md_tag.substr(start_pos, end_pos - start_pos));
+
+  while (end_pos != string::npos) {
+
+    start_pos = end_pos;
+    end_pos = md_tag.find_first_of("0123456789", end_pos);
+    op = md_tag.substr(start_pos, end_pos - start_pos);
+
+    tuples.push_back(std::make_pair(len, op));
+
+    start_pos = end_pos;
+    end_pos = md_tag.find_first_of("ATGCatgc^", end_pos);
+    len = std::stoi(md_tag.substr(start_pos, end_pos - start_pos));
+  }
+  op = "";
+  tuples.push_back(std::make_pair(len, op));
+}

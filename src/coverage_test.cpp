@@ -32,6 +32,7 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::pair;
 using std::string;
 using std::vector;
 
@@ -71,7 +72,7 @@ public:
   }
 
   TestVec& operator+= (const TestVec &in) {
-    
+
     for (size_t i = 0; i < in.size(); ++i) {
       vec.push_back(in.at(i));
     }
@@ -79,27 +80,27 @@ public:
   }
 
   bool operator!=(const TestVec &in) {
-    bool mismatch = true; 
+    bool mismatch = true;
     if (in.size() == vec.size()) {
       size_t i = 0;
-      while ((i < in.size()) && (in.at(i) == vec[i])) 
+      while ((i < in.size()) && (in.at(i) == vec[i]))
         ++i;
       if (i == in.size())
         mismatch = false;
     }
-    
+
     return mismatch;
   }
-  
+
   size_t size() const { return vec.size(); }
   string at(size_t i) const {
     return vec[i];
   }
 
   void print_elem() {
-    for (size_t i = 0; i < vec.size(); ++i) 
+    for (size_t i = 0; i < vec.size(); ++i)
       cout << vec[i] << endl;
-  } 
+  }
 private:
   vector<string> vec;
 };
@@ -139,8 +140,6 @@ main(int argc, char* argv[]) {
     SamReader reader(aln_file);
     SamEntry entry;
 
-    GenomicStepVector<size_t> coverage;
-
 
     while (reader.read_sam_line(entry)) {
       if (entry.mapq >= min_mapq &&
@@ -153,37 +152,20 @@ main(int argc, char* argv[]) {
         SamCigar::CigarTuples tuples;
         SamCigar::string_to_tuple(entry, tuples);
 
-        // 'H' can only be present as the first or last operation.
-        // 'H' bases are not present in SEQ, skip any 'H'.
-        // 'S' can only have 'H' between them and the end.
-        // 'S' bases are present in SEQ, so remove them from aligned len.
-        SamCigar::CigarTuples::iterator it = tuples.begin();
-        if (it->first == SamCigar::Cigar::hard_clip)
-          ++it;
-        if (it->first == SamCigar::Cigar::soft_clip)
-          clip_len += it->second;
-
-        SamCigar::CigarTuples::reverse_iterator rit = tuples.rbegin();
-        if (rit->first == SamCigar::Cigar::hard_clip)
-          ++rit;
-        if (rit->first == SamCigar::Cigar::soft_clip)
-          clip_len += rit->second;
-
-        size_t aln_len = seq_len - clip_len;
-        coverage.add(entry.rname, entry.pos, entry.pos + aln_len, 1);
+        cout << entry.qname << endl;
+        string md_tag;
+        SamTags::get_tag(entry.tags, "MD", md_tag);
+        cout << md_tag << endl;
+        vector<pair<size_t, string>> md_tuple;
+        SamTags::md_to_tuple(md_tag, md_tuple);
+        for (auto it = md_tuple.begin(); it != md_tuple.end(); ++it) {
+          cout << it->first << "\t" << it->second << endl;
+        }
       }
     }
 
-    GenomicRegion region("chr1", 0, 249250621);
-    vector<pair<GenomicRegion, size_t>> out;
-    // coverage.at(region, out);
-    coverage.at(GenomicRegion{"chr1", 0, 249250621}, out);
-    for (size_t i = 0; i < out.size(); ++i) {
-      cout << out[i].first << "\t"
-           << out[i].second << endl;
-    }
 
-  
+
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

@@ -112,4 +112,13 @@ namespace SamFlags {
 
 }
 
+namespace SamTags {
+bool
+get_tag(const vector<string> &tags, const string &tag, string &value);
+
+void
+md_to_tuple(const string &md_tag, vector<pair<size_t, string>> &tuples);
+
+}
+
 #endif
