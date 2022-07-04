@@ -75,6 +75,14 @@ namespace SamCigar {
 
   void
   string_to_tuple(const SamEntry &e, CigarTuples &tuples);
+
+  void
+  move_in_reference(const CigarTuples &tuples, const size_t len, 
+    size_t &ref_pos, size_t &query_pos, bool skipN = true);
+  
+  void
+  move_in_query(const CigarTuples &tuples, const size_t len, 
+    size_t &ref_pos, size_t &query_pos);
 }
 
 namespace SamFlags {

@@ -152,14 +152,26 @@ main(int argc, char* argv[]) {
         SamCigar::string_to_tuple(entry, tuples);
 
         cout << entry.qname << endl;
+        cout << entry.cigar << endl;
         string md_tag;
         SamTags::get_tag(entry.tags, "MD", md_tag);
         cout << md_tag << endl;
         vector<pair<size_t, string>> md_tuple;
         SamTags::md_to_tuple(md_tag, md_tuple);
+        size_t ref_offset = 0;
         for (auto it = md_tuple.begin(); it != md_tuple.end(); ++it) {
           cout << it->first << "\t" << it->second << endl;
+          ref_offset += it->first;
+          if (it->second[0] != '^' && it->second != "") {
+            ++ref_offset;
+            cout << "ref_offset: " << ref_offset << endl;
+            size_t ref_pos = 0;
+            size_t query_pos = 0;
+            SamCigar::move_in_reference(tuples, ref_offset, ref_pos, query_pos);
+            cout << ref_pos << "\t" << query_pos << "\t" << entry.seq[query_pos] << endl; 
+          }
         }
+
       }
     }
 

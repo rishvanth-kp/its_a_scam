@@ -66,6 +66,70 @@ SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
   }
 }
 
+
+
+void
+SamCigar::move_in_reference(const CigarTuples &tuples,
+                            const size_t len,
+                            size_t &ref_pos,
+                            size_t &query_pos,
+                            bool skipN) {
+  // D and N consures reference
+  // I and S consumes query
+  // M, =, and x consumes reference and query
+  int leftover = len;
+  size_t i = 0;
+  while (leftover > 0) {
+    if (tuples[i].first == Cigar::aln_match ||
+        tuples[i].first == Cigar::seq_match ||
+        tuples[i].first == Cigar::seq_mismatch) {
+      ref_pos += tuples[i].second;
+      query_pos += tuples[i].second;
+      leftover -= tuples[i].second;
+      if (leftover < 0) {
+        ref_pos += leftover;
+        query_pos += leftover;
+      }
+    }
+    else if (tuples[i].first == Cigar::ref_del) {
+      ref_pos += tuples[i].second;
+      leftover -= tuples[i].second;
+      if (leftover < 0) {
+        ref_pos += leftover;
+      }
+    }
+    else if (tuples[i].first == Cigar::ref_skip) {
+      ref_pos += tuples[i].second;
+      if (!skipN) {
+        leftover -= tuples[i].second;
+        if (leftover < 0) {
+          ref_pos += leftover;
+        }
+      }
+    }
+    else if (tuples[i].first == Cigar::ref_insert ||
+             tuples[i].first == Cigar::soft_clip) {
+      query_pos += tuples[i].second;
+    }
+
+    ++i;
+  }
+  // the absolute position is less than lenght by 1
+  if (len > 0) {
+    --ref_pos;
+    --query_pos;
+  }
+}
+
+void
+SamCigar::move_in_query(const CigarTuples &tuples,
+                        const size_t len,
+                        size_t &ref_pos,
+                        size_t &query_pos) {
+
+}
+
+
 bool
 SamTags::get_tag(const vector<string> &tags, const string &tag, string &value) {
   value.clear();
