@@ -29,7 +29,7 @@ template<typename T>
 class FeatureVector {
 public:
   FeatureVector() = default;
-  FeatureVector(const T &in);
+  explicit FeatureVector(const T &in);
   FeatureVector(const FeatureVector<T> &in);
 
   FeatureVector<T> operator+(const FeatureVector<T> &in);
@@ -37,9 +37,10 @@ public:
   bool operator==(const FeatureVector &in) const;
   bool operator!=(const FeatureVector &in) const;
 
+  void push_back(const T in);
   T at(const size_t i) const;
   size_t size() const;
-  
+
 private:
   vector<T> features;
 };
@@ -57,7 +58,7 @@ FeatureVector<T>::FeatureVector(const FeatureVector<T> &in) {
   features.clear();
   for (size_t i = 0; i < in.size(); ++i) {
     features.push_back(in.at(i));
-  }  
+  }
 }
 
 
@@ -65,8 +66,11 @@ template<typename T>
 FeatureVector<T>
 FeatureVector<T>::operator+(const FeatureVector<T> &in) {
   FeatureVector<T> out;
+  for (size_t i = 0; i < features.size(); ++i) {
+    out.push_back(features[i]);
+  }
   for (size_t i = 0; i < in.size(); ++i) {
-    out += in.at(i);
+    out.push_back(in.at(i));
   }
   return out;
 }
@@ -99,10 +103,15 @@ FeatureVector<T>::operator==(const FeatureVector &in) const {
 template<typename T>
 bool
 FeatureVector<T>::operator!=(const FeatureVector<T> &in) const {
-  return !(*this == in); 
+  return !(*this == in);
 }
 
 
+template<typename T>
+void
+FeatureVector<T>::push_back(const T in) {
+  features.push_back(in);
+}
 
 template<typename T>
 T

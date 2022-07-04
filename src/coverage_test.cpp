@@ -164,6 +164,13 @@ main(int argc, char* argv[]) {
     }
 
 
+    FeatureVector<string> f1{"f1"};
+    FeatureVector<string> f2{"f2"};
+    FeatureVector<string> f3;
+    f3 = f1 + f2;
+    for (size_t i = 0; i < f3.size(); ++i)
+      cout << f3.at(i) << endl;
+
     GenomicStepVector<FeatureVector<string>> foo;
     foo.add("ch1", 5, 10, FeatureVector<string>{"foo"});
     foo.add("ch1", 7, 15, FeatureVector<string>{"bar"});
