@@ -36,6 +36,7 @@ alignment_quality_distribution
 alignment_length_distribution
 alignment_gc_distribution
 alignment_depth
+mismatch_profile
 coverage_test
 
 # vim temp files
