@@ -164,24 +164,21 @@ main(int argc, char* argv[]) {
     }
 
 
-    FeatureVector<string> foo{"foo"};
-    FeatureVector<string> bar{"bar"}; 
-    FeatureVector<string> fubar;    
+    GenomicStepVector<FeatureVector<string>> foo;
+    foo.add("ch1", 5, 10, FeatureVector<string>{"foo"});
+    foo.add("ch1", 7, 15, FeatureVector<string>{"bar"});
+    foo.add("ch1", 1, 3, FeatureVector<string>{"fubar"});
 
-    bar += bar;
-
-    cout << "Foo:" << endl;
-    for (size_t i = 0; i < foo.size(); ++i) 
-      cout << foo.at(i) << endl;
-
-    cout << "Bar: " << endl;
-    for (size_t i = 0; i < bar.size(); ++i)
-      cout << bar.at(i) << endl;
- 
-    cout << "Fubar: " << endl;
-    for (size_t i = 0; i < fubar.size(); ++i)
-      cout << fubar.at(i) << endl;
- 
+    vector<pair<GenomicRegion, FeatureVector<string>>> out;
+    foo.at(GenomicRegion{"ch1", 0, 20}, out, true);
+    cout << "foo size: " << out.size() << endl;
+    for (size_t i = 0; i < out.size(); ++i) {
+      cout << out[i].first;
+      for (size_t j = 0; j < out[i].second.size(); ++j) {
+        cout << "\t" << out[i].second.at(j);
+      }
+      cout << endl;
+    }
 
   }
   catch (const std::exception &e) {

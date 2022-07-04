@@ -32,7 +32,7 @@ public:
   FeatureVector(const T &in);
   FeatureVector(const FeatureVector<T> &in);
 
-  void operator+(const FeatureVector<T> in);
+  FeatureVector<T> operator+(const FeatureVector<T> &in);
   void operator+=(const FeatureVector<T> in);
   bool operator==(const FeatureVector &in) const;
   bool operator!=(const FeatureVector &in) const;
@@ -62,11 +62,13 @@ FeatureVector<T>::FeatureVector(const FeatureVector<T> &in) {
 
 
 template<typename T>
-void
-FeatureVector<T>::operator+(const FeatureVector<T> in) {
+FeatureVector<T>
+FeatureVector<T>::operator+(const FeatureVector<T> &in) {
+  FeatureVector<T> out;
   for (size_t i = 0; i < in.size(); ++i) {
-    features.push_back(in.at(i));
+    out += in.at(i);
   }
+  return out;
 }
 
 
