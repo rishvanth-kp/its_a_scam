@@ -28,7 +28,6 @@
 #include "GtfReader.hpp"
 #include "SamReader.hpp"
 #include "SamEntry.hpp"
-#include "GenomicArray.hpp"
 #include "PreprocessGff.hpp"
 #include "GenomicRegion.hpp"
 #include "GenomicStepVector.hpp"
