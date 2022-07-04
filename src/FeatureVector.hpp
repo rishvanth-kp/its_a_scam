@@ -32,10 +32,86 @@ public:
   FeatureVector(const T &in);
   FeatureVector(const FeatureVector<T> &in);
 
+  void operator+(const FeatureVector<T> in);
+  void operator+=(const FeatureVector<T> in);
+  bool operator==(const FeatureVector &in) const;
+  bool operator!=(const FeatureVector &in) const;
 
+  T at(const size_t i) const;
+  size_t size() const;
+  
 private:
   vector<T> features;
 };
 
+
+
+template<typename T>
+FeatureVector<T>::FeatureVector(const T &in) {
+  features.push_back(in);
+}
+
+
+template<typename T>
+FeatureVector<T>::FeatureVector(const FeatureVector<T> &in) {
+  features.clear();
+  for (size_t i = 0; i < in.size(); ++i) {
+    features.push_back(in.at(i));
+  }  
+}
+
+
+template<typename T>
+void
+FeatureVector<T>::operator+(const FeatureVector<T> in) {
+  for (size_t i = 0; i < in.size(); ++i) {
+    features.push_back(in.at(i));
+  }
+}
+
+
+template<typename T>
+void
+FeatureVector<T>::operator+=(const FeatureVector<T> in) {
+  for (size_t i = 0; i < in.size(); ++i) {
+    features.push_back(in.at(i));
+  }
+}
+
+
+template<typename T>
+bool
+FeatureVector<T>::operator==(const FeatureVector &in) const {
+  bool match = false;
+  if (in.size() == features.size()) {
+    size_t i = 0;
+    while ((i < features.size()) && (in.at(i) == features[i]))
+      ++i;
+    if (i == features.size())
+      match = true;
+  }
+  return match;
+}
+
+
+template<typename T>
+bool
+FeatureVector<T>::operator!=(const FeatureVector<T> &in) const {
+  return !(*this == in); 
+}
+
+
+
+template<typename T>
+T
+FeatureVector<T>::at(const size_t i) const {
+  return features[i];
+}
+
+template<typename T>
+size_t
+FeatureVector<T>::size() const {
+  return features.size();
+}
 
 #endif

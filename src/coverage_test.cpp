@@ -28,6 +28,7 @@
 #include "SamEntry.hpp"
 #include "GenomicStepVector.hpp"
 #include "GenomicRegion.hpp"
+#include "FeatureVector.hpp"
 
 using std::cout;
 using std::cerr;
@@ -146,8 +147,6 @@ main(int argc, char* argv[]) {
           SamFlags::is_all_set(entry.flag, include_all) &&
           !SamFlags::is_any_set(entry.flag, include_none)) {
 
-        const size_t seq_len = entry.seq.length();
-        size_t clip_len = 0;
 
         SamCigar::CigarTuples tuples;
         SamCigar::string_to_tuple(entry, tuples);
@@ -165,6 +164,24 @@ main(int argc, char* argv[]) {
     }
 
 
+    FeatureVector<string> foo{"foo"};
+    FeatureVector<string> bar{"bar"}; 
+    FeatureVector<string> fubar;    
+
+    bar += bar;
+
+    cout << "Foo:" << endl;
+    for (size_t i = 0; i < foo.size(); ++i) 
+      cout << foo.at(i) << endl;
+
+    cout << "Bar: " << endl;
+    for (size_t i = 0; i < bar.size(); ++i)
+      cout << bar.at(i) << endl;
+ 
+    cout << "Fubar: " << endl;
+    for (size_t i = 0; i < fubar.size(); ++i)
+      cout << fubar.at(i) << endl;
+ 
 
   }
   catch (const std::exception &e) {

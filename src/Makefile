@@ -56,7 +56,7 @@ alignment_gc_distribution: SamReader.o SamEntry.o
 alignment_depth: SamReader.o SamEntry.o GenomicRegion.o StepVector.hpp \
 									GenomicStepVector.hpp
 
-coverage_test: SamReader.o SamEntry.o GenomicRegion.o FeatureVector.o \
+coverage_test: SamReader.o SamEntry.o GenomicRegion.o FeatureVector.hpp \
 									StepVector.hpp GenomicStepVector.hpp
 
 %.o: %.cpp %.hpp
