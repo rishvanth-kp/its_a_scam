@@ -23,13 +23,17 @@
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <unordered_map>
+
+#include "SamReader.hpp"
+#include "SamEntry.hpp"
 
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
-
+using std::unordered_map;
 
 
 static string
@@ -77,6 +81,87 @@ main(int argc, char* argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
+    SamReader reader(aln_file);
+    SamEntry entry;
+
+
+    unordered_map<string, size_t> mismatch_profile;
+
+    vector<string> nucs {"A", "T", "G", "C"};
+    for (size_t i = 0; i < nucs.size(); ++i) {
+      for (size_t j = 0; j < nucs.size(); ++j) {
+        if (i != j) {
+          mismatch_profile.insert(make_pair(nucs[i] + nucs[j], 0));
+        }
+      }
+    }
+
+
+
+    size_t total_aln_length = 0;
+    while (reader.read_sam_line(entry)) {
+      if (entry.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry.flag, include_all) &&
+          !SamFlags::is_any_set(entry.flag, include_none)) {
+
+        SamCigar::CigarTuples cigar_tuple;
+        SamCigar::string_to_tuple(entry, cigar_tuple);
+
+        // calculte alignment length
+        size_t clip_len = 0;
+        SamCigar::CigarTuples::iterator it = cigar_tuple.begin();
+        if (it->first == SamCigar::Cigar::hard_clip)
+          ++it;
+        if (it->first == SamCigar::Cigar::soft_clip)
+          clip_len += it->second;
+
+        SamCigar::CigarTuples::reverse_iterator rit = cigar_tuple.rbegin();
+        if (rit->first == SamCigar::Cigar::hard_clip)
+          ++rit;
+        if (rit->first == SamCigar::Cigar::soft_clip)
+          clip_len += rit->second;
+
+        const size_t seq_len = entry.seq.length();
+        total_aln_length += (seq_len - clip_len);
+
+        string md_tag;
+        vector<pair<size_t, string>> md_tuple;
+        SamTags::get_tag(entry.tags, "MD", md_tag);
+        SamTags::md_to_tuple(md_tag, md_tuple);
+
+        size_t ref_offset = 0;
+        for (auto it = md_tuple.begin(); it != md_tuple.end(); ++it) {
+          ref_offset += it->first;
+          if (it->second[0] == '^')
+            ref_offset += (it->second.length() - 1);
+          else if (it->second != "") {
+            ++ref_offset;
+            size_t ref_pos = 0;
+            size_t query_pos = 0;
+            SamCigar::move_in_reference(cigar_tuple, ref_offset,
+              ref_pos, query_pos);
+            mismatch_profile[it->second + entry.seq[query_pos]]++;
+          }
+        }
+
+      }
+    }
+
+    // write output
+    std::ofstream mm_stats_file(out_prefix + "_mismatch_stats.txt");
+    for (size_t i = 0; i < nucs.size(); ++i) {
+      for (size_t j = 0; j < nucs.size(); ++j) {
+        if (i != j) {
+          size_t mm_count = mismatch_profile[nucs[i] + nucs[j]];
+          float mm_frac = static_cast<float>(mm_count) /
+                          static_cast<float>(total_aln_length);
+          mm_stats_file << nucs[i] + nucs[j] << "\t"
+                        << mm_count << "\t"
+                        << mm_frac <<  endl;
+        }
+      }
+    }
+    mm_stats_file.close();
 
   }
   catch (const std::exception &e) {

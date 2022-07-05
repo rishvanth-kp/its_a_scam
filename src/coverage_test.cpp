@@ -162,7 +162,9 @@ main(int argc, char* argv[]) {
         for (auto it = md_tuple.begin(); it != md_tuple.end(); ++it) {
           cout << it->first << "\t" << it->second << endl;
           ref_offset += it->first;
-          if (it->second[0] != '^' && it->second != "") {
+          if (it->second[0] == '^')
+            ref_offset += (it->second.length() - 1);
+          else if (it->second != "") {
             ++ref_offset;
             cout << "ref_offset: " << ref_offset << endl;
             size_t ref_pos = 0;
