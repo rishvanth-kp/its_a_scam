@@ -25,8 +25,9 @@
 #include <unistd.h>
 #include <unordered_map>
 
-#include "SamReader.hpp"
 #include "SamEntry.hpp"
+#include "SamReader.hpp"
+#include "GenomicStepVector.hpp"
 
 using std::cout;
 using std::cerr;
@@ -84,8 +85,14 @@ main(int argc, char* argv[]) {
     SamReader reader(aln_file);
     SamEntry entry;
 
+    // parse genomic regions from sam file
+    vector<GenomicRegion> ref_chroms;
+    string header;
+    reader.read_sam_header(header);
+    get_seq_lengths(header, ref_chroms);
 
     unordered_map<string, size_t> mismatch_profile;
+    GenomicStepVector<string> mismatch_loc;
 
     vector<string> nucs {"A", "T", "G", "C"};
     for (size_t i = 0; i < nucs.size(); ++i) {
@@ -136,11 +143,13 @@ main(int argc, char* argv[]) {
             ref_offset += (it->second.length() - 1);
           else if (it->second != "") {
             ++ref_offset;
-            size_t ref_pos = 0;
+            size_t ref_pos = entry.pos - 1;
             size_t query_pos = 0;
             SamCigar::move_in_reference(cigar_tuple, ref_offset,
               ref_pos, query_pos);
             mismatch_profile[it->second + entry.seq[query_pos]]++;
+            mismatch_loc.add(entry.rname, ref_pos, ref_pos + 1,
+              string{entry.seq[query_pos]});
           }
         }
 
@@ -163,6 +172,16 @@ main(int argc, char* argv[]) {
     }
     mm_stats_file.close();
 
+    std::ofstream mm_loc_file(out_prefix + "_mismatch_loc.txt");
+    vector<pair<GenomicRegion, string>> out;
+    for (size_t i = 0; i < ref_chroms.size(); ++i) {
+      mismatch_loc.at(ref_chroms[i], out);
+      for (size_t j = 0; j < out.size(); ++j) {
+        mm_loc_file << out[j].first << "\t"
+                    << out[j].second << endl;
+      }
+    }
+    mm_loc_file.close();
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
