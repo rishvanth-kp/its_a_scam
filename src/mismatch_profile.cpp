@@ -93,6 +93,7 @@ main(int argc, char* argv[]) {
 
     unordered_map<string, size_t> mismatch_profile;
     GenomicStepVector<string> mismatch_loc;
+    GenomicStepVector<string> ref_loc;
 
     vector<string> nucs {"A", "T", "G", "C"};
     for (size_t i = 0; i < nucs.size(); ++i) {
@@ -150,6 +151,8 @@ main(int argc, char* argv[]) {
             mismatch_profile[it->second + entry.seq[query_pos]]++;
             mismatch_loc.add(entry.rname, ref_pos, ref_pos + 1,
               string{entry.seq[query_pos]});
+            ref_loc.add(entry.rname, ref_pos, ref_pos + 1,
+              string{it->second});
           }
         }
 
@@ -174,14 +177,23 @@ main(int argc, char* argv[]) {
 
     std::ofstream mm_loc_file(out_prefix + "_mismatch_loc.txt");
     vector<pair<GenomicRegion, string>> out;
+    vector<pair<GenomicRegion, string>> ref_out;
     for (size_t i = 0; i < ref_chroms.size(); ++i) {
       mismatch_loc.at(ref_chroms[i], out);
       for (size_t j = 0; j < out.size(); ++j) {
+        ref_loc.at(out[j].first, ref_out);
         mm_loc_file << out[j].first << "\t"
+                    << ref_out[0].second << "\t"
                     << out[j].second << endl;
+        if (ref_out[0].second.length() != out[j].second.length()) {
+          std::ostringstream oss;
+          oss << "length mismatch: " << out[j].first;
+          throw std::runtime_error(oss.str());
+        }
       }
     }
     mm_loc_file.close();
+
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
