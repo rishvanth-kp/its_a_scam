@@ -157,7 +157,7 @@ SamTags::md_to_tuple(const string &md_tag,
   string op;
 
   size_t start_pos = 0;
-  size_t end_pos = md_tag.find_first_of("ATGCatgc^");
+  size_t end_pos = md_tag.find_first_of("ATGCNatgcn^");
   len = std::stoi(md_tag.substr(start_pos, end_pos - start_pos));
 
   while (end_pos != string::npos) {
@@ -169,7 +169,7 @@ SamTags::md_to_tuple(const string &md_tag,
     tuples.push_back(std::make_pair(len, op));
 
     start_pos = end_pos;
-    end_pos = md_tag.find_first_of("ATGCatgc^", end_pos);
+    end_pos = md_tag.find_first_of("ATGCNatgcn^", end_pos);
     len = std::stoi(md_tag.substr(start_pos, end_pos - start_pos));
   }
   op = "";
