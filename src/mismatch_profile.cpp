@@ -185,11 +185,21 @@ main(int argc, char* argv[]) {
         mm_loc_file << out[j].first << "\t"
                     << ref_out[0].second << "\t"
                     << out[j].second << endl;
+
+        // sanity checks
         if (ref_out[0].second.length() != out[j].second.length()) {
           std::ostringstream oss;
           oss << "length mismatch: " << out[j].first;
           throw std::runtime_error(oss.str());
         }
+        for (size_t k = 1; k < ref_out[0].second.length(); ++k) {
+          if (ref_out[0].second[k] != ref_out[0].second[0]) {
+            std::ostringstream oss;
+            oss << "base mismatch: " << out[j].first;
+            throw std::runtime_error(oss.str());
+          }
+        }
+
       }
     }
     mm_loc_file.close();
