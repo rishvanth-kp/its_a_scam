@@ -37,6 +37,7 @@ public:
   ~SamReader();
 
   bool read_sam_line(SamEntry &entry);
+  bool read_pe_sam(SamEntry &entry1, SamEntry &entry2);
   void read_sam_header(string &hdr);
 
 private:

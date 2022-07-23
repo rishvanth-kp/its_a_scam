@@ -31,29 +31,52 @@ using std::string;
 using std::vector;
 using std::pair;
 
+/**
+* \brief A class for holing values in a SAM entry.
+*
+* Takes an entry read from a SAM/BAM file as a string and parsers
+* the mandatory and optional fields.
+*/
 class SamEntry {
 public:
 
-  SamEntry() {};
+  /**
+  * Default constructor. Initializes SAM fields to default values.
+  */
+  SamEntry(): flag{0}, pos{0}, mapq{255}, pnext{0}, tlen{0} {};
+  /**
+  * Constructs from a SAM/BAM string by calling parse_entry. 
+  */
   SamEntry(const string &line);
+
+  /**
+  * Default destructor.
+  */
   ~SamEntry();
 
+  /**
+  * Parses a string into SAM/BAM fields. 
+  * The required fields are stored in the appropriate member.
+  * The optional tags are stored as a TAG:TYPE:VALUE string in 
+  * a vector.
+  *
+  * @param [in] line SAM/BAM line.
+  */
   void parse_entry(const string &line);
 
-  string qname;
-  uint16_t flag;
-  string rname;
-  uint32_t pos;
-  uint16_t mapq;
-  string cigar;
-  string rnext;
-  uint32_t pnext;
-  int tlen;
-  string seq;
-  string qual;
+  string qname; /**< QNAME. Query template name. */
+  uint16_t flag; /**< FLAG. Bitwise flag. */
+  string rname; /**< RNAME. Reference sequence name. */
+  uint32_t pos; /**< POS. 1-based leftmost mapping position. */
+  uint16_t mapq; /**< MAPQ. Mapping quality. */
+  string cigar; /**< CIGAR. CIGAR string. */
+  string rnext; /**< RNEXT. Reference name of mate. */
+  uint32_t pnext; /**< PNEXT. Position of mate. */
+  int tlen; /**< TLEN. Observed template length. */
+  string seq; /**< SEQ. Segment sequence. */
+  string qual; /**< QUAL. ASCII if Phred-scaled base quality. */
 
-  string tag_string;
-  vector<string> tags;
+  vector<string> tags /**< TAGS. Optional tags. */;
 };
 
 
