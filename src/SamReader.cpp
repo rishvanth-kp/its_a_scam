@@ -71,6 +71,37 @@ SamReader::read_sam_line(SamEntry &entry) {
 }
 
 
+bool
+SamReader::read_pe_sam(SamEntry &entry1, SamEntry &entry2) {
+
+  // Read an entry and check if its mate has already been read.
+  // If mate exists, return current entry and mate.
+  // If mate does not exist, store current entry for later and
+  // read next entry.
+  bool mate_found = false;
+  while (!eof & !mate_found) {
+    SamEntry e;
+    read_sam_line(e);
+
+    unordered_map<string, SamEntry>::iterator it;
+    it = lonley_mates.find(e.qname);
+    // mate not found. Store entry and keep going.
+    if (it == lonley_mates.end()) {
+      lonley_mates.insert(std::make_pair(e.qname, e));
+    }
+    // mate found. remove entry, and return pair.
+    else {
+      entry1 = it->second;
+      entry2 = e;
+      lonley_mates.erase(it);
+      mate_found = true;
+    }
+  }
+
+  return mate_found;
+}
+
+
 void
 SamReader::read_sam_header(string &hdr) {
   hdr = sam_hdr_str(header);

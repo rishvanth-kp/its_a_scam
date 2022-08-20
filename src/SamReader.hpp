@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 #include "SamEntry.hpp"
 #include "GenomicRegion.hpp"
@@ -30,6 +31,7 @@
 #include "htslib/sam.h"
 
 using std::string;
+using std::unordered_map;
 
 /**
 * \brief SAM/BAM file reader.
@@ -62,7 +64,29 @@ public:
   * A runtime error is thrown if the enrty is not valid.
   */
   bool read_sam_line(SamEntry &entry);
+
+  /**
+  * Reads a pair of entries from a paired-end SAM/BAM file, and populates
+  * 'entry1' and 'entry2' in the order the pair appeares in the SAM file.
+  * This uses a hash table to keep track of SAM entires whose mates have
+  * not yet been read. SAM entries are read using 'read_sam_line', and
+  * checks if another entry with the same QNAME exists in the hash table.
+  * If it exists, the current read entry and the entry in the hash table
+  * are returned. If it does not exist, the current entry is stored in the
+  * hash table.
+  * It is assumed that each read pair contains exactly two entries in the
+  * SAM file. Having more than two entries are present for a read pair (for
+  * example, supplementary alignments) will result in returning more than one
+  * read pair for the same QNAME (if there are even entries) or having dangling
+  * entries in the hash table (if there are odd entries).
+  *
+  * @param [out] entry1 SamEntry with the first read
+  * @param [out] entry2 SamEntry with the second read
+  * @return True on successfully reading a pair. False if end of file is
+  * reached.
+  */
   bool read_pe_sam(SamEntry &entry1, SamEntry &entry2);
+
   /**
   * Retruns the entire header as a string.
   *
@@ -76,6 +100,8 @@ private:
   bam1_t *b;
   kstring_t sam_entry;
   bool eof;
+
+  unordered_map<string, SamEntry> lonley_mates;
 };
 
 void

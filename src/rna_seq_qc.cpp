@@ -89,7 +89,14 @@ main(int argc, char *argv[]) {
       cout << out[i].first << "\t"
            << out[i].second << endl;
     }
-  
+
+    SamReader sam_reader("test.sam");
+    SamEntry entry1, entry2;
+    while(sam_reader.read_pe_sam(entry1, entry2)) {
+      cout << entry1.qname << "\t" << entry1.rname << "\t" << entry1.pos << endl;
+      cout << entry2.qname << "\t" << entry2.rname << "\t" << entry2.pos << endl;
+    }
+      
 
   }
   catch (std::exception &e) {
