@@ -47,6 +47,7 @@ public:
   void at(const GenomicRegion &g,
           vector<pair<GenomicRegion, T>> &out,
           bool keep_0 = false) const;
+  void at(const string chr, vector<pair<GenomicRegion, T>> &out);
 
   size_t chrom_count() const { return n_chrom; }
   size_t entry_count() const { return n_entry; }
@@ -144,5 +145,11 @@ GenomicStepVector<T>::at(const GenomicRegion &g,
 }
 
 
+template<typename T>
+void 
+GenomicStepVector<T>::at(const string chr, 
+                         vector<pair<GenomicRegion, T>> &out) {
+  at(GenomicRegion{chr, 0, std::numeric_limits<size_t>::max()}, out);
+}
 
 #endif
