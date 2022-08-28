@@ -44,6 +44,7 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
 
   GenomicStepVector<FeatureVector<string>> gtf_features;
   unordered_set<string> chroms;
+  unordered_set<string> features;
 
   while (gff_reader.read_gencode_gtf_line(entry)) {
     chroms.insert(entry.name);
@@ -91,25 +92,32 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
         }
       }
 
-
       // build reference
       if (gene_count > 1) {
         genomic_features.add(it->first, "ambiguous");
+        features.insert("ambiguous");
       }
       else if (gene_type == "protein_coding") {
         if (!exon) {
           genomic_features.add(it->first, "pc_intron");
+          features.insert("pc_intron");
         }
         else {
           genomic_features.add(it->first, "pc_exon");
+          features.insert("pc_exon");
         }
       }
       else {
         genomic_features.add(it->first, gene_type);
+        features.insert(gene_type);
       }
     }
   }
 
+  features.insert("intergenic");
+  for (auto it = features.begin(); it != features.end(); ++it) {
+    feature_count.insert(make_pair(*it, 0));
+  }
 /*
   for (auto chrom_it = chroms.begin(); chrom_it != chroms.end(); ++chrom_it) {
     vector<pair<GenomicRegion, string>> out;

@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 #include "GtfReader.hpp"
 #include "FeatureVector.hpp"
@@ -37,6 +38,7 @@ public:
 
 private:
   GenomicStepVector<string> genomic_features;
+  std::unordered_map<string, size_t> feature_count;
 };
 
 
