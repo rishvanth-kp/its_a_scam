@@ -23,13 +23,20 @@
 #include <iostream>
 #include <string>
 
+#include "GtfReader.hpp"
+#include "FeatureVector.hpp"
+#include "GenomicRegion.hpp"
+#include "GenomicStepVector.hpp"
+
 class AlignedGenomicFeature {
 public:
   AlignedGenomicFeature();
   ~AlignedGenomicFeature();
 
+  void preprocess_gff(const string& gff_file);
 
 private:
+  GenomicStepVector<string> genomic_features;
 };
 
 

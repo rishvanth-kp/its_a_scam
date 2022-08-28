@@ -31,6 +31,7 @@
 #include "PreprocessGff.hpp"
 #include "GenomicRegion.hpp"
 #include "GenomicStepVector.hpp"
+#include "AlignedGenomicFeature.hpp"
 
 using std::cout;
 using std::cerr;
@@ -75,6 +76,7 @@ main(int argc, char *argv[]) {
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
     // gff_processor.parse_genome_features(gtf_file);
 
+/*
     GenomicStepVector<size_t> step_vec;
     step_vec.add("chr1", 15, 20, 1);
     step_vec.add("chr1", 3, 5, 2);
@@ -89,14 +91,10 @@ main(int argc, char *argv[]) {
       cout << out[i].first << "\t"
            << out[i].second << endl;
     }
-
-    SamReader sam_reader("test.sam");
-    SamEntry entry1, entry2;
-    while(sam_reader.read_pe_sam(entry1, entry2)) {
-      cout << entry1.qname << "\t" << entry1.rname << "\t" << entry1.pos << endl;
-      cout << entry2.qname << "\t" << entry2.rname << "\t" << entry2.pos << endl;
-    }
+*/
       
+    AlignedGenomicFeature genomic_feature;
+    genomic_feature.preprocess_gff(gtf_file);    
 
   }
   catch (std::exception &e) {
