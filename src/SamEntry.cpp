@@ -129,6 +129,11 @@ SamCigar::move_in_query(const CigarTuples &tuples,
 
 }
 
+void
+SamCigar::cigar_to_reference_regions(const CigarTuples &tuples,
+  const size_t ref_pos, vector<GenomicRegion> &ref_regions) {
+
+}
 
 bool
 SamTags::get_tag(const vector<string> &tags, const string &tag, string &value) {
