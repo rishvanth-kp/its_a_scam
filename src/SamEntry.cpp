@@ -67,6 +67,11 @@ SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
 }
 
 
+void
+SamCigar::cigar_to_reference_regions(const SamEntry &e,
+  vector<GenomicRegion> &ref_regions) {
+
+}
 
 void
 SamCigar::move_in_reference(const CigarTuples &tuples,
@@ -129,11 +134,6 @@ SamCigar::move_in_query(const CigarTuples &tuples,
 
 }
 
-void
-SamCigar::cigar_to_reference_regions(const CigarTuples &tuples,
-  const size_t ref_pos, vector<GenomicRegion> &ref_regions) {
-
-}
 
 bool
 SamTags::get_tag(const vector<string> &tags, const string &tag, string &value) {
