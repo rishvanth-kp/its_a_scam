@@ -102,6 +102,7 @@ namespace SamCigar {
   };
 
   using CigarTuples = vector<pair<Cigar, size_t>>;
+  using CigarRegions = vector<pair<Cigar, GenomicRegion>>;
 
   /**
   * Takes a SamEntry and converts to cigar stirng into CigarTuples.
@@ -130,13 +131,13 @@ namespace SamCigar {
   * cigar operation.
   *
   * @param [in] e SamEntry containing the cigar string to be parsed.
-  * @param [out] ref_regions A vector of GenomicRegions with a regions
-  *   corresponding to each cigar operation. The regions are represented
-  *   as half open intervals with 0-based offsets.
+  * @param [out] ref_regions A vector of a pair of cigar op and GenomicRegions
+  *   with a regions corresponding to each cigar operation. The regions are
+  *   represented as half open intervals with 0-based offsets.
   */
   void
   cigar_to_reference_regions(const SamEntry &e,
-    vector<GenomicRegion> &ref_regions);
+    CigarRegions &ref_regions);
 }
 
 namespace SamFlags {
