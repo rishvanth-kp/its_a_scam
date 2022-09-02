@@ -18,6 +18,7 @@
 */
 
 #include <unordered_set>
+#include <vector>
 
 #include "AlignedGenomicFeature.hpp"
 
@@ -25,6 +26,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::vector;
 using std::unordered_set;
 
 AlignedGenomicFeature::AlignedGenomicFeature() {
@@ -127,5 +129,31 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
     }
   }
 */
+
+}
+
+
+void
+AlignedGenomicFeature::add(const SamEntry &e) {
+  SamCigar::CigarRegions ref_regions;
+  SamCigar::cigar_to_reference_regions(e, ref_regions);
+
+  vector<pair<GenomicRegion, string>> out;
+  for (auto it = ref_regions.begin(); it != ref_regions.end(); ++it) {
+    if (it->first == SamCigar::Cigar::aln_match ||
+        it->first == SamCigar::Cigar::seq_match ||
+        it->first == SamCigar::Cigar::seq_mismatch) {
+
+      genomic_features.at(it->second, out, true);
+      for (auto jt = out.begin(); jt != out.end(); ++jt) {
+        if (jt->second == string{}) {
+          feature_count["intergenic"] += (jt->first.end - jt->first.start);
+        }
+        else {
+          feature_count[jt->second] += (jt->first.end - jt->first.start);
+        }
+      }
+    }
+  }
 
 }

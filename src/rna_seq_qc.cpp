@@ -45,7 +45,7 @@ print_usage(const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
       << "\t-g gtf file (required)" << endl
-      << "\t-c chrom size file (required)" << endl
+      << "\t-s sam file (required)" << endl
       << "\t-v verbose (default: false)" << endl;
   return oss.str();
 }
@@ -55,22 +55,22 @@ main(int argc, char *argv[]) {
   try {
 
     string gtf_file;
-    string chrom_size_file;
+    string sam_file;
     bool VERBOSE{false};
 
     int opt;
-    while ((opt = getopt(argc, argv, "g:c:v")) != -1) {
+    while ((opt = getopt(argc, argv, "g:s:v")) != -1) {
       if (opt == 'g')
         gtf_file = optarg;
-      else if (opt == 'c')
-        chrom_size_file = optarg;
+      else if (opt == 's')
+        sam_file = optarg;
       else if (opt == 'v')
         VERBOSE = true;
       else
         throw std::runtime_error(print_usage(argv[0]));
     }
 
-    if (gtf_file.empty() || chrom_size_file.empty())
+    if (gtf_file.empty() || sam_file.empty())
       throw std::runtime_error(print_usage(argv[0]));
 
     // PreprocessGff gff_processor(chrom_size_file, VERBOSE);
@@ -96,6 +96,11 @@ main(int argc, char *argv[]) {
     AlignedGenomicFeature genomic_feature;
     genomic_feature.preprocess_gff(gtf_file);    
 
+    SamReader sam_reader(sam_file);
+    SamEntry entry;
+    while(sam_reader.read_sam_line(entry)) {
+      genomic_feature.add(entry);
+    }
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

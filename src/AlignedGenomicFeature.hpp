@@ -24,6 +24,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "SamEntry.hpp"
 #include "GtfReader.hpp"
 #include "FeatureVector.hpp"
 #include "GenomicRegion.hpp"
@@ -35,6 +36,8 @@ public:
   ~AlignedGenomicFeature();
 
   void preprocess_gff(const string& gff_file);
+
+  void add(const SamEntry &e);
 
 private:
   GenomicStepVector<string> genomic_features;
