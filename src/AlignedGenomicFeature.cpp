@@ -18,6 +18,7 @@
 */
 
 #include <unordered_set>
+#include <fstream>
 #include <vector>
 
 #include "AlignedGenomicFeature.hpp"
@@ -30,7 +31,7 @@ using std::vector;
 using std::unordered_set;
 
 AlignedGenomicFeature::AlignedGenomicFeature() {
-
+  match_bases = 0;
 }
 
 AlignedGenomicFeature::~AlignedGenomicFeature() {
@@ -146,14 +147,29 @@ AlignedGenomicFeature::add(const SamEntry &e) {
 
       genomic_features.at(it->second, out, true);
       for (auto jt = out.begin(); jt != out.end(); ++jt) {
+        const size_t match_len = jt->first.end - jt->first.start;
+        match_bases += match_len;
         if (jt->second == string{}) {
-          feature_count["intergenic"] += (jt->first.end - jt->first.start);
+          feature_count["intergenic"] += match_len;
         }
         else {
-          feature_count[jt->second] += (jt->first.end - jt->first.start);
+          feature_count[jt->second] += match_len;
         }
       }
     }
   }
+}
+  
 
+void 
+AlignedGenomicFeature::feature_count_to_file(const string& file_name) {
+  std::ofstream out_file(file_name);
+  
+  for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
+    const float feature_percent = 
+      (static_cast<float>(it->second) / static_cast<float>(match_bases)) * 100;
+    out_file << it->first << "\t" << feature_percent << endl; 
+  }
+
+  out_file.close();
 }

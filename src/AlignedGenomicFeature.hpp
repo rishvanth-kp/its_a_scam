@@ -39,9 +39,12 @@ public:
 
   void add(const SamEntry &e);
 
+  void feature_count_to_file(const string& file);
+
 private:
   GenomicStepVector<string> genomic_features;
   std::unordered_map<string, size_t> feature_count;
+  size_t match_bases;
 };
 
 

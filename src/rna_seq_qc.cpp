@@ -101,7 +101,9 @@ main(int argc, char *argv[]) {
     while(sam_reader.read_sam_line(entry)) {
       genomic_feature.add(entry);
     }
+    genomic_feature.feature_count_to_file("feature_counts.txt");
   }
+
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
     return EXIT_FAILURE;
