@@ -38,6 +38,7 @@ alignment_gc_distribution
 alignment_depth
 mismatch_profile
 coverage_test
+genomic_feature_count
 
 # vim temp files
 *.swp
