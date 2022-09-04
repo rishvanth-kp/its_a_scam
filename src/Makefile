@@ -48,6 +48,7 @@ rna_seq_qc: rna_seq_qc.cpp GenomicRegion.o BedReader.o \
               GtfReader.o PreprocessGff.o \
 							SamReader.o SamEntry.o \
 							AlignedGenomicFeature.o \
+							AlignmentMismatches.o \
               StepVector.hpp GenomicStepVector.hpp
 
 alignment_quality_distribution: SamReader.o SamEntry.o
