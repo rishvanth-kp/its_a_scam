@@ -38,6 +38,7 @@ alignment_gc_distribution
 alignment_depth
 mismatch_profile
 mismatch_profile_vaf
+mismatch_jaccard
 coverage_test
 genomic_feature_count
 
