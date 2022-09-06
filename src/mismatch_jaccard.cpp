@@ -225,8 +225,12 @@ main(int argc, char* argv[]) {
     // comput and write the jaccard index
     std::ofstream jaccard_out(out_prefix + "_jaccard.txt");
     for (size_t i = 0; i < n_samples; ++i) {
+      jaccard_out << sample_map[i] << "\t";
+    }
+    jaccard_out << endl;
+    for (size_t i = 0; i < n_samples; ++i) {
+      jaccard_out << sample_map[i] << "\t";
       for (size_t j = 0; j < n_samples; ++j) {
-        cout << mm_counts[i][j] << endl;
         size_t isect;
         if (i != j)
           isect = mm_counts[i][j] + mm_counts[j][i];
