@@ -77,7 +77,7 @@ coverage_test: SamReader.o SamEntry.o GenomicRegion.o FeatureVector.hpp \
 
 genomic_feature_count: SamReader.o SamEntry.o AlignedGenomicFeature.o \
 												StepVector.hpp GenomicStepVector.hpp \
-												GtfReader.o
+												GtfReader.o GenomicRegion.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)

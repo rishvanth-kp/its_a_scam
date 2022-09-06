@@ -79,6 +79,15 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
       bool cds{false};
       bool utr{false};
       string gene_type;
+
+      /*
+      cout << it->first << "\t";
+      for (size_t j = 0; j < it->second.size(); ++j) {
+        cout << it->second.at(j) << "\t";
+      }
+      cout << endl;
+      */
+
       for (size_t j = 0; j < it->second.size(); ++j) {
         if (it->second.at(j) == "exon") {
           exon = true;
@@ -96,25 +105,45 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
       }
 
       // build reference
-      if (gene_count > 1) {
-        genomic_features.add(it->first, "ambiguous");
-        features.insert("ambiguous");
-      }
-      else if (gene_type == "protein_coding") {
-        if (!exon) {
-          genomic_features.add(it->first, "pc_intron");
-          features.insert("pc_intron");
-        }
-        else {
-          genomic_features.add(it->first, "pc_exon");
-          features.insert("pc_exon");
-        }
+      if (it->first.name == "chrM") {
+        genomic_features.add(it->first, "chrM_" + gene_type);
+        features.insert("chrM_" + gene_type);
       }
       else {
-        genomic_features.add(it->first, gene_type);
-        features.insert(gene_type);
+        if (gene_count > 1) {
+          genomic_features.add(it->first, "ambiguous");
+          features.insert("ambiguous");
+        }
+        else if (gene_type == "protein_coding") {
+          if (!exon) {
+            genomic_features.add(it->first, "pc_intron");
+            features.insert("pc_intron");
+          }
+          else if (cds & !utr) {
+            genomic_features.add(it->first, "pc_cds");
+            features.insert("pc_cds");
+          }
+          else if (!cds & utr) {
+            genomic_features.add(it->first, "pc_utr");
+            features.insert("pc_utr");
+          }
+          else if (cds & utr) {
+            genomic_features.add(it->first, "pc_both");
+            features.insert("pc_utr");
+          }
+          else {
+            genomic_features.add(it->first, "pc_none");
+            features.insert("pc_utr");
+          }
+
+        }
+        else {
+          genomic_features.add(it->first, gene_type);
+          features.insert(gene_type);
+        }
       }
     }
+
   }
 
   features.insert("intergenic");
@@ -159,16 +188,16 @@ AlignedGenomicFeature::add(const SamEntry &e) {
     }
   }
 }
-  
 
-void 
+
+void
 AlignedGenomicFeature::feature_count_to_file(const string& file_name) {
   std::ofstream out_file(file_name);
-  
+
   for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
-    const float feature_percent = 
+    const float feature_percent =
       (static_cast<float>(it->second) / static_cast<float>(match_bases)) * 100;
-    out_file << it->first << "\t" << feature_percent << endl; 
+    out_file << it->first << "\t" << feature_percent << endl;
   }
 
   out_file.close();
