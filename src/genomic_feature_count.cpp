@@ -36,6 +36,7 @@ print_usage(const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
+      << "\t-g GTF feature file [required]" << endl
       << "\t-o out file prefix [required]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all of the flags are present [default: 0]"
@@ -51,15 +52,18 @@ main(int argc, char* argv[]) {
 
     string aln_file;
     string out_prefix;
+    string gtf_file;
 
     size_t min_mapq = 0;
     uint16_t include_all = 0;
     uint16_t include_none = 0x0804;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:q:f:F:o:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:g:q:f:F:o:")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
+      else if (opt == 'g')
+        gtf_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
       else if (opt == 'q')
@@ -72,10 +76,25 @@ main(int argc, char* argv[]) {
         throw std::runtime_error(print_usage(argv[0]));
     }
 
-    if (aln_file.empty() || out_prefix.empty()) {
+    if (aln_file.empty() || gtf_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
+    AlignedGenomicFeature genomic_feature;
+    genomic_feature.preprocess_gff(gtf_file);
+
+    SamReader sam_reader(aln_file);
+    SamEntry entry;
+    while (sam_reader.read_sam_line(entry)) {
+      if (entry.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry.flag, include_all) &&
+          !SamFlags::is_any_set(entry.flag, include_none)) {
+
+        genomic_feature.add(entry);
+      }
+    }
+
+    genomic_feature.feature_count_to_file(out_prefix + "_feature_counts.txt");
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
