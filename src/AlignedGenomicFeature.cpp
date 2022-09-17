@@ -18,6 +18,7 @@
 */
 
 #include <unordered_set>
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
@@ -190,7 +191,7 @@ AlignedGenomicFeature::add(const SamEntry &e) {
 }
 
 
-void 
+void
 AlignedGenomicFeature::clear_counts() {
   for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
     it->second = 0;
@@ -198,13 +199,20 @@ AlignedGenomicFeature::clear_counts() {
   match_bases = 0;
 }
 
-void 
-AlignedGenomicFeature::get_feature_counts(vector<pair<string, size_t>> &counts, 
+
+static bool
+sort_features(pair<string, size_t> a, pair<string, size_t> b) {
+  return (a.first < b.first);
+}
+
+void
+AlignedGenomicFeature::get_feature_counts(vector<pair<string, size_t>> &counts,
                                           size_t &n_bases) {
   counts.clear();
   for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
     counts.push_back(std::make_pair(it->first, it->second));
   }
+  std::sort(counts.begin(), counts.end(), sort_features);
   n_bases = match_bases;
 }
 
@@ -212,10 +220,18 @@ void
 AlignedGenomicFeature::feature_count_to_file(const string& file_name) const{
   std::ofstream out_file(file_name);
 
+  vector<pair<string, size_t>> counts;
   for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
+    counts.push_back(std::make_pair(it->first, it->second));
+  }
+  std::sort(counts.begin(), counts.end(), sort_features);
+
+  for (auto it = counts.begin(); it != counts.end(); ++it) {
     const float feature_percent =
       (static_cast<float>(it->second) / static_cast<float>(match_bases)) * 100;
-    out_file << it->first << "\t" << feature_percent << endl;
+    out_file << it->first << "\t"
+             << it->second << "\t"
+             << feature_percent << endl;
   }
 
   out_file.close();
