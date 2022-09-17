@@ -39,7 +39,12 @@ public:
 
   void add(const SamEntry &e);
 
-  void feature_count_to_file(const string& file);
+  void clear_counts();
+  
+  void get_feature_counts(vector<pair<string, size_t>> &counts, 
+                          size_t &n_bases);
+  void feature_count_to_file(const string& file) const;
+  
 
 private:
   GenomicStepVector<string> genomic_features;

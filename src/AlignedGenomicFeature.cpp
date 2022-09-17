@@ -190,8 +190,26 @@ AlignedGenomicFeature::add(const SamEntry &e) {
 }
 
 
+void 
+AlignedGenomicFeature::clear_counts() {
+  for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
+    it->second = 0;
+  }
+  match_bases = 0;
+}
+
+void 
+AlignedGenomicFeature::get_feature_counts(vector<pair<string, size_t>> &counts, 
+                                          size_t &n_bases) {
+  counts.clear();
+  for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
+    counts.push_back(std::make_pair(it->first, it->second));
+  }
+  n_bases = match_bases;
+}
+
 void
-AlignedGenomicFeature::feature_count_to_file(const string& file_name) {
+AlignedGenomicFeature::feature_count_to_file(const string& file_name) const{
   std::ofstream out_file(file_name);
 
   for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
