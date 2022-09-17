@@ -112,8 +112,8 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
       }
       else {
         if (gene_count > 1) {
-          genomic_features.add(it->first, "ambiguous");
-          features.insert("ambiguous");
+          genomic_features.add(it->first, "multi_gene");
+          features.insert("multi_gene");
         }
         else if (gene_type == "protein_coding") {
           if (!exon) {
