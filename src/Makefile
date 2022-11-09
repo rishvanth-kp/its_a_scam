@@ -23,7 +23,8 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 					alignment_depth \
 					mismatch_profile coverage_test \
 					genomic_feature_count mismatch_profile_vaf \
-					mismatch_jaccard
+					mismatch_jaccard \
+					gene_count
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -78,6 +79,8 @@ coverage_test: SamReader.o SamEntry.o GenomicRegion.o FeatureVector.hpp \
 genomic_feature_count: SamReader.o SamEntry.o AlignedGenomicFeature.o \
 												StepVector.hpp GenomicStepVector.hpp \
 												GtfReader.o GenomicRegion.o
+
+gene_count: SamReader.o SamEntry.o GtfReader.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)
