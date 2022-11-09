@@ -41,6 +41,7 @@ mismatch_profile_vaf
 mismatch_jaccard
 coverage_test
 genomic_feature_count
+gene_count
 
 # vim temp files
 *.swp
