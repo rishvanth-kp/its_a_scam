@@ -20,12 +20,24 @@
 #ifndef GENE_COUNT_HPP
 #define GENE_COUNT_HPP
 
+#include <string>
+#include <unordered_map>
+
+#include "GtfReader.hpp"
+#include "FeatureVector.hpp"
+#include "GenomicRegion.hpp"
+#include "GenomicStepVector.hpp"
+
 class GeneCount {
 public:
   GeneCount();
   ~GeneCount();
 
+  void preprocess_gff(const std::string &gff_file);  
+
 private:
+  GenomicStepVector<FeatureVector<string>> gene_locations;
+  std::unordered_map<string, size_t> gene_count;
 }; 
 
 #endif

@@ -19,10 +19,31 @@
 
 #include "GeneCount.hpp"
 
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::string;
+using std::unordered_map;
+
 GeneCount::GeneCount() {
 
 }
 
 GeneCount::~GeneCount() {
 
+}
+
+
+void
+GeneCount::preprocess_gff(const string &gff_file) {
+  
+  GtfReader gff_reader(gff_file);
+  GencodeGtfEntry entry;
+
+  while (gff_reader.read_gencode_gtf_line(entry)) {
+    if (entry.feature == "exon") {
+      cout << entry.gene_name << endl;
+    }
+  }
+  
 }

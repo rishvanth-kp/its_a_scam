@@ -80,7 +80,8 @@ genomic_feature_count: SamReader.o SamEntry.o AlignedGenomicFeature.o \
 												StepVector.hpp GenomicStepVector.hpp \
 												GtfReader.o GenomicRegion.o
 
-gene_count: SamReader.o SamEntry.o GtfReader.o GeneCount.o
+gene_count: SamReader.o SamEntry.o GtfReader.o GeneCount.o StepVector.hpp \
+							GenomicStepVector.hpp GenomicRegion.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)
