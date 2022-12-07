@@ -22,6 +22,10 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "GeneCount.hpp"
+#include "SamReader.hpp"
+#include "SamEntry.hpp"
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -36,7 +40,7 @@ print_usage(const string &name) {
       << "\t-o out file prefix [required]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all the flags are present [default: 0]" << endl
-      << "\t-F only incldue if none of the flags are present [default: 2052]"
+      << "\t-F only incldue if none of the flags are present [default: 2316]"
         << endl;
   return oss.str();
 }
@@ -74,6 +78,24 @@ main(int argc, char* argv[]) {
     if (aln_file.empty() || gtf_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
+
+    GeneCount gene_counter;
+    gene_counter.preprocess_gff(gtf_file);
+
+    SamReader sam_reader(aln_file);
+    SamEntry entry;
+    while (sam_reader.read_sam_line(entry)) {
+      if (entry.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry.flag, include_all) &&
+          !SamFlags::is_any_set(entry.flag, include_none)) {
+
+        gene_counter.add(entry);
+      }
+    }
+
+    vector<pair<string, size_t>> gene_counts;
+    gene_counter.get_gene_counts(gene_counts);
+
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

@@ -23,6 +23,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "SamEntry.hpp"
 #include "GtfReader.hpp"
 #include "FeatureVector.hpp"
 #include "GenomicRegion.hpp"
@@ -33,11 +34,16 @@ public:
   GeneCount();
   ~GeneCount();
 
-  void preprocess_gff(const std::string &gff_file);  
+  void preprocess_gff(const std::string &gff_file);
+
+  void add(const SamEntry &e);
+
+  void get_gene_counts(vector<pair<string, size_t>> &counts);
+
 
 private:
   GenomicStepVector<FeatureVector<string>> gene_locations;
   std::unordered_map<string, size_t> gene_count;
-}; 
+};
 
 #endif
