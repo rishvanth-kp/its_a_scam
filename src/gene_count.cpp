@@ -83,6 +83,7 @@ main(int argc, char* argv[]) {
     gene_counter.preprocess_gff(gtf_file);
 
     SamReader sam_reader(aln_file);
+   
     SamEntry entry;
     while (sam_reader.read_sam_line(entry)) {
       if (entry.mapq >= min_mapq &&

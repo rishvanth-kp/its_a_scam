@@ -37,6 +37,7 @@ public:
   void preprocess_gff(const std::string &gff_file);
 
   void add(const SamEntry &e);
+  void add(const SamEntry &e1, const SamEntry &e2);
 
   void get_gene_counts(vector<pair<string, size_t>> &counts);
 
