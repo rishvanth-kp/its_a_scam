@@ -103,15 +103,15 @@ GeneCount::add(const SamEntry &e1, const SamEntry &e2) {
 
   unordered_set<string> aligned_genes;
   vector <pair<GenomicRegion, FeatureVector<string>>> out;
-  
+
   // process first read
   SamCigar::CigarRegions ref_regions1;
   SamCigar::cigar_to_reference_regions(e1, ref_regions1);
   for (auto it = ref_regions1.begin(); it != ref_regions1.end(); ++it) {
-    if (it->first == SamCigar::Cigar::aln_match || 
+    if (it->first == SamCigar::Cigar::aln_match ||
         it->first == SamCigar::Cigar::seq_match ||
         it->first == SamCigar::Cigar::seq_mismatch) {
-      
+
       gene_locations.at(it->second, out);
       for (auto jt = out.begin(); jt != out.end(); ++jt) {
         for (size_t k = 0; k < jt->second.size(); ++k) {
@@ -119,16 +119,16 @@ GeneCount::add(const SamEntry &e1, const SamEntry &e2) {
         }
       }
     }
-  } 
- 
+  }
+
   // process second read
   SamCigar::CigarRegions ref_regions2;
   SamCigar::cigar_to_reference_regions(e2, ref_regions2);
   for (auto it = ref_regions2.begin(); it != ref_regions2.end(); ++it) {
-    if (it->first == SamCigar::Cigar::aln_match || 
+    if (it->first == SamCigar::Cigar::aln_match ||
         it->first == SamCigar::Cigar::seq_match ||
         it->first == SamCigar::Cigar::seq_mismatch) {
-      
+
       gene_locations.at(it->second, out);
       for (auto jt = out.begin(); jt != out.end(); ++jt) {
         for (size_t k = 0; k < jt->second.size(); ++k) {
@@ -136,13 +136,13 @@ GeneCount::add(const SamEntry &e1, const SamEntry &e2) {
         }
       }
     }
-  } 
+  }
 
 
   // add gene count
   if (aligned_genes.size() == 1) {
     ++gene_count[*aligned_genes.cbegin()];
-  } 
+  }
 }
 
 void

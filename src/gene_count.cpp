@@ -38,6 +38,7 @@ print_usage(const string &name) {
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-g GTF feature file [required]" << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-s single end reads? [default: false]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all the flags are present [default: 0]" << endl
       << "\t-F only incldue if none of the flags are present [default: 2316]"
@@ -53,12 +54,13 @@ main(int argc, char* argv[]) {
     string out_prefix;
     string gtf_file;
 
+    bool se = false;
     size_t min_mapq = 0;
     uint16_t include_all = 0;
     uint16_t include_none = 0x0804;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:g:q:f:F:o:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:g:q:f:F:o:s")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'g')
@@ -71,6 +73,8 @@ main(int argc, char* argv[]) {
         include_all = std::stoi(optarg);
       else if (opt == 'F')
         include_none = std::stoi(optarg);
+      else if (opt == 's')
+        se = true;
       else
         throw std::runtime_error(print_usage(argv[0]));
     }
@@ -83,14 +87,29 @@ main(int argc, char* argv[]) {
     gene_counter.preprocess_gff(gtf_file);
 
     SamReader sam_reader(aln_file);
-   
-    SamEntry entry;
-    while (sam_reader.read_sam_line(entry)) {
-      if (entry.mapq >= min_mapq &&
-          SamFlags::is_all_set(entry.flag, include_all) &&
-          !SamFlags::is_any_set(entry.flag, include_none)) {
 
-        gene_counter.add(entry);
+    if (se) {
+      SamEntry entry;
+      while (sam_reader.read_sam_line(entry)) {
+        if (entry.mapq >= min_mapq &&
+            SamFlags::is_all_set(entry.flag, include_all) &&
+            !SamFlags::is_any_set(entry.flag, include_none)) {
+
+          gene_counter.add(entry);
+        }
+      }
+    }
+    else {
+      SamEntry entry1, entry2;
+      while (sam_reader.read_pe_sam(entry1, entry2)) {
+        if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq &&
+            SamFlags::is_all_set(entry1.flag, include_all) &&
+            SamFlags::is_all_set(entry2.flag, include_all) &&
+            !SamFlags::is_any_set(entry1.flag, include_none) &&
+            !SamFlags::is_any_set(entry2.flag, include_none)) {
+
+          gene_counter.add(entry1, entry2);
+        }
       }
     }
 
