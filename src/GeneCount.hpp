@@ -21,6 +21,7 @@
 #define GENE_COUNT_HPP
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 #include "SamEntry.hpp"
@@ -28,6 +29,16 @@
 #include "FeatureVector.hpp"
 #include "GenomicRegion.hpp"
 #include "GenomicStepVector.hpp"
+
+struct GeneMetadata {
+  string chrom;
+  size_t start;
+  size_t end;
+  char strand;
+  string gene_id;
+  string gene_type;
+  string gene_name;
+};
 
 class GeneCount {
 public:
@@ -40,11 +51,13 @@ public:
   void add(const SamEntry &e1, const SamEntry &e2);
 
   void get_gene_counts(vector<pair<string, size_t>> &counts);
+  void gene_counts_to_file(const string &file_name) const;
 
 
 private:
   GenomicStepVector<FeatureVector<string>> gene_locations;
   std::unordered_map<string, size_t> gene_count;
+  std::vector<GeneMetadata> gene_metadata;
 };
 
 #endif

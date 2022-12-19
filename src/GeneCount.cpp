@@ -20,6 +20,7 @@
 #include "GeneCount.hpp"
 
 #include <unordered_set>
+#include <fstream>
 
 using std::cout;
 using std::cerr;
@@ -51,7 +52,16 @@ GeneCount::preprocess_gff(const string &gff_file) {
     }
     // keep track of metadata for each gene
     else if (entry.feature == "gene") {
+      GeneMetadata metadata;
+      metadata.chrom = entry.name;
+      metadata.start = entry.start;
+      metadata.end = entry.end;
+      metadata.strand = entry.strand;
+      metadata.gene_id = entry.gene_id;
+      metadata.gene_type = entry.gene_type;
+      metadata.gene_name = entry.gene_name;
 
+      gene_metadata.push_back(metadata);
     }
   }
 
@@ -151,4 +161,23 @@ GeneCount::get_gene_counts(vector<pair<string, size_t>> &counts) {
   for (auto it = gene_count.begin(); it != gene_count.end(); ++it) {
     cout << it->first << "\t" << it->second << endl;
   }
+}
+
+
+void
+GeneCount::gene_counts_to_file(const string &file_name) const {
+  std::ofstream out_file(file_name);
+  for (auto it = gene_metadata.begin(); it != gene_metadata.end(); ++it) {
+    auto count_it = gene_count.find(it->gene_id);
+    out_file << it->chrom << "\t"
+             << it->start << "\t"
+             << it->end << "\t"
+             << it->strand << "\t"
+             << it->gene_id << "\t"
+             << it->gene_name << "\t"
+             << it->gene_type << "\t"
+             << count_it->second
+             << endl;
+  }
+  out_file.close();
 }
