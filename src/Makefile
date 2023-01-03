@@ -33,6 +33,7 @@ LIBDIRS = -L/home/rish/code/tools/htslib/htslib_install/lib/
 LIBS = -lhts
 OPTFLAGS = -O2
 DEBUGFLAGS = -g
+PROFFLAGS = -pg
 
 ifdef OPT
 CXXFLAGS += $(OPTFLAGS)
@@ -40,6 +41,10 @@ endif
 
 ifdef DEBUG
 CXXFLAGS += $(DEBUGFLAGS)
+endif
+
+ifdef PROF
+CXXFLAGS += $(PROFFLAGS)
 endif
 
 all: $(PROGS)
