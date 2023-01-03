@@ -1,5 +1,5 @@
 /*
-* BedReader: class to read bed files 
+* BedReader: class to read bed files
 * Copyright (C) 2021 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -30,16 +30,44 @@
 using std::vector;
 using std::string;
 
+/**
+* \brief BED file reader.
+*
+* A class to read and parse BED files.
+*/
 class BedReader {
 public:
+  /**
+  * Opens a BED file. Thorws a runtime error if the file cannot
+  * be opened.
+  *
+  * @param [in] in_file BED file name
+  */
   BedReader(const string &in_file);
+  /**
+  * Closes the BED file.
+  */
   ~BedReader();
 
+  /**
+  * Reads the next BED3 (chrom, start, end) line from the file,
+  * and populates a @see GenimicRegion.
+  *
+  * @param [out] g GenomicRegion to populate.
+  * @return True on successfully reading a BED3 entry. False if
+  *   end of file is reached.
+  */
   bool read_bed3_line(GenomicRegion &g);
-  void read_bed3_file(vector<GenomicRegion> &g); 
+  /**
+  * Reads a BED file and pupulates a vector of @see GenomicRegions
+  * with the BED3 (chrom, start, end).
+  *
+  * @param[out] g Vector of GenomicRegions to populate.
+  */
+  void read_bed3_file(vector<GenomicRegion> &g);
 
 private:
-  std::ifstream in; 
+  std::ifstream in;
 
 };
 

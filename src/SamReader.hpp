@@ -56,7 +56,7 @@ public:
   ~SamReader();
 
   /**
-  * Reads one entry and populates 'entry' with the help of @SamEntry.
+  * Reads one entry and populates 'entry' with the help of @see SamEntry.
   *
   * @param [out] entry
   * @return True on successfully reading an entry. False if end of file
