@@ -28,8 +28,6 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 
 CXX = g++
 CXXFLAGS = -Wall
-INCLUDEDIRS = -I/home/rish/code/tools/htslib/htslib_install/include/
-LIBDIRS = -L/home/rish/code/tools/htslib/htslib_install/lib/
 LIBS = -lhts
 OPTFLAGS = -O2
 DEBUGFLAGS = -g
@@ -89,10 +87,10 @@ gene_count: SamReader.o SamEntry.o GtfReader.o GeneCount.o StepVector.hpp \
 							GenomicStepVector.hpp GenomicRegion.o FeatureVector.hpp
 
 %.o: %.cpp %.hpp
-	$(CXX) $(CXXFLAGS) -c $< $(INCLUDEDIRS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< $(INCLUDEDIRS)
 
 %:%.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(INCLUDEDIRS) $(LIBDIRS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $^ -o $@ $(INCLUDEDIRS) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm $(PROGS) *.o
