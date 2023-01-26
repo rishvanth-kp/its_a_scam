@@ -78,10 +78,24 @@ struct GencodeGtfEntry {
   string exon_id;
 };
 
-
+/**
+* \brief GTF reader.
+* 
+* A class for reading and parsing GTF files.
+*
+*/
 class GtfReader {
 public:
+  /**
+  * Opens a GTF file. Throws a runtime error if the file cannot
+  * be opened.
+  * 
+  * \param [in] in_file GTF file name
+  */
   GtfReader(const string &in_file);
+  /**
+  * Closes the GTF file.
+  */
   ~GtfReader();
 
   bool read_gtf_line(GtfEntry &g);
