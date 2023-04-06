@@ -28,7 +28,7 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 
 CXX = g++
 CXXFLAGS = -Wall
-LIBS = -lhts
+LDLIBS = -lhts
 OPTFLAGS = -O2
 DEBUGFLAGS = -g
 PROFFLAGS = -pg
@@ -70,11 +70,11 @@ mismatch_profile: SamReader.o SamEntry.o GenomicRegion.o FeatureVector.hpp \
 
 mismatch_profile_vaf: SamReader.o SamEntry.o GenomicRegion.o \
 											AlignmentMismatches.o FeatureVector.hpp \
-											StepVector.hpp GenomicStepVector.hpp 
+											StepVector.hpp GenomicStepVector.hpp
 
 mismatch_jaccard: SamReader.o SamEntry.o GenomicRegion.o \
 										AlignmentMismatches.o FeatureVector.hpp \
-										StepVector.hpp GenomicStepVector.hpp 
+										StepVector.hpp GenomicStepVector.hpp
 
 coverage_test: SamReader.o SamEntry.o GenomicRegion.o FeatureVector.hpp \
 									StepVector.hpp GenomicStepVector.hpp
@@ -87,10 +87,10 @@ gene_count: SamReader.o SamEntry.o GtfReader.o GeneCount.o StepVector.hpp \
 							GenomicStepVector.hpp GenomicRegion.o FeatureVector.hpp
 
 %.o: %.cpp %.hpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< $(INCLUDEDIRS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
 
 %:%.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $^ -o $@ $(INCLUDEDIRS) $(LDFLAGS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 clean:
 	rm $(PROGS) *.o
