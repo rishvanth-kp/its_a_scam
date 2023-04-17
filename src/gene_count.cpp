@@ -115,7 +115,7 @@ main(int argc, char* argv[]) {
 
     // vector<pair<string, size_t>> gene_counts;
     // gene_counter.get_gene_counts(gene_counts);
-    gene_counter.gene_counts_to_file(out_prefix + ".txt"); 
+    gene_counter.gene_counts_to_file(out_prefix + ".txt");
 
   }
   catch (const std::exception &e) {
