@@ -1,5 +1,5 @@
 /*
-* GtfReader: class to read GTF files 
+* GtfReader: class to read GTF files
 * Copyright (C) 2021 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -37,11 +37,11 @@ using std::unordered_map;
 // 1: sequence name. E.g. Chr1.
 // 2: source: porgram/source that generated the frature
 // 3: feature: E.g. gene, transcript
-// 4: start: 1-based start position of feature 
+// 4: start: 1-based start position of feature
 // 5: end: inclusive end position of feature
-// 6: score: 
+// 6: score:
 // 7: strand: strand of feature. '+', '-', or '.'
-// 8: frame:  
+// 8: frame:
 // 9: attributes: semicolon seperated list of tag-value paris
 //      tag and value are separated with a space
 */
@@ -55,7 +55,7 @@ struct GtfEntry {
   char strand;
   size_t frame;
   unordered_map<string, string> attribute;
-}; 
+};
 
 
 struct GencodeGtfEntry {
@@ -80,7 +80,7 @@ struct GencodeGtfEntry {
 
 /**
 * \brief GTF reader.
-* 
+*
 * A class for reading and parsing GTF files.
 *
 */
@@ -89,7 +89,7 @@ public:
   /**
   * Opens a GTF file. Throws a runtime error if the file cannot
   * be opened.
-  * 
+  *
   * \param [in] in_file GTF file name
   */
   GtfReader(const string &in_file);
@@ -99,13 +99,13 @@ public:
   ~GtfReader();
 
   bool read_gtf_line(GtfEntry &g);
-  void read_gtf_file(vector<GtfEntry> &g);     
+  void read_gtf_file(vector<GtfEntry> &g);
 
   bool read_gencode_gtf_line(GencodeGtfEntry &g);
   void read_gencode_gtf_file(vector<GencodeGtfEntry> &g);
 
 private:
-  std::ifstream in; 
+  std::ifstream in;
 
   void parse_gtf_line(const string &in, GtfEntry &g);
 
