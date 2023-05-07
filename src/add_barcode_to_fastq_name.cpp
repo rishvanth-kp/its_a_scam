@@ -23,6 +23,8 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "FastqReader.hpp"
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -36,7 +38,7 @@ print_usage(const string &name) {
       << "\t-1 Fastq file 1 [required]" << endl
       << "\t-2 Fastq file 2 [required for paired-end data]" << endl
       << "\t-o out file prefix [required]" << endl
-      << "\t-c space delimated column to append barcode to [default: 0]" 
+      << "\t-c space delimated column to append barcode to [default: 0]"
         << endl
       << "\t-s barcode read split position [default: 0]" << endl
       << "\t-d barcode read split delimeter [default: '+']"  << endl;
@@ -54,10 +56,10 @@ main (int argc, char* argv[]) {
     size_t bc_col = 0;
     size_t bc_split_pos = 0;
     char bc_split_delim = '+';
-    
+
     int opt;
     while ((opt = getopt(argc, argv, "1:2:o:f:")) != -1) {
-      if (opt == '1') 
+      if (opt == '1')
         in_file_1 = optarg;
       else if (opt == '2')
         in_file_2 = optarg;
@@ -69,12 +71,35 @@ main (int argc, char* argv[]) {
         bc_split_pos = std::stoi(optarg);
       else if (opt == 'd')
         bc_split_delim = optarg[0];
-      else 
+      else
         throw std::runtime_error(print_usage(argv[0]));
     }
 
     if (in_file_1.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
+    }
+
+    bool se = true;
+    if (!in_file_2.empty())
+      se = false;
+
+    if (se) {
+      FastqReader se_reader(in_file_1);
+      FastqEntry fq1;
+
+      while (se_reader.read_se_entry(fq1)) {
+        cout << fq1.name << endl;
+      }
+    }
+    else {
+      FastqReader pe_reader(in_file_1, in_file_2);
+      FastqEntry fq1, fq2;
+
+      while (pe_reader.read_pe_entry(fq1, fq2)) {
+        cout << fq1.name << endl;
+        cout << fq2.name << endl;
+      }
+
     }
 
   }
