@@ -1,5 +1,5 @@
 /*
-* FastqReader: class to read fastq files 
+* FastqReader: class to read fastq files
 * Copyright (C) 2023 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -24,10 +24,20 @@
 #include <fstream>
 #include <string>
 
+struct FastqEntry {
+  std::string name;
+  std::string seq;
+  std::string separator;
+  std::string quality;
+};
+
 class FastqReader {
 public:
   FastqReader(const std::string &in_file);
-  FastqReader(const std::string &in_file_1, const std::string &in_file_2);  
+  FastqReader(const std::string &in_file_1, const std::string &in_file_2);
+
+  bool read_se_entry(FastqEntry &e);
+  bool read_pe_entry(FastqEntry &e1, FastqEntry &e2);
 
   ~FastqReader();
 
@@ -35,7 +45,7 @@ private:
   std::ifstream in_1;
   std::ifstream in_2;
 
-  bool is_pe; 
+  bool is_pe;
 };
 
 

@@ -1,5 +1,5 @@
 /*
-* FastqReader: class to read fastq files 
+* FastqReader: class to read fastq files
 * Copyright (C) 2023 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ FastqReader::FastqReader (const std::string &in_file) {
 }
 
 
-FastqReader::FastqReader (const std::string &in_file_1, 
+FastqReader::FastqReader (const std::string &in_file_1,
                           const std::string &in_file_2) {
 
   is_pe = true;
@@ -43,15 +43,48 @@ FastqReader::FastqReader (const std::string &in_file_1,
   in_1.open(in_file_1);
   if (!in_1)
     throw std::runtime_error("Cannot open " + in_file_1);
-  
+
   in_2.open(in_file_2);
   if (!in_2)
-    throw std::runtime_error("Cannot opne " + in_file_2); 
+    throw std::runtime_error("Cannot opne " + in_file_2);
 
-} 
+}
 
-FastqReader::~FastqReader() {
+FastqReader::~FastqReader () {
   in_1.close();
   if (is_pe)
     in_2.close();
+}
+
+
+bool
+FastqReader::read_se_entry (FastqEntry &e) {
+  if (getline(in_1, e.name) &&
+      getline(in_1, e.seq) &&
+      getline(in_1, e.separator) &&
+      getline(in_1, e.quality)) {
+
+    return true;
+  }
+
+  return false;
+
+}
+
+
+bool
+FastqReader::read_pe_entry(FastqEntry &e1, FastqEntry &e2) {
+  if (getline(in_1, e1.name) &&
+      getline(in_1, e1.seq) &&
+      getline(in_1, e1.separator) &&
+      getline(in_1, e1.quality) &&
+      getline(in_2, e2.name) &&
+      getline(in_2, e2.seq) &&
+      getline(in_2, e2.separator) &&
+      getline(in_2, e2.quality)) {
+
+    return true;
+  }
+
+  return false;
 }
