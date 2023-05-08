@@ -46,7 +46,7 @@ FastqReader::FastqReader (const std::string &in_file_1,
 
   in_2.open(in_file_2);
   if (!in_2)
-    throw std::runtime_error("Cannot opne " + in_file_2);
+    throw std::runtime_error("Cannot open " + in_file_2);
 
 }
 
