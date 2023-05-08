@@ -88,3 +88,13 @@ FastqReader::read_pe_entry(FastqEntry &e1, FastqEntry &e2) {
 
   return false;
 }
+
+
+std::ostream&
+operator<<(std::ostream &out, const FastqEntry &e) {
+  out << e.name << endl
+      << e.seq << endl
+      << e.separator << endl
+      << e.quality << endl;
+  return out;
+}

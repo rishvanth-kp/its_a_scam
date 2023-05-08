@@ -48,5 +48,7 @@ private:
   bool is_pe;
 };
 
+std::ostream&
+operator<<(std::ostream &out, const FastqEntry &e);
 
 #endif
