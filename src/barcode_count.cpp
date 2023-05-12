@@ -1,6 +1,6 @@
 /*
 * barcode_count: count barcodes in a sam file
-* Copyright (C) 2022 Rishvanth Prabakar
+* Copyright (C) 2023 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <algorithm>
 #include <unordered_map>
 
 #include "SamReader.hpp"
@@ -48,42 +49,67 @@ split_string (const string &in, vector<string> &tokens,
   tokens.push_back(in.substr(start));
 }
 
+
+static bool
+sort_bc_count(pair<string, size_t> a, pair<string, size_t> b) {
+  return (a.second > b.second);
+}
+
+
 static string
 print_usage (const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-m minimun barcode count to output [default: 1000]" << endl
+      << "\t-d name split delimeter [default: \":\"]" << endl
+      << "\t-c barcode field in name [default: 7 (0 based)]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all the flags are present [default: 3]" << endl
-      << "\t-F only include if none of the flags are present [default: 2316]" 
-        << endl;
+      << "\t-F only include if none of the flags are present [default: 2316]"
+        << endl
+      << "\t-v verbose [default: false]" << endl;
   return oss.str();
 }
 
 int
 main (int argc, char* argv[]) {
   try {
-    
+
     string aln_file;
     string out_prefix;
-    
+
+    char bc_delim = ':';
+    size_t bc_col = 7;
+    size_t min_bc_count = 1000;
+
     size_t min_mapq = 0;
     uint16_t include_all = 0x0003;
     uint16_t include_none = 0x0804;
 
+    bool VERBOSE = false;
+
     int opt;
-    while ((opt = getopt(argc, argv, "a:o:q:f:F:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:o:m:d:c:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'm')
+        min_bc_count = std::stoi(optarg);
+      else if (opt == 'd')
+        bc_delim = optarg[0];
+      else if (opt == 'c')
+        bc_col = std::stoi(optarg);
       else if (opt == 'q')
         min_mapq = std::stoi(optarg);
       else if (opt == 'f')
         include_all = std::stoi(optarg);
       else if (opt == 'F')
         include_none = std::stoi(optarg);
+      else if (opt == 'v')
+        VERBOSE = true;
       else
         throw std::runtime_error(print_usage(argv[0]));
     }
@@ -95,7 +121,20 @@ main (int argc, char* argv[]) {
     SamReader sam_reader(aln_file);
     unordered_map<string, size_t> bc_counter;
     SamEntry entry1, entry2;
+
+    size_t aln_count = 0;
+    size_t aln_pass_count = 0;
+
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+
     while (sam_reader.read_pe_sam(entry1, entry2)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " pairs" << endl;
+        }
+      }
 
       if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq &&
           SamFlags::is_all_set(entry1.flag, include_all) &&
@@ -103,22 +142,45 @@ main (int argc, char* argv[]) {
           !SamFlags::is_any_set(entry1.flag, include_none) &&
           !SamFlags::is_any_set(entry2.flag, include_none)) {
 
+        ++aln_pass_count;
+
         vector<string> tokens;
-        split_string(entry1.qname, tokens);
-         
+        split_string(entry1.qname, tokens, bc_delim);
+
         unordered_map<string, size_t>::iterator it;
-        it = bc_counter.find(tokens[7]);
+        it = bc_counter.find(tokens[bc_col]);
         if (it == bc_counter.end()) {
-          bc_counter[tokens[7]] = 1;
-        }      
+          bc_counter[tokens[bc_col]] = 1;
+        }
         else {
-          bc_counter[tokens[7]] += 1;
+          ++bc_counter[tokens[bc_col]];
         }
       }
     }
+
+    // keep only barcodes meeting the min count
+    if (VERBOSE)
+      cerr << "[FILTERING LOW BARCODE COUNTS]" << endl;
+    vector<pair<string, size_t>> bc_output;
     for (auto it = bc_counter.begin(); it != bc_counter.end(); ++it) {
-      cout << it->first << "\t" << it->second << endl;
-    } 
+      if (it->second >= min_bc_count) {
+        bc_output.push_back(std::make_pair(it->first, it->second));
+      }
+    }
+
+    // sort so that the highest counts appear first
+    if (VERBOSE)
+      cerr << "[SORTING BARCODES]" << endl;
+    std::sort(bc_output.begin(), bc_output.end(), sort_bc_count);
+
+    // write output
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
+    std::ofstream out_counts (out_prefix + "_bc_counts.txt");
+    for (auto it = bc_output.begin(); it != bc_output.end(); ++it) {
+      out_counts << it->first << "\t" << it->second <<endl;
+    }
+    out_counts.close();
 
   }
   catch (const std::exception &e) {
