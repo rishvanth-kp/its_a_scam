@@ -67,7 +67,7 @@ print_usage (const string &name) {
       << "\t-c barcode field in name [default: 7 (0 based)]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all the flags are present [default: 3]" << endl
-      << "\t-F only include if none of the flags are present [default: 2316]"
+      << "\t-F only include if none of the flags are present [default: 3340]"
         << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();
@@ -86,7 +86,7 @@ main (int argc, char* argv[]) {
 
     size_t min_mapq = 0;
     uint16_t include_all = 0x0003;
-    uint16_t include_none = 0x0804;
+    uint16_t include_none = 0x0D0C;
 
     bool VERBOSE = false;
 
