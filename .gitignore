@@ -44,6 +44,7 @@ genomic_feature_count
 gene_count
 add_barcode_to_fastq_name
 barcode_count
+bc_in_region
 
 # vim temp files
 *.swp

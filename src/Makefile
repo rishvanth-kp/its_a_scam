@@ -25,7 +25,7 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 					genomic_feature_count mismatch_profile_vaf \
 					mismatch_jaccard \
 					gene_count add_barcode_to_fastq_name \
-					barcode_count
+					barcode_count bc_in_region
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -90,6 +90,9 @@ gene_count: SamReader.o SamEntry.o GtfReader.o GeneCount.o StepVector.hpp \
 add_barcode_to_fastq_name: FastqReader.o
 
 barcode_count: SamReader.o SamEntry.o 
+
+bc_in_region: SamReader.o SamEntry.o BedReader.o StepVector.hpp \
+                GenomicStepVector.hpp GenomicRegion.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
