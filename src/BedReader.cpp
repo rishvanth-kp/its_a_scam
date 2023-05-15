@@ -26,18 +26,16 @@ using std::endl;
 
 BedReader::BedReader (const string &in_file) {
   in.open(in_file);
-  cout << "Opening file " << in_file << endl;   
   if (!in) 
     throw std::runtime_error("Cannot open " + in_file);
 }
 
 BedReader::~BedReader () {
-  cout << "closing bed" << endl; 
   in.close();
 }
 
 
-void
+static void
 split_string (const string &in, vector<string> &tokens,
               const char delim = '\t') {
 
