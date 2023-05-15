@@ -66,6 +66,34 @@ SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
   }
 }
 
+size_t
+SamCigar::reference_end_pos(const SamEntry &e) {
+
+  size_t aln_pos = e.pos - 1;
+
+  size_t start_pos = 0;
+  size_t end_pos = e.cigar.find_first_of("MIDNSHP=X");
+
+  while (end_pos != string::npos) {
+
+    Cigar op = static_cast<SamCigar::Cigar>(e.cigar[end_pos]);
+    size_t op_len = std::stoi(e.cigar.substr(start_pos, end_pos - start_pos));
+
+    // thsee ops consume reference
+    if (op == Cigar::aln_match ||
+        op == Cigar::seq_match ||
+        op == Cigar::seq_mismatch ||
+        op == Cigar::ref_del ||
+        op == Cigar::ref_skip) {
+
+      aln_pos += op_len;
+    }
+
+    start_pos = ++end_pos;
+    end_pos = e.cigar.find_first_of("MIDNSHP=X", end_pos);
+  }
+  return aln_pos;
+}
 
 void
 SamCigar::cigar_to_reference_regions(const SamEntry &e,

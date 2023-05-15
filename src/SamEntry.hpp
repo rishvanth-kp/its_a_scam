@@ -124,6 +124,9 @@ namespace SamCigar {
   move_in_query(const CigarTuples &tuples, const size_t len,
     size_t &ref_pos, size_t &query_pos);
 
+  size_t
+  reference_end_pos(const SamEntry &e);
+
   /**
   * Takes a SamEntry with a cigar stirng, and converts
   * them to a vector of GenomicRegions for each cigar operation.
