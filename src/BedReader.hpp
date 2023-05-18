@@ -20,15 +20,12 @@
 #ifndef BED_READER_HPP
 #define BED_READER_HPP
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
 
 #include "GenomicRegion.hpp"
 
-using std::vector;
-using std::string;
 
 /**
 * \brief BED file reader.
@@ -51,20 +48,34 @@ public:
 
   /**
   * Reads the next BED3 (chrom, start, end) line from the file,
-  * and populates a @see GenimicRegion.
+  * and populates a @see GenomicRegion.
   *
   * @param [out] g GenomicRegion to populate.
   * @return True on successfully reading a BED3 entry. False if
   *   end of file is reached.
   */
   bool read_bed3_line(GenomicRegion &g);
+
+  /**
+  * Reads a bed line with more than 3 coulums and populates a
+` * @see GenomicRegion with the first 3 columns (chrom, start, end)
+  * and puts the remaining columns in a vector of strings.
+  *
+  * @param [out] g GenomicRegion to populate with the required BED fields
+  * @param [out] fields Vector<string> to populate with with the optional
+  *   BED fileds
+  * @return True on successfully reading a BED entry. False if end of
+  *   file is reached.
+  */
+  bool read_bed_line(GenomicRegion &g, std::vector<std::string> &fields);
+
   /**
   * Reads a BED file and pupulates a vector of @see GenomicRegions
   * with the BED3 (chrom, start, end).
   *
   * @param[out] g Vector of GenomicRegions to populate.
   */
-  void read_bed3_file(vector<GenomicRegion> &g);
+  void read_bed3_file(std::vector<GenomicRegion> &g);
 
 private:
   std::ifstream in;

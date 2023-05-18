@@ -1,5 +1,5 @@
 /*
-* BedReader: class to read bed files 
+* BedReader: class to read bed files
 * Copyright (C) 2021 Rishvanth Prabakar
 *
 * This program is free software; you can redistribute it and/or modify
@@ -17,16 +17,20 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include <iostream>
+#include <sstream>
 
 #include "BedReader.hpp"
 
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::vector;
+using std::string;
 
 BedReader::BedReader (const string &in_file) {
   in.open(in_file);
-  if (!in) 
+  if (!in)
     throw std::runtime_error("Cannot open " + in_file);
 }
 
@@ -61,10 +65,30 @@ BedReader::read_bed3_line (GenomicRegion &g) {
     g.start = atoi(tokens[1].c_str());
     g.end = atoi(tokens[2].c_str());
     return true;
-  } 
+  }
 
   return false;
 }
+
+
+bool
+BedReader::read_bed_line(GenomicRegion &g, vector<string> &fields) {
+  string line;
+  if (getline(in, line)) {
+    std::istringstream iss(line);
+    iss >> g.name >> g.start >> g.end;
+
+    fields.clear();
+    string field;
+    while (iss >> field) {
+      fields.push_back(field);
+    }
+
+    return true;
+  }
+  return false;
+}
+
 
 void
 BedReader::read_bed3_file (vector<GenomicRegion> &g) {
@@ -73,9 +97,9 @@ BedReader::read_bed3_file (vector<GenomicRegion> &g) {
   while (getline(in, line)) {
     vector<string> tokens;
     split_string(line, tokens);
-    GenomicRegion a(tokens[0], 
-                    atoi(tokens[1].c_str()), 
+    GenomicRegion a(tokens[0],
+                    atoi(tokens[1].c_str()),
                     atoi(tokens[2].c_str()));
     g.push_back(a);
   }
-} 
+}
