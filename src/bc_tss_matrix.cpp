@@ -156,7 +156,8 @@ main (int argc, char* argv[]) {
     while(tss_reader.read_bed_line(bed_region, bed_fields)) {
       // store the actual feature vector
       tss.add(bed_region.name, bed_region.start - side_dist,
-                  bed_region.end + side_dist, FeatureVector(bed_fields[0]));
+                  bed_region.end + side_dist, 
+                  FeatureVector<string>(bed_fields[0]));
 
       // store the metadata for final output
       TssMetadata metadata;
