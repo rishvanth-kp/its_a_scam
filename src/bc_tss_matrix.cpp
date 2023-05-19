@@ -274,7 +274,7 @@ main (int argc, char* argv[]) {
     // write header line
     out << "chrom\tstart\tend\ttss\t";
     for (size_t i = 0; i < bc_metadata.size(); ++i) {
-      out << bc_metadata[0] << "\t";
+      out << bc_metadata[i] << "\t";
     }
     out << endl;
     // write the matrix
