@@ -98,9 +98,9 @@ bc_in_region: SamReader.o SamEntry.o BedReader.o StepVector.hpp \
 bc_tss_matrix: SamReader.o SamEntry.o BedReader.o StepVector.hpp \
                 FeatureVector.hpp GenomicStepVector.hpp GenomicRegion.o
 
-bc_feature_matrix: SamReader.o SamEntry.o StepVector.hpp \
+bc_feature_matrix: SamReader.o SamEntry.o StepVector.hpp BedReader.o \
 	 									GenomicStepVector.hpp GtfReader.o GenomicRegion.o \
-										AlignedOverlapGenomicFeature.hpp
+										AlignedOverlapGenomicFeature.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<

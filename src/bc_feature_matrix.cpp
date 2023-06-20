@@ -37,7 +37,10 @@ print_usage (const string &name) {
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-b barcode list file [required]" << endl
-      << "\t-g gtf file [optional]" << endl;
+      << "\t-g gtf file [optional]" << endl
+      << "\t-t tsr bed file [optional]" << endl
+      << "\t-e enhancers bed file [optional]" << endl
+      << "\t-v verbose [default: false]" << endl;
   return oss.str();
 }
 
@@ -49,19 +52,35 @@ main (int argc, char* argv[]) {
     string bc_file;
     
     string gtf_file;
+    string tsr_file;
+    string enhancer_file;
 
+    bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:g:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:g:t:e:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
         bc_file = optarg;
       else if (opt == 'g')
         gtf_file = optarg;
+      else if (opt == 't')
+        tsr_file = optarg;
+      else if (opt == 'e')
+        enhancer_file = optarg;
+      else if (opt == 'v')
+        VERBOSE = true;
       else 
         throw std::runtime_error(print_usage(argv[0]));
-    } 
+    }
+
+    if (VERBOSE)
+      cerr << "[PROCESSING REGIONS]" << endl;
+
+    AlignedOverlapGenomicFeature aligned_feature;
+    aligned_feature.add_gtf_features(gtf_file);
+ 
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

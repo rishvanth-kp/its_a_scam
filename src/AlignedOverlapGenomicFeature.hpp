@@ -23,10 +23,9 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
+#include <unordered_set>
 
 #include "SamEntry.hpp"
-#include "GtfReader.hpp"
 #include "FeatureVector.hpp"
 #include "GenomicRegion.hpp"
 #include "GenomicStepVector.hpp"
@@ -36,8 +35,14 @@ public:
   AlignedOverlapGenomicFeature();
   ~AlignedOverlapGenomicFeature();  
 
-private:
+  void add_gtf_features(const std::string& gtf_file);
+  void add_bed_features(const std::string& bed_file, 
+                        const std::string feature_name);
 
+private:
+  GenomicStepVector<FeatureVector<std::string>> genomic_features; 
+  std::unordered_set<std::string> features;
+    
 };
 
 #endif
