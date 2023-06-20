@@ -46,6 +46,7 @@ add_barcode_to_fastq_name
 barcode_count
 bc_in_region
 bc_tss_matrix
+bc_feature_matrix
 
 # vim temp files
 *.swp
