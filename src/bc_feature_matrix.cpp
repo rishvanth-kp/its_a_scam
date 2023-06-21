@@ -75,11 +75,28 @@ main (int argc, char* argv[]) {
         throw std::runtime_error(print_usage(argv[0]));
     }
 
+    if (aln_file.empty() || bc_file.empty()) {
+      throw std::runtime_error(print_usage(argv[0]));
+    }
+
+    // process gtf and bed file with regions
     if (VERBOSE)
       cerr << "[PROCESSING REGIONS]" << endl;
 
     AlignedOverlapGenomicFeature aligned_feature;
     aligned_feature.add_gtf_features(gtf_file);
+
+    if (!tsr_file.empty()) {
+      aligned_feature.add_bed_features(tsr_file, "TSR");
+    }
+    if (!enhancer_file.empty()) {
+      aligned_feature.add_bed_features(enhancer_file, "enhancer");
+    }
+
+    // process barcodes
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+    aligned_feature.process_barcodes(bc_file);
  
   }
   catch (const std::exception &e) {

@@ -18,6 +18,10 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include <sstream>
+#include <fstream>
+#include <unordered_set>
+
 #include "GtfReader.hpp"
 #include "BedReader.hpp"
 #include "AlignedOverlapGenomicFeature.hpp"
@@ -30,7 +34,8 @@ using std::vector;
 using std::unordered_set;
 
 AlignedOverlapGenomicFeature::AlignedOverlapGenomicFeature() {
-
+  bc_counter = 0;
+  feature_counter = 0;
 }
 
 AlignedOverlapGenomicFeature::~AlignedOverlapGenomicFeature() {
@@ -47,7 +52,6 @@ AlignedOverlapGenomicFeature::add_gtf_features(const string& gtf_file) {
   GenomicStepVector<FeatureVector<string>> gtf_features;
   unordered_set<string> chroms;
 
-  cout << "prerocessing" << endl;
   while (gtf_reader.read_gencode_gtf_line(entry)) {
     // keep track of all the chromosomes
     chroms.insert(entry.name);
@@ -69,7 +73,6 @@ AlignedOverlapGenomicFeature::add_gtf_features(const string& gtf_file) {
   }
 
   for (auto chrom_it = chroms.begin(); chrom_it != chroms.end(); ++chrom_it) {
-    cout << *chrom_it << endl;
 
     vector<pair<GenomicRegion, FeatureVector<string>>> out;
     gtf_features.at(*chrom_it, out);
@@ -110,9 +113,9 @@ AlignedOverlapGenomicFeature::add_gtf_features(const string& gtf_file) {
   }
 
   // keep track of the feature types
-  features.insert("CDS");
-  features.insert("UTR");
-  features.insert("intron");
+  feature_index["CDS"] = feature_counter++;
+  feature_index["UTR"] = feature_counter++;
+  feature_index["intron"] = feature_counter++;
 }
   
 void 
@@ -124,6 +127,39 @@ AlignedOverlapGenomicFeature::add_bed_features(const std::string& bed_file,
   while (bed_reader.read_bed3_line(bed_region)) {
     genomic_features.add(bed_region, FeatureVector<string>{feature_name});
   }
+ 
+  // added to index 
+  feature_index[feature_name] = feature_counter++;
 
-  features.insert(feature_name);
+}
+  
+void 
+AlignedOverlapGenomicFeature::process_barcodes(const std::string& bc_file) {
+
+  std::ifstream bc_in(bc_file);
+  if (!bc_in) {
+    throw std::runtime_error("Cannot open " + bc_file);
+  }
+  string line;
+
+  // keep crate an index for all barcodes
+  while (getline(bc_in, line)) {
+    string barcode;
+    std::istringstream iss(line);
+    iss >> barcode;
+  
+    bc_index[barcode] = bc_counter++;
+  }
+  bc_in.close();
+
+  // initialize count matrix
+  cout << "Number of barcodes: " << bc_index.size() << endl;
+  cout << "Number of features: " << feature_index.size() << endl;
+  feature_counts.resize(bc_index.size());
+  for (size_t i = 0; i < feature_counts.size(); ++i) {
+    feature_counts[i].resize(feature_index.size());
+  } 
+
+  // initialize counted_bases vector 
+  counted_bases.resize(bc_index.size());
 }

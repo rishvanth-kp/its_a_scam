@@ -23,7 +23,8 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_set>
+#include <vector>
+#include <unordered_map>
 
 #include "SamEntry.hpp"
 #include "FeatureVector.hpp"
@@ -39,10 +40,20 @@ public:
   void add_bed_features(const std::string& bed_file, 
                         const std::string feature_name);
 
+  void process_barcodes(const std::string& bc_file);
+
 private:
   GenomicStepVector<FeatureVector<std::string>> genomic_features; 
-  std::unordered_set<std::string> features;
-    
+
+  std::unordered_map<string, size_t> feature_index;
+  size_t feature_counter;
+
+  std::unordered_map<string, size_t> bc_index;
+  size_t bc_counter;
+
+  std::vector<size_t> counted_bases;
+
+  vector<vector<size_t>> feature_counts;
 };
 
 #endif
