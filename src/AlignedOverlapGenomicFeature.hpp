@@ -34,16 +34,20 @@
 class AlignedOverlapGenomicFeature {
 public:
   AlignedOverlapGenomicFeature();
-  ~AlignedOverlapGenomicFeature();  
+  ~AlignedOverlapGenomicFeature();
 
   void add_gtf_features(const std::string& gtf_file);
-  void add_bed_features(const std::string& bed_file, 
+  void add_bed_features(const std::string& bed_file,
                         const std::string feature_name);
 
   void process_barcodes(const std::string& bc_file);
 
+  void add(const SamEntry &e1, const SamEntry &e2, const string &bc);
+
+  void feature_counts_to_file(const std::string &file_name) const;
+
 private:
-  GenomicStepVector<FeatureVector<std::string>> genomic_features; 
+  GenomicStepVector<FeatureVector<std::string>> genomic_features;
 
   std::unordered_map<string, size_t> feature_index;
   size_t feature_counter;

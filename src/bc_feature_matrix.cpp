@@ -23,6 +23,8 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "SamEntry.hpp"
+#include "SamReader.hpp"
 #include "AlignedOverlapGenomicFeature.hpp"
 
 using std::cout;
@@ -30,6 +32,22 @@ using std::cerr;
 using std::endl;
 using std::vector;
 using std::string;
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
+
 
 static string
 print_usage (const string &name) {
@@ -40,6 +58,13 @@ print_usage (const string &name) {
       << "\t-g gtf file [optional]" << endl
       << "\t-t tsr bed file [optional]" << endl
       << "\t-e enhancers bed file [optional]" << endl
+      << "\t-o out file prefix [required]" << endl
+      << "\t-d name split delimeter [default: \":\"]" << endl
+      << "\t-c barcode field in name [default: 7 (0 based)]" << endl
+      << "\t-q minimum mapping quality to include [default: 0]" << endl
+      << "\t-f only include if all the flags are present [default: 3]" << endl
+      << "\t-F only include if none of the flags are present [default: 3340]"
+        << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();
 }
@@ -47,13 +72,21 @@ print_usage (const string &name) {
 int
 main (int argc, char* argv[]) {
   try {
-   
+
     string aln_file;
     string bc_file;
-    
+    string out_prefix;
+
     string gtf_file;
     string tsr_file;
     string enhancer_file;
+
+    char bc_delim = ':';
+    char bc_col = 7;
+
+    size_t min_mapq = 0;
+    size_t include_all = 0x0003;
+    size_t include_none = 0x0D0C;
 
     bool VERBOSE = false;
 
@@ -69,9 +102,21 @@ main (int argc, char* argv[]) {
         tsr_file = optarg;
       else if (opt == 'e')
         enhancer_file = optarg;
+      else if (opt == 'd')
+        bc_delim = optarg[0];
+      else if (opt == 'o')
+        out_prefix = optarg;
+      else if (opt == 'c')
+        bc_col = std::stoi(optarg);
+      else if (opt == 'q')
+        min_mapq = std::stoi(optarg);
+      else if (opt == 'f')
+        include_all = std::stoi(optarg);
+      else if (opt == 'F')
+        include_none = std::stoi(optarg);
       else if (opt == 'v')
         VERBOSE = true;
-      else 
+      else
         throw std::runtime_error(print_usage(argv[0]));
     }
 
@@ -97,7 +142,41 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[PROCESSING BARCODES]" << endl;
     aligned_feature.process_barcodes(bc_file);
- 
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+    SamReader sam_reader(aln_file);
+    SamEntry entry1, entry2;
+
+    size_t aln_count = 0;
+
+    while (sam_reader.read_pe_sam(entry1, entry2)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " pairs" << endl;
+        }
+      }
+
+      // filter out low reads that do not meet criteria
+      if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry1.flag, include_all) &&
+          SamFlags::is_all_set(entry2.flag, include_all) &&
+          !SamFlags::is_any_set(entry1.flag, include_none) &&
+          !SamFlags::is_any_set(entry2.flag, include_none)) {
+
+        // parse barcodes
+        vector<string> tokens;
+        split_string(entry1.qname, tokens, bc_delim);
+
+        // figure out feature location
+        aligned_feature.add(entry1, entry2, tokens[bc_col]);
+      }
+    }
+
+    // write output to file
+    aligned_feature.feature_counts_to_file(out_prefix + "_featues.txt");
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
