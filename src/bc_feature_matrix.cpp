@@ -91,7 +91,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:g:t:e:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:g:t:e:o:d:c:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
@@ -102,10 +102,10 @@ main (int argc, char* argv[]) {
         tsr_file = optarg;
       else if (opt == 'e')
         enhancer_file = optarg;
-      else if (opt == 'd')
-        bc_delim = optarg[0];
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'd')
+        bc_delim = optarg[0];
       else if (opt == 'c')
         bc_col = std::stoi(optarg);
       else if (opt == 'q')
@@ -120,7 +120,8 @@ main (int argc, char* argv[]) {
         throw std::runtime_error(print_usage(argv[0]));
     }
 
-    if (aln_file.empty() || bc_file.empty()) {
+    if (aln_file.empty() || bc_file.empty() || 
+          gtf_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
