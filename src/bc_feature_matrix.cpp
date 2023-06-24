@@ -120,7 +120,7 @@ main (int argc, char* argv[]) {
         throw std::runtime_error(print_usage(argv[0]));
     }
 
-    if (aln_file.empty() || bc_file.empty() || 
+    if (aln_file.empty() || bc_file.empty() ||
           gtf_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
@@ -177,7 +177,7 @@ main (int argc, char* argv[]) {
     }
 
     // write output to file
-    aligned_feature.feature_counts_to_file(out_prefix + "_featues.txt");
+    aligned_feature.feature_counts_to_file(out_prefix);
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;

@@ -44,7 +44,7 @@ public:
 
   void add(const SamEntry &e1, const SamEntry &e2, const string &bc);
 
-  void feature_counts_to_file(const std::string &file_name) const;
+  void feature_counts_to_file(const std::string &file_prefix) const;
 
 private:
   GenomicStepVector<FeatureVector<std::string>> genomic_features;
@@ -56,8 +56,11 @@ private:
   size_t bc_counter;
 
   std::vector<size_t> counted_bases;
+  std::vector<size_t> counted_frags;
 
   vector<vector<size_t>> feature_counts;
+  vector<vector<size_t>> feature_align_len;
+  vector<vector<size_t>> feature_frag_len;
 };
 
 #endif

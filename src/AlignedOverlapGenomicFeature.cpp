@@ -20,6 +20,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <cassert>
 #include <unordered_set>
 
 #include "GtfReader.hpp"
@@ -153,14 +154,19 @@ AlignedOverlapGenomicFeature::process_barcodes(const std::string& bc_file) {
   }
   bc_in.close();
 
-  // initialize count matrix
+  // initialize count matrices
   feature_counts.resize(bc_index.size());
+  feature_frag_len.resize(bc_index.size());
+  feature_align_len.resize(bc_index.size());
   for (size_t i = 0; i < feature_counts.size(); ++i) {
     feature_counts[i].resize(feature_index.size());
+    feature_frag_len[i].resize(feature_index.size());
+    feature_align_len[i].resize(feature_index.size());
   }
 
-  // initialize counted_bases vector
+  // initialize counted_bases and counted_frags vector
   counted_bases.resize(bc_index.size());
+  counted_frags.resize(bc_index.size());
 }
 
 void
@@ -181,20 +187,39 @@ AlignedOverlapGenomicFeature::add(const SamEntry &e1,
     size_t e2_end = SamCigar::reference_end_pos(e2);
 
     // find the stand and end location of the fragments
-    // TODO: verify that these match the TLEN
     size_t frag_start = e1_start;
     if (e2_start < e1_start)
       frag_start = e2_start;
 
     size_t frag_end = e1_end;
-    if (e2_end < e1_end)
+    if (e2_end > e1_end)
       frag_end = e2_end;
+
+    size_t frag_len = frag_end - frag_start;
+
+    assert(frag_len == std::abs(e1.tlen));
 
     // find overlapping regions
     vector<pair<GenomicRegion, FeatureVector<string>>> out;
     genomic_features.at(GenomicRegion(e1.rname, frag_start, frag_end),
                         out, true);
 
+    // count for the start of fragment
+    ++counted_frags[entry_bc_index];
+    auto first_it = out.begin();
+    if (first_it->second.size() == 0) {
+      size_t index = feature_index["intergene"];
+      ++feature_counts[entry_bc_index][index];
+      feature_frag_len[entry_bc_index][index] += frag_len;
+    }
+
+    for (size_t j = 0; j < first_it->second.size(); ++j) {
+      size_t index = feature_index[first_it->second.at(j)];
+      ++feature_counts[entry_bc_index][index];
+      feature_frag_len[entry_bc_index][index] += frag_len;
+    }
+
+    // count for the entire fragment
     for (auto it = out.begin(); it != out.end(); ++it) {
       const size_t match_len = it->first.end - it->first.start;
       // add match length for the sample.
@@ -203,12 +228,12 @@ AlignedOverlapGenomicFeature::add(const SamEntry &e1,
       // intergenic, if not aligned to any other feature
       if (it->second.size() == 0) {
         size_t index = feature_index["intergene"];
-        feature_counts[entry_bc_index][index] += match_len;
+        feature_align_len[entry_bc_index][index] += match_len;
       }
 
       for (size_t j = 0; j < it->second.size(); ++j) {
         size_t index = feature_index[it->second.at(j)];
-        feature_counts[entry_bc_index][index] += match_len;
+        feature_align_len[entry_bc_index][index] += match_len;
       }
 
     }
@@ -217,30 +242,62 @@ AlignedOverlapGenomicFeature::add(const SamEntry &e1,
 }
 
 void AlignedOverlapGenomicFeature::feature_counts_to_file(
-      const std::string &file_name) const {
+      const std::string &file_prefix) const {
 
-  std::ofstream out(file_name);
-  if (!out)
-    throw std::runtime_error("Cannot open " + file_name);
+  std::ofstream out_counts(file_prefix + "_feature_counts.txt");
+  std::ofstream out_align_len(file_prefix + "_feature_align_len.txt");
+  std::ofstream out_frag_len(file_prefix + "_feature_frag_len.txt");
 
   // write header
-  out << "barcode" << "\tbases";
+  out_counts << "barcode" << "\tcount";
+  out_align_len << "barcode" << "\tbases";
+  out_frag_len << "barcode";
   vector<pair<string, size_t>> features;
   for (auto it = feature_index.begin(); it != feature_index.end(); ++it) {
     features.push_back(std::make_pair(it->first, it->second));
-    out << "\t" << it->first;
+    out_counts << "\t" << it->first;
+    out_align_len << "\t" << it->first;
+    out_frag_len << "\t" << it->first;
   }
-  out << endl;
+  out_counts << endl;
+  out_align_len << endl;
+  out_frag_len << endl;
+
 
 
   for (auto it = bc_index.begin(); it != bc_index.end(); ++it) {
-    out << it->first;
-    out << "\t" << counted_bases[it->second];
+    // barcode names
+    out_counts << it->first;
+    out_align_len << it->first;
+    out_frag_len << it->first;
+
+    // base or frag count
+    out_counts << "\t" << counted_frags[it->second];
+    out_align_len << "\t" << counted_bases[it->second];
+
+    // feature counts
     for (size_t j = 0; j < features.size(); ++j) {
-      out << "\t" << feature_counts[it->second][features[j].second];
+
+      size_t counts = feature_counts[it->second][features[j].second];
+      out_counts << "\t" << counts;
+      out_align_len << "\t"
+                    << feature_align_len[it->second][features[j].second];
+      if (counts) {
+        float mean_frag_len = static_cast<float>
+          (feature_frag_len[it->second][features[j].second]) /
+          static_cast<float>(counts);
+        out_frag_len << "\t" << mean_frag_len;
+      }
+      else {
+        out_frag_len << "\t0";
+      }
     }
-    out << endl;
+    out_counts << endl;
+    out_align_len << endl;
+    out_frag_len << endl;
   }
 
-  out.close();
+  out_counts.close();
+  out_align_len.close();
+  out_frag_len.close();
 }
