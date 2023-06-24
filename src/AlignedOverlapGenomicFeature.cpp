@@ -197,10 +197,12 @@ AlignedOverlapGenomicFeature::add(const SamEntry &e1,
 
     size_t frag_len = frag_end - frag_start;
 
+    /*
     if (frag_len != std::abs(e1.tlen)) {
       cerr << e1.qname << "\t" << frag_len << "\t"
            << e1.tlen << "\t" << e1.tlen << endl;
     }
+    */
 
     // find overlapping regions
     vector<pair<GenomicRegion, FeatureVector<string>>> out;
