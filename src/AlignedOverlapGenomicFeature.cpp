@@ -210,18 +210,22 @@ AlignedOverlapGenomicFeature::add(const SamEntry &e1,
                         out, true);
 
     // count for the start of fragment
-    ++counted_frags[entry_bc_index];
-    auto first_it = out.begin();
-    if (first_it->second.size() == 0) {
-      size_t index = feature_index["intergene"];
-      ++feature_counts[entry_bc_index][index];
-      feature_frag_len[entry_bc_index][index] += frag_len;
-    }
+    // size if 0 if the alignment is to a chr that is not present in the 
+    // features
+    if (out.size() > 0) {
+      ++counted_frags[entry_bc_index];
+      auto first_it = out.begin();
+      if (first_it->second.size() == 0) {
+        size_t index = feature_index["intergene"];
+        ++feature_counts[entry_bc_index][index];
+        feature_frag_len[entry_bc_index][index] += frag_len;
+      }
 
-    for (size_t j = 0; j < first_it->second.size(); ++j) {
-      size_t index = feature_index[first_it->second.at(j)];
-      ++feature_counts[entry_bc_index][index];
-      feature_frag_len[entry_bc_index][index] += frag_len;
+      for (size_t j = 0; j < first_it->second.size(); ++j) {
+        size_t index = feature_index[first_it->second.at(j)];
+        ++feature_counts[entry_bc_index][index];
+        feature_frag_len[entry_bc_index][index] += frag_len;
+      }
     }
 
     // count for the entire fragment
