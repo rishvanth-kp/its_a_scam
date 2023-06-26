@@ -177,6 +177,8 @@ main (int argc, char* argv[]) {
     }
 
     // write output to file
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
     aligned_feature.feature_counts_to_file(out_prefix);
   }
   catch (const std::exception &e) {

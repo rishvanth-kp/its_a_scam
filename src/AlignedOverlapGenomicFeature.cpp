@@ -72,6 +72,9 @@ AlignedOverlapGenomicFeature::add_gtf_features(const string& gtf_file) {
         FeatureVector<string>{"CDS"});
     }
   }
+  
+  // don't add chrM features
+  chroms.erase("chrM");
 
   for (auto chrom_it = chroms.begin(); chrom_it != chroms.end(); ++chrom_it) {
 
@@ -112,12 +115,17 @@ AlignedOverlapGenomicFeature::add_gtf_features(const string& gtf_file) {
 
     }
   }
-
   // keep track of the feature types
   feature_index["CDS"] = feature_counter++;
   feature_index["UTR"] = feature_counter++;
   feature_index["intron"] = feature_counter++;
   feature_index["intergene"] = feature_counter++;
+
+  // add "chrM" as one large feature so that any read aligning to chrM is 
+  // assigned to it
+  genomic_features.add("chrM", 0, 10000000, FeatureVector<string>{"chrM"});
+  feature_index["chrM"] = feature_counter++;
+
 }
 
 void
