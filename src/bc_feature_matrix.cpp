@@ -59,6 +59,8 @@ print_usage (const string &name) {
       << "\t-t tsr bed file [optional]" << endl
       << "\t-e enhancers bed file [optional]" << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-m min fragment length [default: 0]" << endl
+      << "\t-M max fragment length [default: inf]" << endl
       << "\t-d name split delimeter [default: \":\"]" << endl
       << "\t-c barcode field in name [default: 7 (0 based)]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
@@ -84,6 +86,9 @@ main (int argc, char* argv[]) {
     char bc_delim = ':';
     char bc_col = 7;
 
+    size_t min_frag_len = 0;
+    size_t max_frag_len = std::numeric_limits<size_t>::max();
+
     size_t min_mapq = 0;
     size_t include_all = 0x0003;
     size_t include_none = 0x0D0C;
@@ -91,7 +96,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:g:t:e:o:d:c:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:g:t:e:o:m:M:d:c:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
@@ -104,6 +109,10 @@ main (int argc, char* argv[]) {
         enhancer_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'm')
+        min_frag_len = std::stoi(optarg);
+      else if (opt == 'M')
+        max_frag_len = std::stoi(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -143,6 +152,10 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[PROCESSING BARCODES]" << endl;
     aligned_feature.process_barcodes(bc_file);
+
+    // set fragment lengths
+    aligned_feature.set_min_frag_len(min_frag_len);
+    aligned_feature.set_max_frag_len(max_frag_len);
 
     // process alignments
     if (VERBOSE)

@@ -37,6 +37,8 @@ using std::unordered_set;
 AlignedOverlapGenomicFeature::AlignedOverlapGenomicFeature() {
   bc_counter = 0;
   feature_counter = 0;
+  min_frag_len = 0;
+  max_frag_len = std::numeric_limits<size_t>::max();
 }
 
 AlignedOverlapGenomicFeature::~AlignedOverlapGenomicFeature() {
@@ -143,6 +145,17 @@ AlignedOverlapGenomicFeature::add_bed_features(const std::string& bed_file,
 
 }
 
+
+void 
+AlignedOverlapGenomicFeature::set_min_frag_len(const size_t min_len) {
+  min_frag_len = min_len;
+}
+
+void 
+AlignedOverlapGenomicFeature::set_max_frag_len(const size_t max_len) {
+  max_frag_len = max_len;
+}
+
 void
 AlignedOverlapGenomicFeature::process_barcodes(const std::string& bc_file) {
 
@@ -212,48 +225,52 @@ AlignedOverlapGenomicFeature::add(const SamEntry &e1,
     }
     */
 
-    // find overlapping regions
-    vector<pair<GenomicRegion, FeatureVector<string>>> out;
-    genomic_features.at(GenomicRegion(e1.rname, frag_start, frag_end),
-                        out, true);
+    // count a fragment if it falls withing the fragment length range
+    if ((frag_len >= min_frag_len) && (frag_len <= max_frag_len)) {
+      // find overlapping regions
+      vector<pair<GenomicRegion, FeatureVector<string>>> out;
+      genomic_features.at(GenomicRegion(e1.rname, frag_start, frag_end),
+                          out, true);
 
-    // count for the start of fragment
-    // size if 0 if the alignment is to a chr that is not present in the 
-    // features
-    if (out.size() > 0) {
-      ++counted_frags[entry_bc_index];
-      auto first_it = out.begin();
-      if (first_it->second.size() == 0) {
-        size_t index = feature_index["intergene"];
-        ++feature_counts[entry_bc_index][index];
-        feature_frag_len[entry_bc_index][index] += frag_len;
+      // count for the start of fragment
+      // size if 0 if the alignment is to a chr that is not present in the 
+      // features
+      if (out.size() > 0) {
+        ++counted_frags[entry_bc_index];
+        auto first_it = out.begin();
+        if (first_it->second.size() == 0) {
+          size_t index = feature_index["intergene"];
+          ++feature_counts[entry_bc_index][index];
+          feature_frag_len[entry_bc_index][index] += frag_len;
+        }
+
+        for (size_t j = 0; j < first_it->second.size(); ++j) {
+          size_t index = feature_index[first_it->second.at(j)];
+          ++feature_counts[entry_bc_index][index];
+          feature_frag_len[entry_bc_index][index] += frag_len;
+        }
       }
 
-      for (size_t j = 0; j < first_it->second.size(); ++j) {
-        size_t index = feature_index[first_it->second.at(j)];
-        ++feature_counts[entry_bc_index][index];
-        feature_frag_len[entry_bc_index][index] += frag_len;
+      // count for the entire fragment
+      for (auto it = out.begin(); it != out.end(); ++it) {
+        const size_t match_len = it->first.end - it->first.start;
+        // add match length for the sample.
+        counted_bases[entry_bc_index] += match_len;
+
+        // intergenic, if not aligned to any other feature
+        if (it->second.size() == 0) {
+          size_t index = feature_index["intergene"];
+          feature_align_len[entry_bc_index][index] += match_len;
+        }
+
+        for (size_t j = 0; j < it->second.size(); ++j) {
+          size_t index = feature_index[it->second.at(j)];
+          feature_align_len[entry_bc_index][index] += match_len;
+        }
+
       }
     }
-
-    // count for the entire fragment
-    for (auto it = out.begin(); it != out.end(); ++it) {
-      const size_t match_len = it->first.end - it->first.start;
-      // add match length for the sample.
-      counted_bases[entry_bc_index] += match_len;
-
-      // intergenic, if not aligned to any other feature
-      if (it->second.size() == 0) {
-        size_t index = feature_index["intergene"];
-        feature_align_len[entry_bc_index][index] += match_len;
-      }
-
-      for (size_t j = 0; j < it->second.size(); ++j) {
-        size_t index = feature_index[it->second.at(j)];
-        feature_align_len[entry_bc_index][index] += match_len;
-      }
-
-    }
+    
   }
 
 }

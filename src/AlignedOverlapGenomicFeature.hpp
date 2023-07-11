@@ -40,6 +40,9 @@ public:
   void add_bed_features(const std::string& bed_file,
                         const std::string feature_name);
 
+  void set_min_frag_len(const size_t min_len);
+  void set_max_frag_len(const size_t max_len);
+
   void process_barcodes(const std::string& bc_file);
 
   void add(const SamEntry &e1, const SamEntry &e2, const string &bc);
@@ -54,6 +57,9 @@ private:
 
   std::unordered_map<string, size_t> bc_index;
   size_t bc_counter;
+
+  size_t min_frag_len;
+  size_t max_frag_len;
 
   std::vector<size_t> counted_bases;
   std::vector<size_t> counted_frags;
