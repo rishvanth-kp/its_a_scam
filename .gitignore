@@ -48,6 +48,7 @@ bc_in_region
 bc_tss_matrix
 bc_feature_matrix
 bc_frag_dist
+genome_stats
 
 # vim temp files
 *.swp
