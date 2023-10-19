@@ -163,17 +163,21 @@ main (int argc, char* argv[]) {
         else { 
           vector<string> tokens;
           split_string(entry1.qname, tokens, bc_delim);
-          cell_bc = tokens[bc_col];
+          if (tokens.size() > bc_col)
+              cell_bc = tokens[bc_col];
+        }
+ 
+        if (!cell_bc.empty()) {
+          unordered_map<string, size_t>::iterator it;
+          it = bc_counter.find(cell_bc);
+          if (it == bc_counter.end()) {
+            bc_counter[cell_bc] = 1;
+          }
+          else {
+            ++bc_counter[cell_bc];
+          }
         }
 
-        unordered_map<string, size_t>::iterator it;
-        it = bc_counter.find(cell_bc);
-        if (it == bc_counter.end()) {
-          bc_counter[cell_bc] = 1;
-        }
-        else {
-          ++bc_counter[cell_bc];
-        }
       }
     }
 
