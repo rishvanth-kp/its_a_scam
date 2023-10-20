@@ -49,6 +49,7 @@ bc_tss_matrix
 bc_feature_matrix
 bc_frag_dist
 genome_stats
+tss_enrichment
 
 # vim temp files
 *.swp
