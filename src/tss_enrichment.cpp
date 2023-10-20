@@ -32,6 +32,21 @@ using std::string;
 using std::unordered_map;
 
 
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
+
 static string
 print_usage (const string &name) {
   std::ostringstream oss;
@@ -62,6 +77,8 @@ main (int argc, char* argv[]) {
     string bc_file; 
     string out_prefix;
 
+    size_t side_dist = 1000;
+
     char bc_delim = ':';
     uint8_t bc_col = 7;
     string bc_tag;
@@ -73,11 +90,13 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:t:b:o:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:t:s:b:o:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 't')
         tss_file = optarg;
+      else if (opt == 's')
+        side_dist = std::stoi(optarg);
       else if (opt == 'b')
         bc_file = optarg;
       else if (opt == 'o')
@@ -104,6 +123,50 @@ main (int argc, char* argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
+
+    // process barcodes
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+    
+    // to index the count martix
+    unordered_map<string, size_t> bc_index;
+    size_t bc_counter = 0;
+    vector<string> bc_metadata;    
+    bool bulk_sample = false;  
+
+    if (bc_file.empty()) {
+      // if a barocde file is not proivded, treat it as a bulk sample
+      // all the reads in the sam file will be considerd as one sample
+      bulk_sample = true;
+      bc_index[out_prefix] = bc_counter++;
+      bc_metadata.push_back(out_prefix);
+    }
+    else {
+      // if a barcode file is provided, each barcode is a separate sample
+      std::ifstream bc_in(bc_file);
+      string line;
+      while (getline(bc_in, line)) {
+        vector<string> tokens;
+        split_string(line, tokens, '\t');
+        bc_index[tokens[0]] = bc_counter++;
+        bc_metadata.push_back(tokens[0]);
+      } 
+      bc_in.close();
+    }
+
+    // create matrix to store the coverage around TSS for each sample
+    vector<vector<size_t>> tss_coverage(bc_counter,
+                                        vector<size_t>(2*side_dist + 1, 0));
+
+    if (VERBOSE) {
+      if (bulk_sample) {
+        cerr << "\tBulk sample: " << out_prefix << endl;
+      }
+      else {
+        cerr << "\tNumber of barocdes: " << bc_counter << endl;
+      }
+    }
+      
   } 
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl; 
