@@ -24,6 +24,13 @@
 #include <unistd.h>
 #include <unordered_map>
 
+#include "SamEntry.hpp"
+#include "SamReader.hpp"
+#include "BedReader.hpp"
+#include "GenomicRegion.hpp"
+#include "FeatureVector.hpp"
+#include "GenomicStepVector.hpp"
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -31,6 +38,14 @@ using std::vector;
 using std::string;
 using std::unordered_map;
 
+
+struct TssMetadata {
+  string chrom;
+  size_t start;
+  size_t end;
+  string tss_id;
+  char strand;
+};
 
 static void
 split_string (const string &in, vector<string> &tokens,
@@ -128,7 +143,7 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[PROCESSING BARCODES]" << endl;
     
-    // to index the count martix
+    // to index the TSS enhancement martix
     unordered_map<string, size_t> bc_index;
     size_t bc_counter = 0;
     vector<string> bc_metadata;    
@@ -167,6 +182,51 @@ main (int argc, char* argv[]) {
       }
     }
       
+
+    // process TSS file
+    if (VERBOSE)
+      cerr << "[PROCESSING TSS REGIONS]" << endl;
+
+    GenomicStepVector<FeatureVector<string>> tss;
+    vector<TssMetadata> tss_metadata;
+
+    size_t tss_counter = 0;
+  
+    BedReader tss_reader(tss_file);
+    GenomicRegion bed_region;
+    vector<string> bed_fields;
+    while (tss_reader.read_bed_line(bed_region, bed_fields)) {
+
+      // store the tss regrion
+      // storing just the TSS name. The distance from the tss can be 
+      // determined from the TSS start stored in the metadata.
+      tss.add(bed_region.name, bed_region.start - side_dist, 
+              bed_region.end + side_dist + 1, 
+              FeatureVector<string>(bed_fields[0])); 
+    
+ 
+      // store TSS metadata
+      TssMetadata metadata;
+      metadata.chrom = bed_region.name;
+      metadata.start = bed_region.start;
+      metadata.end = bed_region.end;
+      metadata.tss_id = bed_fields[0];
+      metadata.strand = bed_fields[1][0];
+
+      // keep track of number of tss
+      ++tss_counter;
+    }   
+
+    if (VERBOSE) 
+      cerr << "\tNumber of TSS: " << tss_counter << endl;
+
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+    
+    
+
   } 
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl; 

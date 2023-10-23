@@ -107,7 +107,8 @@ bc_frag_dist: SamReader.o SamEntry.o
 
 genome_stats: GenomeReader.o
 
-tss_enrichment: SamReader.o SamEntry.o
+tss_enrichment: SamReader.o SamEntry.o BedReader.o StepVector.hpp \
+                  FeatureVector.hpp GenomicStepVector.hpp GenomicRegion.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
