@@ -46,7 +46,7 @@ struct TssMetadata {
   size_t start;
   size_t end;
   string tss_id;
-  char strand;
+  bool strand;
 };
 
 static void
@@ -221,7 +221,10 @@ main (int argc, char* argv[]) {
       metadata.start = bed_region.start;
       metadata.end = bed_region.end;
       metadata.tss_id = bed_fields[0];
-      metadata.strand = bed_fields[2][0];
+      if (bed_fields[2][0] == '-')
+        metadata.strand = false;
+      else
+        metadata.strand = true;
       tss_metadata[bed_fields[0]] = metadata;
 
       // keep track of number of tss
@@ -320,6 +323,8 @@ main (int argc, char* argv[]) {
             TssMetadata metadata = tss_metadata[*it];
             for (size_t j = frag_start; j < frag_end; ++j) {
               int tss_offset = j - metadata.start + side_dist;
+              if (!metadata.strand)
+                tss_offset = (2*side_dist) - tss_offset;
               if (tss_offset >= 0 && tss_offset <= 2*side_dist) {
                 ++tss_coverage[tss_row_index][tss_offset];
               } 
