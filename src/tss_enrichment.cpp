@@ -332,6 +332,16 @@ main (int argc, char* argv[]) {
       }
     }  
 
+    // normalize tss enrichment matrix
+    vector<size_t> norm_factor(bc_metadata.size(), 0);
+    const size_t norm_len = 100;
+    for (size_t i = 0; i < bc_metadata.size(); ++i) {
+      for (size_t j = 0; j < norm_len; ++j) {
+        norm_factor[i] += tss_coverage[i][j];
+        norm_factor[i] += tss_coverage[i][(2*side_dist) - j];
+      }
+    }
+
     // write output
     if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
@@ -339,8 +349,16 @@ main (int argc, char* argv[]) {
     std::ofstream out(out_prefix + "_tss_enrichmet.txt");
     for (size_t i = 0; i < bc_metadata.size(); ++i) {
       out << bc_metadata[i] << "\t";
-      for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
-        out << tss_coverage[i][j] << "\t";
+      if (norm_factor[i] > 0) {
+        for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
+          out << static_cast<float>(tss_coverage[i][j]) /
+                 static_cast<float>(norm_factor[i]) << "\t";
+        }
+      }
+      else {
+        for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
+          out << 0 << "\t";
+        }
       }
       out << endl;
     }
