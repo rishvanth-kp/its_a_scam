@@ -72,6 +72,8 @@ print_usage (const string &name) {
       << "\t-t TSS bed file [required]" << endl
       << "\t-b barcode list (if empty, treated as bulk sample)" << endl
       << "\t-o outfile prefix [required]" << endl
+      << "\t-n min fragment length [default: 10]" << endl
+      << "\t-x max fragment length [default: 1000]" << endl
       << "\t-d name split delimeter " 
           << "[default: \":\"; ignored if -t is provided]" << endl
       << "\t-c barcode field in name " 
@@ -96,6 +98,9 @@ main (int argc, char* argv[]) {
 
     size_t side_dist = 1000;
 
+    size_t min_frag_len = 1;
+    size_t max_frag_len = 1000;
+
     char bc_delim = ':';
     uint8_t bc_col = 7;
     string bc_tag;
@@ -107,7 +112,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:t:s:b:o:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:t:s:b:o:n:x:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 't')
@@ -118,6 +123,10 @@ main (int argc, char* argv[]) {
         bc_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'n')
+        min_frag_len = std::stoi(optarg);
+      else if (opt == 'x')
+        max_frag_len = std::stoi(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -308,27 +317,31 @@ main (int argc, char* argv[]) {
           if (e2_end > e1_end) 
             frag_end = e2_end;
 
+          size_t frag_len = frag_end - frag_start;
+          if ((frag_len >= min_frag_len) && (frag_len <= max_frag_len)) {
 
-          // check if the fragment is in a TSS region
-          unordered_set<string> aligned_tss;
-          vector<pair<GenomicRegion, FeatureVector<string>>> out;
-          tss.at(GenomicRegion(entry1.rname, frag_start, frag_end), out); 
-          for (auto it = out.begin(); it != out.end(); ++it) {
-            for (size_t j = 0; j < it->second.size(); ++j) {
-              aligned_tss.insert(it->second.at(j));
+            // check if the fragment is in a TSS region
+            unordered_set<string> aligned_tss;
+            vector<pair<GenomicRegion, FeatureVector<string>>> out;
+            tss.at(GenomicRegion(entry1.rname, frag_start, frag_end), out); 
+            for (auto it = out.begin(); it != out.end(); ++it) {
+              for (size_t j = 0; j < it->second.size(); ++j) {
+                aligned_tss.insert(it->second.at(j));
+              }
             }
-          }
 
-          for (auto it = aligned_tss.begin(); it != aligned_tss.end(); ++it) {
-            TssMetadata metadata = tss_metadata[*it];
-            for (size_t j = frag_start; j < frag_end; ++j) {
-              int tss_offset = j - metadata.start + side_dist;
-              if (!metadata.strand)
-                tss_offset = (2*side_dist) - tss_offset;
-              if (tss_offset >= 0 && tss_offset <= 2*side_dist) {
-                ++tss_coverage[tss_row_index][tss_offset];
-              } 
+            for (auto it = aligned_tss.begin(); it != aligned_tss.end(); ++it) {
+              TssMetadata metadata = tss_metadata[*it];
+              for (size_t j = frag_start; j < frag_end; ++j) {
+                int tss_offset = j - metadata.start + side_dist;
+                if (!metadata.strand)
+                  tss_offset = (2*side_dist) - tss_offset;
+                if (tss_offset >= 0 && tss_offset <= 2*side_dist) {
+                  ++tss_coverage[tss_row_index][tss_offset];
+                } 
+              }
             }
+
           }
 
 
