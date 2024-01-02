@@ -51,7 +51,8 @@ split_name (const string &in, vector<string> &tokens) {
 
 static void
 add_barcode_to_name(FastqEntry &e, const FastqEntry &bc,
-                    const size_t bc_col, const size_t bc_split_pos,
+                    const size_t bc_col, const size_t first_bc_base,
+                    const size_t bc_split_pos,
                     const char bc_split_delim) {
 
   // split the name field at spaces.
@@ -60,7 +61,8 @@ add_barcode_to_name(FastqEntry &e, const FastqEntry &bc,
 
   if (!bc_split_pos) {
     // no need to split the barcode
-    name_entries[bc_col] = name_entries[bc_col] + ":" + bc.seq;
+    name_entries[bc_col] = name_entries[bc_col] + ":" + 
+      bc.seq.substr(first_bc_base);
   }
   else {
     // split the bc and add delimeter
@@ -91,6 +93,8 @@ print_usage(const string &name) {
       << "\t-o out file prefix [required]" << endl
       << "\t-c space delimated column to append barcode to [default: 0]"
         << endl
+      << "\t-f first base of barcode (0 based; ignored if -s > 0) [default: 0]"
+        << endl
       << "\t-s barcode read split position [default: 0]" << endl
       << "\t-d barcode read split delimeter [default: '+']"  << endl;
   return oss.str();
@@ -106,11 +110,12 @@ main (int argc, char* argv[]) {
     string out_prefix;
 
     size_t bc_col = 0;
+    size_t first_bc_base = 0;
     size_t bc_split_pos = 0;
     char bc_split_delim = '+';
 
     int opt;
-    while ((opt = getopt(argc, argv, "1:2:b:o:c:s:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "1:2:b:o:c:f:s:d:")) != -1) {
       if (opt == '1')
         in_file_1 = optarg;
       else if (opt == '2')
@@ -121,6 +126,8 @@ main (int argc, char* argv[]) {
         out_prefix = optarg;
       else if (opt == 'c')
         bc_col = std::stoi(optarg);
+      else if (opt == 'f')
+        first_bc_base = std::stoi(optarg);
       else if (opt == 's')
         bc_split_pos = std::stoi(optarg);
       else if (opt == 'd')
@@ -152,7 +159,8 @@ main (int argc, char* argv[]) {
         bc_reader.read_se_entry(bc);
 
         // add the barcode sequence to name
-        add_barcode_to_name(fq1, bc, bc_col, bc_split_pos, bc_split_delim);
+        add_barcode_to_name(fq1, bc, bc_col, first_bc_base, 
+          bc_split_pos, bc_split_delim);
 
         // write the fastq file
         out_fq1 << fq1;
@@ -172,8 +180,10 @@ main (int argc, char* argv[]) {
         bc_reader.read_se_entry(bc);
 
         // add the bacode sequence to both the names
-        add_barcode_to_name(fq1, bc, bc_col, bc_split_pos, bc_split_delim);
-        add_barcode_to_name(fq2, bc, bc_col, bc_split_pos, bc_split_delim);
+        add_barcode_to_name(fq1, bc, bc_col, first_bc_base, 
+          bc_split_pos, bc_split_delim);
+        add_barcode_to_name(fq2, bc, bc_col, first_bc_base, 
+          bc_split_pos, bc_split_delim);
 
         // write the fastq files
         out_fq1 << fq1;
