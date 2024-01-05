@@ -130,11 +130,11 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
           }
           else if (cds & utr) {
             genomic_features.add(it->first, "pc_both");
-            features.insert("pc_utr");
+            features.insert("pc_both");
           }
           else {
             genomic_features.add(it->first, "pc_none");
-            features.insert("pc_utr");
+            features.insert("pc_none");
           }
 
         }
