@@ -50,6 +50,7 @@ bc_feature_matrix
 bc_frag_dist
 genome_stats
 tss_enrichment
+sc_rnaseq_feature_matrix
 
 # vim temp files
 *.swp
