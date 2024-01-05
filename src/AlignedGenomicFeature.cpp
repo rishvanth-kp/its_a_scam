@@ -164,6 +164,25 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
 }
 
 
+void 
+AlignedGenomicFeature::process_barcodes(const std::string& bc_file) {
+
+}
+
+
+void 
+AlignedGenomicFeature::add(const SamEntry &e, const std::string &bc) {
+
+}
+
+void
+AlignedGenomicFeature::add(const SamEntry &e, const std::string &bc, 
+                           const std::string &umi) {
+
+
+}
+
+
 void
 AlignedGenomicFeature::add(const SamEntry &e) {
   SamCigar::CigarRegions ref_regions;

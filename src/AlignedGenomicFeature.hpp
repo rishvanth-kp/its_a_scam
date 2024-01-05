@@ -23,6 +23,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "SamEntry.hpp"
 #include "GtfReader.hpp"
@@ -35,21 +36,42 @@ public:
   AlignedGenomicFeature();
   ~AlignedGenomicFeature();
 
-  void preprocess_gff(const string& gff_file);
+  void preprocess_gff(const std::string& gff_file);
+
+  void process_barcodes(const std::string& bc_file);
 
   void add(const SamEntry &e);
 
+  void add(const SamEntry &e, const std::string &bc);
+
+  void add(const SamEntry &e, const std::string &bc, 
+           const std::string &umi);
+
   void clear_counts();
 
-  void get_feature_counts(vector<pair<string, size_t>> &counts,
+  void get_feature_counts(std::vector<pair<std::string, size_t>> &counts,
                           size_t &n_bases);
-  void feature_count_to_file(const string& file) const;
+  void feature_count_to_file(const std::string& file) const;
 
 
 private:
-  GenomicStepVector<string> genomic_features;
-  std::unordered_map<string, size_t> feature_count;
+  GenomicStepVector<std::string> genomic_features;
+  
+  // for bulk samples that do not have barcodes
+  // This is slightly ineffiecnet since these structures
+  // are created even the sample is barcoded. 
+  std::unordered_map<std::string, size_t> feature_count;
   size_t match_bases;
+
+  // for barcoded samples
+  std::unordered_map<std::string, size_t> feature_index;
+  std::unordered_map<std::string, size_t> bc_index;
+
+  std::vector<std::vector<size_t>> bc_feature_count;
+  std::vector<size_t> bc_counted_bases;
+
+  // for barcoded and UMI samples
+  std::unordered_set<std::string> seen_cb_umi;
 };
 
 
