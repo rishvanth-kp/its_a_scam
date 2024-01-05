@@ -66,6 +66,7 @@ private:
   // for barcoded samples
   std::unordered_map<std::string, size_t> feature_index;
   std::unordered_map<std::string, size_t> bc_index;
+  size_t bc_counter;
 
   std::vector<std::vector<size_t>> bc_feature_count;
   std::vector<size_t> bc_counted_bases;

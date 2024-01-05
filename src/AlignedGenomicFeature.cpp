@@ -33,6 +33,7 @@ using std::unordered_set;
 
 AlignedGenomicFeature::AlignedGenomicFeature() {
   match_bases = 0;
+  bc_counter = 0;
 }
 
 AlignedGenomicFeature::~AlignedGenomicFeature() {
@@ -148,9 +149,12 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
   }
 
   features.insert("intergenic");
+  size_t feature_counter = 0;
   for (auto it = features.begin(); it != features.end(); ++it) {
     feature_count.insert(make_pair(*it, 0));
+    feature_index[*it] = feature_counter++;
   }
+
 /*
   for (auto chrom_it = chroms.begin(); chrom_it != chroms.end(); ++chrom_it) {
     vector<pair<GenomicRegion, string>> out;
@@ -167,7 +171,36 @@ AlignedGenomicFeature::preprocess_gff(const string& gff_file) {
 void 
 AlignedGenomicFeature::process_barcodes(const std::string& bc_file) {
 
+  std::ifstream bc_in(bc_file);
+  if (!bc_in) {
+    throw std::runtime_error("Cannot open " + bc_file);    
+  }
+
+  // create a barcode index to index into the count matrix
+  // and to throw out alignimnts whose barcodes are not in the index
+  string line;
+  while (getline(bc_in, line)) {
+    string barcode;
+    std::istringstream iss(line);
+    iss >> barcode;
+
+    bc_index[barcode] = bc_counter++; 
+  }
+  bc_in.close();
+
+
+  cout << "Number of barcodes: " << bc_index.size();
+
+  // initialize count matrices
+  // number of rows = number of barcodes
+  bc_feature_count.resize(bc_index.size());
+  for (size_t i = 0; i < bc_feature_count.size(); ++i) {
+    // number of cols = number of features
+    bc_feature_count[i].resize(feature_index.size());
+  }
+
 }
+
 
 
 void 
