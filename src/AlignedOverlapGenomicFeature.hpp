@@ -31,6 +31,14 @@
 #include "GenomicRegion.hpp"
 #include "GenomicStepVector.hpp"
 
+
+/**
+* \brief Assign genomic region(s) to aligned reads.
+*
+* A class to assign reads to genomic regions processed from GTF 
+* and BED files. The aligned reads can be assigned to multiple
+* overlapping regions. 
+*/
 class AlignedOverlapGenomicFeature {
 public:
   AlignedOverlapGenomicFeature();
