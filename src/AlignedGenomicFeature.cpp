@@ -17,7 +17,6 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <unordered_set>
 #include <algorithm>
 #include <fstream>
 #include <vector>
@@ -30,6 +29,7 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::unordered_set;
+using std::unordered_map;
 
 AlignedGenomicFeature::AlignedGenomicFeature() {
   match_bases = 0;
@@ -189,8 +189,6 @@ AlignedGenomicFeature::process_barcodes(const std::string& bc_file) {
   bc_in.close();
 
 
-  cout << "Number of barcodes: " << bc_index.size();
-
   // initialize count matrices
   // number of rows = number of barcodes
   bc_feature_count.resize(bc_index.size());
@@ -205,6 +203,46 @@ AlignedGenomicFeature::process_barcodes(const std::string& bc_file) {
 
 void 
 AlignedGenomicFeature::add(const SamEntry &e, const std::string &bc) {
+
+  unordered_map<string, size_t>::iterator bc_it;
+  // search for valid barcode
+  bc_it = bc_index.find(bc);
+  if (bc_it != bc_index.end()) {
+    size_t entry_bc_index = bc_it->second;
+   
+    // process the cigar string to get the alignment locations on 
+    // the reference
+    SamCigar::CigarRegions ref_regions;
+    SamCigar::cigar_to_reference_regions(e, ref_regions);
+
+    vector<pair<GenomicRegion, string>> out;
+    for (auto it = ref_regions.begin(); it != ref_regions.end(); ++it) {
+      if (it->first == SamCigar::Cigar::aln_match || 
+          it->first == SamCigar::Cigar::seq_match ||
+          it->first == SamCigar::Cigar::seq_mismatch) {
+        
+        genomic_features.at(it->second, out, true);
+        for (auto jt = out.begin(); jt != out.end(); ++jt) {
+          // keep track of the number of match bases
+          const size_t match_len = jt->first.end - jt->first.start;
+          bc_counted_bases[entry_bc_index] += match_len; 
+     
+          // added to barcode feature matrix
+          if (jt->second == string{}) {
+            size_t entry_feature_index = feature_index["intergenic"]; 
+            bc_feature_count[entry_bc_index][entry_feature_index] += match_len;
+
+          }
+          else {
+            size_t entry_feature_index = feature_index[jt->second];
+            bc_feature_count[entry_bc_index][entry_feature_index] += match_len;
+          }
+        }
+
+      }
+
+    }
+  }
 
 }
 
@@ -288,3 +326,4 @@ AlignedGenomicFeature::feature_count_to_file(const string& file_name) const{
 
   out_file.close();
 }
+
