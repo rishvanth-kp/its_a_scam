@@ -25,6 +25,10 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "SamEntry.hpp"
+#include "SamReader.hpp"
+#include "AlignedGenomicFeature.hpp"
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -99,6 +103,57 @@ main (int argc, char* argv[]) {
         gtf_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
+
+
+    // process gtf file
+    if (VERBOSE)
+      cerr << "[PROCESSING GTF FILE]" << endl;
+
+    AlignedGenomicFeature aligned_feature;
+    aligned_feature.preprocess_gff(gtf_file);
+  
+
+    // process barcodes
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+    
+    aligned_feature.process_barcodes(bc_file);
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+      
+    SamReader sam_reader(aln_file);
+    SamEntry entry;
+
+    size_t aln_count = 0;
+    
+    while (sam_reader.read_sam_line(entry)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " pairs" << endl;
+        }
+      }
+
+      // filter out low quality alignments and that do not meet
+      // sam flag criteria
+      if (entry.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry.flag, include_all) &&
+          SamFlags::is_any_set(entry.flag, include_none)) {
+
+        // get barcode
+        string cell_bc;
+        SamTags::get_tag(entry.tags, bc_tag, cell_bc);       
+ 
+        // added to features
+        aligned_feature.add(entry, cell_bc);
+      }
+
+    }    
+
+
+    // write output
 
   }
   catch (const std::exception &e) {

@@ -110,7 +110,9 @@ genome_stats: GenomeReader.o
 tss_enrichment: SamReader.o SamEntry.o BedReader.o StepVector.hpp \
                   FeatureVector.hpp GenomicStepVector.hpp GenomicRegion.o
 
-sc_rnaseq_feature_matrix: SamReader.o SamEntry.o
+sc_rnaseq_feature_matrix: SamReader.o SamEntry.o AlignedGenomicFeature.o \
+												    StepVector.hpp GenomicStepVector.hpp \
+												    GtfReader.o GenomicRegion.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
