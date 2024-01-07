@@ -44,11 +44,11 @@ print_usage (const string &name) {
       << "\t-b barcode list file [required]" << endl
       << "\t-g GTF file [required]" << endl
       << "\t-o out file prefix [required]" << endl
-      << "\t-c cell barcode tag in SAM/BAM file [default: \"\"]" << endl
+      << "\t-c cell barcode tag in SAM/BAM file [default: CB]" << endl
       << "\t-u UMI tag in SAM/BAM file [default: \"\"]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
-      << "\t-f only include if all the flags are present [default: xxx]" << endl
-      << "\t-F only include if none of the flags are present [defauly: xxx]" 
+      << "\t-f only include if all the flags are present [default: 0]" << endl
+      << "\t-F only include if none of the flags are present [defauly: 2052]" 
         << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();
@@ -64,12 +64,12 @@ main (int argc, char* argv[]) {
 
     string gtf_file;
   
-    string bc_tag;
+    string bc_tag = "CB";
     string umi_tag;
 
     size_t min_mapq = 0;
-    size_t include_all = 0x0000;
-    size_t include_none = 0x0000;
+    size_t include_all = 0;
+    size_t include_none = 0x0804;
 
     bool VERBOSE = false;
 
@@ -140,20 +140,25 @@ main (int argc, char* argv[]) {
       // sam flag criteria
       if (entry.mapq >= min_mapq &&
           SamFlags::is_all_set(entry.flag, include_all) &&
-          SamFlags::is_any_set(entry.flag, include_none)) {
+          !SamFlags::is_any_set(entry.flag, include_none)) {
 
+      
         // get barcode
         string cell_bc;
         SamTags::get_tag(entry.tags, bc_tag, cell_bc);       
- 
+        
         // added to features
         aligned_feature.add(entry, cell_bc);
       }
 
     }    
 
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
 
     // write output
+    aligned_feature.feature_count_to_file(
+      out_prefix + "_gex_feature_counts.txt");
 
   }
   catch (const std::exception &e) {

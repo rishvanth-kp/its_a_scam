@@ -34,6 +34,7 @@ using std::unordered_map;
 AlignedGenomicFeature::AlignedGenomicFeature() {
   match_bases = 0;
   bc_counter = 0;
+  is_barcoded = false;
 }
 
 AlignedGenomicFeature::~AlignedGenomicFeature() {
@@ -197,6 +198,10 @@ AlignedGenomicFeature::process_barcodes(const std::string& bc_file) {
     bc_feature_count[i].resize(feature_index.size());
   }
 
+  // initialize counted_bases matrix
+  bc_counted_bases.resize(bc_index.size()); 
+ 
+  is_barcoded = true;
 }
 
 
@@ -209,7 +214,7 @@ AlignedGenomicFeature::add(const SamEntry &e, const std::string &bc) {
   bc_it = bc_index.find(bc);
   if (bc_it != bc_index.end()) {
     size_t entry_bc_index = bc_it->second;
-   
+  
     // process the cigar string to get the alignment locations on 
     // the reference
     SamCigar::CigarRegions ref_regions;
@@ -310,18 +315,48 @@ void
 AlignedGenomicFeature::feature_count_to_file(const string& file_name) const{
   std::ofstream out_file(file_name);
 
-  vector<pair<string, size_t>> counts;
-  for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
-    counts.push_back(std::make_pair(it->first, it->second));
-  }
-  std::sort(counts.begin(), counts.end(), sort_features);
+  if (!is_barcoded) {
+    vector<pair<string, size_t>> counts;
+    for (auto it = feature_count.begin(); it != feature_count.end(); ++it) {
+      counts.push_back(std::make_pair(it->first, it->second));
+    }
+    std::sort(counts.begin(), counts.end(), sort_features);
 
-  for (auto it = counts.begin(); it != counts.end(); ++it) {
-    const float feature_percent =
-      (static_cast<float>(it->second) / static_cast<float>(match_bases)) * 100;
-    out_file << it->first << "\t"
-             << it->second << "\t"
-             << feature_percent << endl;
+    for (auto it = counts.begin(); it != counts.end(); ++it) {
+      const float feature_percent =
+        (static_cast<float>(it->second) / static_cast<float>(match_bases)) * 100;
+      out_file << it->first << "\t"
+               << it->second << "\t"
+               << feature_percent << endl;
+    }
+  }
+  // barcoded sample
+  else {
+    // write header
+    out_file << "barcode" << "\t" << "bases";
+    vector<size_t> feature_order;
+    for (auto it = feature_index.begin(); it != feature_index.end(); ++it) {
+      feature_order.push_back(it->second);
+      out_file << "\t" << it->first;
+    }
+    out_file << endl;
+
+
+    // write counts for each barcode
+    for (auto it = bc_index.begin(); it != bc_index.end(); ++it) {
+      // barcode
+      out_file << it->first;
+
+      // Total number of bases counted for that barcode
+      out_file << "\t" <<  bc_counted_bases[it->second];  
+
+      // feature counts
+      for (size_t j = 0; j < feature_order.size(); ++j) {
+        out_file << "\t" << bc_feature_count[it->second][feature_order[j]];
+      }
+      out_file << endl;
+    }
+
   }
 
   out_file.close();
