@@ -148,7 +148,15 @@ main (int argc, char* argv[]) {
         SamTags::get_tag(entry.tags, bc_tag, cell_bc);       
         
         // added to features
-        aligned_feature.add(entry, cell_bc);
+        if (umi_tag.empty()) {
+          aligned_feature.add(entry, cell_bc);
+        }
+        else {
+          string umi;
+          SamTags::get_tag(entry.tags, umi_tag, umi);
+          aligned_feature.add(entry, cell_bc, umi);
+        }      
+  
       }
 
     }    

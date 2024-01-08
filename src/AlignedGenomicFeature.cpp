@@ -255,6 +255,12 @@ void
 AlignedGenomicFeature::add(const SamEntry &e, const std::string &bc, 
                            const std::string &umi) {
 
+  // check if a CB and UMI combination has was already added
+  if (seen_cb_umi.find(bc + umi) == seen_cb_umi.end()) { 
+    // If it had not been added, add it
+    seen_cb_umi.insert(bc + umi);
+    add(e, bc);
+  }
 
 }
 
