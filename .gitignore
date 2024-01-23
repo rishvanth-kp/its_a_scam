@@ -51,6 +51,7 @@ bc_frag_dist
 genome_stats
 tss_enrichment
 sc_rnaseq_feature_matrix
+get_clipped_bases
 
 # vim temp files
 *.swp

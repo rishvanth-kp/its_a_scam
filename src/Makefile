@@ -27,7 +27,8 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 					gene_count add_barcode_to_fastq_name \
 					barcode_count bc_in_region bc_tss_matrix \
 					bc_feature_matrix bc_frag_dist genome_stats \
-          tss_enrichment sc_rnaseq_feature_matrix
+          tss_enrichment sc_rnaseq_feature_matrix \
+          get_clipped_bases
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -113,6 +114,8 @@ tss_enrichment: SamReader.o SamEntry.o BedReader.o StepVector.hpp \
 sc_rnaseq_feature_matrix: SamReader.o SamEntry.o AlignedGenomicFeature.o \
 												    StepVector.hpp GenomicStepVector.hpp \
 												    GtfReader.o GenomicRegion.o
+
+get_clipped_bases: SamReader.o SamEntry.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
