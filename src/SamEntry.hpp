@@ -56,6 +56,7 @@ public:
   */
   ~SamEntry();
 
+  
   /**
   * Parses a string into SAM/BAM fields.
   * The required fields are stored in the appropriate member.
@@ -81,6 +82,7 @@ public:
   vector<string> tags /**< TAGS. Optional tags. */;
 };
 
+std::ostream& operator<< (std::ostream&, const SamEntry&);
 
 /**
 * \brief Helper functions for working with SAM CIGAR.

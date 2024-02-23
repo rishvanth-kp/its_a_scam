@@ -45,7 +45,24 @@ SamEntry::parse_entry(const string &line) {
   }
 }
 
-
+std::ostream& 
+operator<< (std::ostream& os, const SamEntry& e) {
+  os << e.qname 
+     << "\t" << e.flag
+     << "\t" << e.rname
+     << "\t" << e.pos
+     << "\t" << e.mapq
+     << "\t" << e.cigar
+     << "\t" << e.rnext
+     << "\t" << e.pnext
+     << "\t" << e.tlen 
+     << "\t" << e.seq
+     << "\t" << e.qual;
+  for (auto it = e.tags.begin(); it != e.tags.end(); ++it) {
+    os << "\t" << *it;
+  }
+  return os;
+}
 
 void
 SamCigar::string_to_tuple(const SamEntry &e, CigarTuples &tuples) {
