@@ -18,13 +18,35 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <sstream>
+#include <fstream>
 #include <unistd.h>
+
+#include "SamReader.hpp"
+#include "SamEntry.hpp"
 
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::vector;
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
+
 
 static string
 print_usage (const string &name) {
@@ -50,7 +72,7 @@ main (int argc, char* argv[]) {
     size_t bc_col = 7;
 
     string bc_tag = "CB";
-    char bc_tag_type = 'z';
+    char bc_tag_type = 'Z';
   
     int opt;
     while ((opt = getopt(argc, argv, "a:o:d:c:t:z")) != -1) {
@@ -73,6 +95,35 @@ main (int argc, char* argv[]) {
     if (aln_file.empty() || out_file.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
+
+    // read the alignment file
+    SamReader sam_reader(aln_file);
+    SamEntry e;
+  
+    // open out file 
+    std::ofstream sam_out(out_file);    
+
+    // write sam header
+    string header;
+    sam_reader.read_sam_header(header);
+    sam_out << header;      
+
+    while (sam_reader.read_sam_line(e)) {
+
+      // parse out the tag from name
+      vector<string> qname_tokens;
+      split_string(e.qname, qname_tokens, bc_delim);
+      string new_tag = bc_tag + ":" + bc_tag_type + ":" + 
+        qname_tokens[bc_col];
+
+      e.tags.push_back(new_tag); 
+
+      // write sam entry
+      sam_out << e << endl; 
+
+ 
+    }
+    sam_out.close();
 
   }
   
