@@ -28,7 +28,7 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 					barcode_count bc_in_region bc_tss_matrix \
 					bc_feature_matrix bc_frag_dist genome_stats \
           tss_enrichment sc_rnaseq_feature_matrix \
-          get_clipped_bases
+          get_clipped_bases nametag_to_samtag
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -116,6 +116,8 @@ sc_rnaseq_feature_matrix: SamReader.o SamEntry.o AlignedGenomicFeature.o \
 												    GtfReader.o GenomicRegion.o
 
 get_clipped_bases: SamReader.o SamEntry.o
+
+nametag_to_samtag: SamReader.o SamEntry.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<

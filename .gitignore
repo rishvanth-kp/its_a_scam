@@ -52,6 +52,7 @@ genome_stats
 tss_enrichment
 sc_rnaseq_feature_matrix
 get_clipped_bases
+nametag_to_samtag
 
 # vim temp files
 *.swp
