@@ -84,6 +84,45 @@ add_cell_to_sample(const AlignmentMismatch &cell_mm,
         size_t a_count, t_count, g_count, c_count;
         count_nucs(out_mm[j], a_count, t_count, g_count, c_count);
 
+        string max_base;
+        float max_vaf = 0;
+        // A
+        const float a_vaf = static_cast<float>(a_count) /
+                            static_cast<float>(out_cov[j]);
+        if (a_vaf > max_vaf) {
+          max_base = "A";
+          max_vaf = a_vaf;
+        }
+        // T
+        const float t_vaf = static_cast<float>(t_count) /
+                            static_cast<float>(out_cov[j]);
+        if (t_vaf > max_vaf) {
+          max_base = "T";
+          max_vaf = t_vaf;
+        }
+        // G
+        const float g_vaf = static_cast<float>(g_count) /
+                            static_cast<float>(out_cov[j]);
+        if (g_vaf > max_vaf) {
+          max_base = "G";
+          max_vaf = g_vaf;
+        }
+        // C
+        const float c_vaf = static_cast<float>(c_count) /
+                            static_cast<float>(out_cov[j]);
+        if (c_vaf > max_vaf) {
+          max_base = "C";
+          max_vaf = c_vaf;
+        }
+
+
+        // add if vaf greater than threshold
+        if (max_vaf >= min_vaf) {
+          sample_mm.add(out_region[j], 
+                        FeatureVector<string>(max_base + std::to_string(id)));
+        }
+
+/*
         // A
         const float a_vaf = static_cast<float>(a_count) /
                             static_cast<float>(out_cov[j]);
@@ -115,7 +154,7 @@ add_cell_to_sample(const AlignmentMismatch &cell_mm,
           sample_mm.add(out_region[j], 
                         FeatureVector<string>("C" + std::to_string(id)));
         }
-
+*/
 
 
       }
