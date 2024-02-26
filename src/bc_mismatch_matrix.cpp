@@ -23,6 +23,7 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+#include <algorithm>
 #include <unordered_map>
 
 #include "SamEntry.hpp"
@@ -139,6 +140,10 @@ split_string (const string &in, vector<string> &tokens,
   tokens.push_back(in.substr(start));
 }
 
+static bool
+sort_bc_index (pair<string, size_t> a, pair<string, size_t> b) {
+  return (a.second < b.second);
+}
 
 static string
 print_usage (const string &name) {
@@ -331,6 +336,53 @@ main (int argc, char* argv[]) {
     // destroy
     delete cell_mm; 
 
+
+    // write output
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
+
+    std::ofstream out_file(out_prefix + "_mm_matrix.txt");
+
+    // write header
+    vector<pair<string, size_t>> bc_index_ordered;
+    for (auto it = bc_index.begin(); it != bc_index.end(); ++it) {
+      bc_index_ordered.push_back(std::make_pair(it->first, it->second));
+    }
+    std::sort(bc_index_ordered.begin(), bc_index_ordered.end(), sort_bc_index); 
+    
+    out_file << "chrom\tstart\tend";
+    for (size_t i = 0; i < bc_index_ordered.size(); ++i) {
+      out_file << "\t" << bc_index_ordered[i].first;
+    }
+    out_file << endl;
+
+    // write the rest of the matrix
+    vector<pair<GenomicRegion, FeatureVector<string>>> out_mm;
+    for (size_t i = 0; i < ref_chroms.size(); ++i) {
+      sample_mm.at(ref_chroms[i], out_mm);
+      for (size_t j = 0; j < out_mm.size(); ++j) {
+        out_file << out_mm[j].first;
+        vector<string> mm_at_base(bc_index_ordered.size());
+        for (size_t k = 0; k < out_mm[j].second.size(); ++k) {
+          char mm_base = out_mm[j].second.at(k)[0];
+          size_t mm_sample = std::stoi(out_mm[j].second.at(k).substr(1));
+          mm_at_base[mm_sample] += mm_base; 
+        }
+        for (size_t k = 0; k < mm_at_base.size(); ++k) {
+          if (mm_at_base[k].length()) {
+            out_file << "\t" << mm_at_base[k];
+          }
+          else {
+            out_file << "\t.";
+          }
+        }
+        out_file << endl;
+      }
+    }
+    
+
+
+    out_file.close();
 
   }
   catch (const std::exception &e) {
