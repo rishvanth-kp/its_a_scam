@@ -70,7 +70,7 @@ public:
   void at(const GenomicRegion &in_region,
           vector<GenomicRegion> &out_region,
           vector<size_t> &aln_count,
-          vector<string> &mismatches);
+          vector<string> &mismatches) const;
 
 private:
   GenomicStepVector<string> mismatches;

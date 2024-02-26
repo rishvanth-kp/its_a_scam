@@ -87,7 +87,7 @@ void
 AlignmentMismatch::at(const GenomicRegion &in_region,
           vector<GenomicRegion> &out_region,
           vector<size_t> &out_aln_count,
-          vector<string> &out_mismatches) {
+          vector<string> &out_mismatches) const {
 
   out_region.clear();
   out_aln_count.clear();
