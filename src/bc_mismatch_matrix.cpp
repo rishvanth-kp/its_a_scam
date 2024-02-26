@@ -39,24 +39,6 @@ using std::string;
 using std::unordered_map;
 
 
-
-static void
-add_cell_to_sample(const AlignmentMismatch &cell_mm,
-                   const size_t min_depth, const float min_vaf, 
-                   const vector<GenomicRegion> &ref_chroms,
-                   const size_t id,
-                   GenomicStepVector<FeatureVector<string>> &sample_mm) {
-
-  
-  // process each chromosome
-  for(size_t i = 0; i < ref_chroms.size(); ++i) {
-    vector<GenomicRegion> out_region;
-    vector<size_t> out_cov;
-    vector<string> out_mm;
-    cell_mm.at(ref_chroms[i], out_region, out_cov, out_mm);
-  }
-}
- 
 static void
 count_nucs(const string &nucs,
            size_t &a_count, size_t &t_count,
@@ -78,6 +60,69 @@ count_nucs(const string &nucs,
       ++c_count;
   }
 }
+
+static void
+add_cell_to_sample(const AlignmentMismatch &cell_mm,
+                   const size_t min_depth, const float min_vaf, 
+                   const vector<GenomicRegion> &ref_chroms,
+                   const size_t id,
+                   GenomicStepVector<FeatureVector<string>> &sample_mm) {
+
+  
+  // process each chromosome
+  for(size_t i = 0; i < ref_chroms.size(); ++i) {
+    vector<GenomicRegion> out_region;
+    vector<size_t> out_cov;
+    vector<string> out_mm;
+    cell_mm.at(ref_chroms[i], out_region, out_cov, out_mm);
+  
+    for (size_t j = 0; j < out_region.size(); ++j) {
+      if (out_cov[j] >= min_depth) {
+  
+        // count the number of each base from the string
+        size_t a_count, t_count, g_count, c_count;
+        count_nucs(out_mm[j], a_count, t_count, g_count, c_count);
+
+        // A
+        const float a_vaf = static_cast<float>(a_count) /
+                            static_cast<float>(out_cov[j]);
+        if (a_vaf >= min_vaf) {
+          sample_mm.add(out_region[j], 
+                        FeatureVector<string>("A" + std::to_string(id)));
+        }
+        
+        // T
+        const float t_vaf = static_cast<float>(t_count) /
+                            static_cast<float>(out_cov[j]);
+        if (t_vaf >= min_vaf) {
+          sample_mm.add(out_region[j], 
+                        FeatureVector<string>("T" + std::to_string(id)));
+        }
+
+        // G
+        const float g_vaf = static_cast<float>(g_count) /
+                            static_cast<float>(out_cov[j]);
+        if (g_vaf >= min_vaf) {
+          sample_mm.add(out_region[j], 
+                        FeatureVector<string>("G" + std::to_string(id)));
+        }
+
+        // C
+        const float c_vaf = static_cast<float>(c_count) /
+                            static_cast<float>(out_cov[j]);
+        if (c_vaf >= min_vaf) {
+          sample_mm.add(out_region[j], 
+                        FeatureVector<string>("C" + std::to_string(id)));
+        }
+
+
+
+      }
+    }
+
+  }
+}
+ 
 
 static void
 split_string (const string &in, vector<string> &tokens,
@@ -210,6 +255,7 @@ main (int argc, char* argv[]) {
 
     bool first = true;
     string prev_bc;
+    size_t prev_bc_id;
 
     size_t read_counter = 0;
 
@@ -228,6 +274,7 @@ main (int argc, char* argv[]) {
 
         if (first) {
           prev_bc = e_bc;
+          prev_bc_id = bc_it->second;
           cell_mm = new AlignmentMismatch();
           first = false;
         }
@@ -241,9 +288,10 @@ main (int argc, char* argv[]) {
             if (VERBOSE) {
               cerr << prev_bc << ": " << read_counter << endl;
             }
-            // add to sample_mm
+
+            // add previous cell to sample_mm
             add_cell_to_sample(*cell_mm, min_depth, min_vaf, 
-                               ref_chroms, bc_it->second, sample_mm);
+                               ref_chroms, prev_bc_id, sample_mm);
 
             // destroy 
             delete cell_mm;
@@ -251,6 +299,7 @@ main (int argc, char* argv[]) {
             // reset every thing for next cell
             cell_mm = new AlignmentMismatch();
             prev_bc = e_bc;
+            prev_bc_id = bc_it->second;
             read_counter = 1;
 
             // add first entry of next cell to mismatchs
@@ -264,7 +313,6 @@ main (int argc, char* argv[]) {
             ++read_counter;
           }
 
-          cout << e_bc << endl;
         }
 
       }
@@ -273,15 +321,16 @@ main (int argc, char* argv[]) {
 
 
     // add last cell info
-    add_cell_to_sample(*cell_mm, min_depth, min_vaf, ref_chroms, 
-                       bc_it->second, sample_mm);
-
     if (VERBOSE) {
       cerr << prev_bc << ": " << read_counter << endl;
     }
+    add_cell_to_sample(*cell_mm, min_depth, min_vaf, ref_chroms, 
+                        prev_bc_id, sample_mm);
+
 
     // destroy
     delete cell_mm; 
+
 
   }
   catch (const std::exception &e) {
