@@ -378,7 +378,7 @@ main (int argc, char* argv[]) {
 
     // write output
     if (VERBOSE)
-      cerr << "[WRITING OUTPUT]" << endl;
+      cerr << "[WRITING MISMATCH OUTPUT]" << endl;
 
     std::ofstream out_file(out_prefix + "_mm_matrix.txt");
 
@@ -419,11 +419,71 @@ main (int argc, char* argv[]) {
       }
     }
     
-
-
     out_file.close();
 
+    if (VERBOSE)
+      cerr << "[COMPUTING JACCARD INDEX]" << endl;
+    
+    vector<vector<size_t>> mm_counts(bc_index_ordered.size(), 
+                                     vector<size_t>(bc_index_ordered.size(), 0));
+
+    vector<pair<GenomicRegion, FeatureVector<string>>> out;
+    for (size_t i = 0; i < ref_chroms.size(); ++i) {
+      sample_mm.at(ref_chroms[i], out);
+      for (size_t j = 0; j < out.size(); ++j) {
+
+        // process the union and intersecon for each region
+        const size_t region_len = out[j].first.end - out[j].first.start;
+        for (size_t k = 0; k < out[j].second.size(); ++k) {
+          // add to union
+          const char mm1 = out[j].second.at(k)[0];
+          const size_t sample1 = std::stoi(out[j].second.at(k).substr(1));
+          mm_counts[sample1][sample1] += region_len;
+          for (size_t l = k + 1; l < out[j].second.size(); ++l) {
+            const char mm2 = out[j].second.at(l)[0];
+            const size_t sample2 = std::stoi(out[j].second.at(l).substr(1));
+            if ((mm1 == mm2) && (sample1 != sample2)) {
+              mm_counts[sample1][sample2] += region_len;
+            }
+
+          }
+        }
+
+      }
+    }
+
+    // comput and write the jaccard index
+    std::ofstream jaccard_out(out_prefix + "_jaccard.txt");
+    for (size_t i = 0; i < bc_index_ordered.size(); ++i) {
+      jaccard_out << bc_index_ordered[i].first << "\t";
+    }
+    jaccard_out << endl;
+    for (size_t i = 0; i < bc_index_ordered.size(); ++i) {
+      jaccard_out << bc_index_ordered[i].first << "\t";
+      for (size_t j = 0; j < bc_index_ordered.size(); ++j) {
+        size_t isect;
+        if (i != j)
+          isect = mm_counts[i][j] + mm_counts[j][i];
+        else
+          isect = mm_counts[i][j];
+        // subtracting isect to account for double couting
+        const size_t uni = mm_counts[i][i] + mm_counts[j][j] - isect;
+
+        float jaccard = 0;
+        if (uni) {
+          jaccard = static_cast<float>(isect) / static_cast<float>(uni);
+        }
+   
+        jaccard_out << jaccard << "\t";
+      }
+      jaccard_out << endl;
+    }
+
+    jaccard_out.close();
+
   }
+
+
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
     return EXIT_FAILURE;
