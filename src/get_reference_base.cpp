@@ -23,6 +23,9 @@
 #include <fstream>
 #include <unistd.h>
 
+#include "GenomeReader.hpp"
+#include "BedReader.hpp"
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -71,6 +74,16 @@ main (int argc, char* argv[]) {
 
     if (genome_file.empty() || bed_file.empty() || out_file.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
+    }
+
+    // process reference genome
+    GenomeReader ref(genome_file);
+    
+    // process regions    
+    BedReader bed_positions(bed_file);
+    GenomicRegion pos;
+    while (bed_positions.read_bed3_line(pos)) {
+      
     }
 
   }
