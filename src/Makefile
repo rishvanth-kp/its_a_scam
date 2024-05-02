@@ -29,7 +29,8 @@ PROGS = rna_seq_qc alignment_quality_distribution \
 					bc_feature_matrix bc_frag_dist genome_stats \
           tss_enrichment sc_rnaseq_feature_matrix \
           get_clipped_bases nametag_to_samtag \
-          bc_mismatch_matrix get_reference_base
+          bc_mismatch_matrix get_reference_base \
+          bc_coverage
 
 CXX = g++
 CXXFLAGS = -Wall
@@ -126,7 +127,8 @@ bc_mismatch_matrix: SamReader.o SamEntry.o GenomicRegion.o \
 
 get_reference_base: GenomeReader.o BedReader.o 
 
-
+bc_coverage: SamReader.o SamEntry.o GenomicRegion.o StepVector.hpp \
+						    GenomicStepVector.hpp FeatureVector.hpp
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
