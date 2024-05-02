@@ -54,6 +54,7 @@ sc_rnaseq_feature_matrix
 get_clipped_bases
 nametag_to_samtag
 bc_mismatch_matrix
+get_reference_base
 
 # vim temp files
 *.swp
