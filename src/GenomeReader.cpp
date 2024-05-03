@@ -27,26 +27,27 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::unordered_map;
 
 GenomeReader::GenomeReader(const string &in_file) {
-  read_genome(in_file);  
+  read_genome(in_file);
 }
 
 
-void 
+void
 GenomeReader::read_genome (const string &in_file) {
-  
+
   std::ifstream in(in_file);
   if (!in)
     throw std::runtime_error("Cannot open " + in_file);
-  
+
   string line;
   while (getline(in, line)) {
     cout << line << endl;
     if (line[0] == '>') {
       chr_name.push_back(line.substr(1));
       chr_seq.push_back(string{});
-      ++n_chr;
+      chr_index[line.substr(1)] = ++n_chr;
     }
     else {
       chr_seq.back() += line;
@@ -57,16 +58,16 @@ GenomeReader::read_genome (const string &in_file) {
   for (size_t i = 0; i < n_chr; ++i) {
     std::transform(chr_seq[i].begin(), chr_seq[i].end(),
                    chr_seq[i].begin(), toupper);
-    
+
     genome_size += chr_seq[i].length();
     chr_abs_pos.push_back(genome_size);
   }
 
   cout << "genome size: " << genome_size << endl;
   for (size_t i = 0; i < n_chr; ++i) {
-    cerr << "\t" << chr_name[i] 
+    cerr << "\t" << chr_name[i]
          << "\t" << chr_seq[i].length()
-         << "\t" << chr_abs_pos[i] 
+         << "\t" << chr_abs_pos[i]
          << "\t" << chr_seq[i] << endl;
   }
 
@@ -75,26 +76,29 @@ GenomeReader::read_genome (const string &in_file) {
 
 
 size_t
-GenomeReader::chr_count() const { 
-  return n_chr; 
+GenomeReader::chrom_count() const {
+  return n_chr;
 }
 
 
-size_t 
-GenomeReader::chr_len(const size_t i) const {
-  return chr_seq[i].length();
+size_t
+GenomeReader::chrom_len(const string chrom) {
+  unordered_map<string, size_t>::iterator it = chr_index.find(chrom);
+  if (it != chr_index.end())
+    return chr_seq[it->second].length();
+  else
+    return 0;
 }
 
 
-string 
-GenomeReader::chr_tag(const size_t i) const {
-  return chr_name[i];
-}
-  
 
-std::string 
-GenomeReader::chr_substr(const size_t chr, const size_t pos,
-                         const size_t len) const {
+std::string
+GenomeReader::chrom_substr(const string chrom, const size_t start,
+                         const size_t end) {
 
-  return chr_seq[chr].substr(pos, len);
+  unordered_map<string, size_t>::iterator it = chr_index.find(chrom);
+  if (it != chr_index.end())
+    return chr_seq[it->second].substr(start, end - start);
+  else
+    return string();
 }
