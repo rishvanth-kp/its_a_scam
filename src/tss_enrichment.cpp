@@ -364,23 +364,35 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
 
-    std::ofstream out(out_prefix + "_tss_enrichmet.txt");
+    std::ofstream out_en(out_prefix + "_tss_enrichmet.txt");
+    std::ofstream out_counts(out_prefix + "_tss_raw_counts.txt");
+    std::ofstream out_norm(out_prefix + "_tss_norm_factor.txt");
     for (size_t i = 0; i < bc_metadata.size(); ++i) {
-      out << bc_metadata[i] << "\t";
+      out_en << bc_metadata[i];
+      out_counts << bc_metadata[i];
+      out_norm << bc_metadata[i];
       if (norm_factor[i] > 0) {
         for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
-          out << static_cast<float>(tss_coverage[i][j]) /
-                 static_cast<float>(norm_factor[i]) << "\t";
+          out_en << "\t" << static_cast<float>(tss_coverage[i][j]) /
+                            static_cast<float>(norm_factor[i]);
+          out_counts << "\t" << tss_coverage[i][j];
+          out_norm << "\t" << norm_factor[i];
         }
       }
       else {
         for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
-          out << 0 << "\t";
+          out_en << "\t" <<  0;
+          out_counts << "\t" << 0;
+          out_norm << "\t" << 0;
         }
       }
-      out << endl;
+      out_en << endl;
+      out_counts << endl;
+      out_norm << endl;
     }
-    out.close();
+    out_en.close();
+    out_counts.close();
+    out_norm.close();
 
   } 
   catch (const std::exception &e) {
