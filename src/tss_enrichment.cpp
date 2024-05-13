@@ -370,20 +370,18 @@ main (int argc, char* argv[]) {
     for (size_t i = 0; i < bc_metadata.size(); ++i) {
       out_en << bc_metadata[i];
       out_counts << bc_metadata[i];
-      out_norm << bc_metadata[i];
+      out_norm << bc_metadata[i] << "\t" << norm_factor[i];
       if (norm_factor[i] > 0) {
         for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
           out_en << "\t" << static_cast<float>(tss_coverage[i][j]) /
                             static_cast<float>(norm_factor[i]);
           out_counts << "\t" << tss_coverage[i][j];
-          out_norm << "\t" << norm_factor[i];
         }
       }
       else {
         for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
           out_en << "\t" <<  0;
           out_counts << "\t" << 0;
-          out_norm << "\t" << 0;
         }
       }
       out_en << endl;
