@@ -381,7 +381,7 @@ main (int argc, char* argv[]) {
       else {
         for (size_t j = 0; j < tss_coverage[i].size(); ++j) {
           out_en << "\t" <<  0;
-          out_counts << "\t" << 0;
+          out_counts << "\t" << tss_coverage[i][j];
         }
       }
       out_en << endl;
