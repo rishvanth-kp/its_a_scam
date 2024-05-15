@@ -35,6 +35,23 @@ using std::vector;
 using std::unordered_map;
 
 
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
+
+
 static string
 print_usage (const string &name) {
   std::ostringstream oss;
@@ -91,6 +108,159 @@ main (int argc, char* argv[]) {
  
     if (aln_file.empty() || bc_file.empty() || out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
+    }
+
+    
+    // process barcodes
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;  
+    
+    unordered_map<string, size_t> bc_index;
+    size_t bc_counter = 0;
+    vector<string> bc_metadata;
+
+    std::ifstream bc_in(bc_file);
+    string line;
+    while (getline(bc_in, line)) {
+      vector<string> tokens;
+      split_string(line, tokens, '\t');
+      bc_index[tokens[0]] = bc_counter++;
+      bc_metadata.push_back(tokens[0]);
+    }
+
+    if (VERBOSE) {
+      cerr << "\tNumber of barcodes: " << bc_counter << endl;
+    }
+
+        
+    // initialize sam/bam reader
+    if (VERBOSE)
+      cerr << "[INITIALIZING SAM/BAM READER]" << endl;
+
+    SamReader reader(aln_file);
+    SamEntry entry;
+
+    // initialize array for storing flagstat
+    // 1 row for each barcode
+    // column info: 
+    //  0: primary
+    //  1: secondary
+    //  2: supplementary
+    //  3: duplicates
+    //  4: primary duplicates
+    //  5: mapped
+    //  6: primary mapped
+    //  7: paired in sequencing
+    //  8: read 1
+    //  9: read 2
+    //  10: properly paried
+    //  11: with itself and mate mapped
+    //  12: singletons
+
+    vector<vector<size_t>> bc_flagstat(bc_counter, vector<size_t>(13, 0));
+
+    
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+    
+    size_t aln_count = 0;
+  
+    while (reader.read_sam_line(entry)) {
+      ++ aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " alignments" << endl;
+        }
+      }
+
+      if (entry.mapq >= min_mapq) {
+        
+        // get cell barcode, eiter from the tag or the name
+        string cell_bc;
+        if (!bc_tag.empty()) {
+          // read bc from the appropriate tag
+          SamTags::get_tag(entry.tags, bc_tag, cell_bc);
+        }
+        else {
+          vector<string> tokens;
+          split_string(entry.qname, tokens, bc_delim);
+          cell_bc = tokens[bc_col];
+        }
+
+        // check if barcode needs to be processed
+        unordered_map<string, size_t>::iterator bc_it;
+        bc_it = bc_index.find(cell_bc);
+        if (bc_it != bc_index.end()){
+          size_t entry_bc_index = bc_it->second;
+          //  0: primary
+          if (!is_set(entry.flag, SamFlags::Flag::not_primary_aln) && 
+              !is_set(entry.flag, SamFlags::Flag::supplementary_aln)) {
+            ++bc_flagstat[entry_bc_index][0];
+          }
+          //  1: secondary
+          if (is_set(entry.flag, SamFlags::Flag::not_primary_aln)) {
+            ++bc_flagstat[entry_bc_index][1];
+          }
+          //  2: supplementary
+          if (is_set(entry.flag, SamFlags::Flag::supplementary_aln)) {
+            ++bc_flagstat[entry_bc_index][2];
+          }
+          //  3: duplicates
+          if (is_set(entry.flag, SamFlags::Flag::pcr_duplicate)) {
+            ++bc_flagstat[entry_bc_index][3];
+          }
+          //  4: primary duplicates
+          if (is_set(entry.flag, SamFlags::Flag::pcr_duplicate) &&
+              !is_set(entry.flag, SamFlags::Flag::not_primary_aln) && 
+              !is_set(entry.flag, SamFlags::Flag::supplementary_aln)) {
+            ++bc_flagstat[entry_bc_index][4];
+          }
+          //  5: mapped
+          if (!is_set(entry.flag, SamFlags::Flag::read_unmapped)) {
+            ++bc_flagstat[entry_bc_index][5];
+          }
+          //  6: primary mapped
+          if (!is_set(entry.flag, SamFlags::Flag::read_unmapped) &&
+              !is_set(entry.flag, SamFlags::Flag::not_primary_aln) &&
+              !is_set(entry.flag, SamFlags::Flag::supplementary_aln)) {
+            ++bc_flagstat[entry_bc_index][6];
+          }
+          //  7: paired in sequencing
+          if (is_set(entry.flag, SamFlags::Flag::read_paired)) {
+            ++bc_flagstat[entry_bc_index][7];
+          }
+          //  8: read 1
+          if (is_set(entry.flag, SamFlags::Flag::read_paired) &&
+              is_set(entry.flag, SamFlags::Flag::first_in_pair)) {
+            ++bc_flagstat[entry_bc_index][8];
+          }
+          //  9: read 2
+          if (is_set(entry.flag, SamFlags::Flag::read_paired) &&
+              is_set(entry.flag, SamFlags::Flag::first_in_pair)) {
+            ++bc_flagstat[entry_bc_index][9];
+          }
+          //  10: properly paried
+          if (is_set(entry.flag, SamFlags::Flag::read_paired) &&
+              is_set(entry.flag, SamFlags::Flag::proper_pair) &&
+              !is_set(entry.flag, SamFlags::Flag::read_unmapped)) { 
+            ++bc_flagstat[entry_bc_index][10];
+          }
+          //  11: with itself and mate mapped
+          if (is_set(entry.flag, SamFlags::Flag::read_paired) &&
+              !is_set(entry.flag, SamFlags::Flag::read_unmapped) &&
+              !is_set(entry.flag, SamFlags::Flag::mate_unmapped)) {
+            ++bc_flagstat[entry_bc_index][11];
+          }
+          //  12: singletons
+          if (is_set(entry.flag, SamFlags::Flag::read_paired) &&
+              !is_set(entry.flag, SamFlags::Flag::read_unmapped) &&
+              is_set(entry.flag, SamFlags::Flag::mate_unmapped)) {
+            ++bc_flagstat[entry_bc_index][12];
+          }
+
+
+        }
+      }
     }
 
   }
