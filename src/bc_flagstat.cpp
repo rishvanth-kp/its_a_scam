@@ -263,6 +263,39 @@ main (int argc, char* argv[]) {
       }
     }
 
+    // write output
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
+    
+    std::ofstream out(out_prefix + "_bc_flagstat.txt");
+
+    // write header
+    out << "barcode" 
+        << "\tprimary"
+        << "\tsecondary"
+        << "\tsupplementary"
+        << "\tduplicates"
+        << "\tprimary duplicates"
+        << "\tmapped"
+        << "\tprimary mapped"
+        << "\tpaired in sequencing"
+        << "\tread 1"
+        << "\tread 2"
+        << "\tproperly paried"
+        << "\twith itself and mate mapped"
+        << "\tsingletons" << endl;
+
+    // write flagstat for each barcode
+    for (size_t i = 0; i < bc_flagstat.size(); ++i) {
+      out << bc_metadata[i];
+      for (size_t j = 0; j < bc_flagstat[i].size(); ++j) {
+        out << "\t" << bc_flagstat[i][j];
+      }
+      out << endl;
+    }
+
+    out.close();
+
   }
   catch (std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
