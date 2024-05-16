@@ -275,14 +275,14 @@ main (int argc, char* argv[]) {
         << "\tsecondary"
         << "\tsupplementary"
         << "\tduplicates"
-        << "\tprimary duplicates"
+        << "\tprimary_duplicates"
         << "\tmapped"
-        << "\tprimary mapped"
-        << "\tpaired in sequencing"
-        << "\tread 1"
-        << "\tread 2"
-        << "\tproperly paried"
-        << "\twith itself and mate mapped"
+        << "\tprimary_mapped"
+        << "\tpaired_in_sequencing"
+        << "\tread_1"
+        << "\tread_2"
+        << "\tproperly_paried"
+        << "\twith_itself_and_mate_mapped"
         << "\tsingletons" << endl;
 
     // write flagstat for each barcode
