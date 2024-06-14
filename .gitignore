@@ -57,6 +57,7 @@ bc_mismatch_matrix
 get_reference_base
 bc_coverage
 bc_flagstat
+bc_fragment_coverage
 
 # vim temp files
 *.swp
