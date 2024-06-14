@@ -235,7 +235,7 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
 
-    std::ofstream depth_file(out_prefix + "_bc_depth.txt");
+    std::ofstream depth_file(out_prefix + "_bc_fragment_coverage.txt");
     // write header
     vector<pair<string, size_t>> bc_index_ordered;
     for (auto it = bc_index.begin(); it != bc_index.end(); ++it) {
