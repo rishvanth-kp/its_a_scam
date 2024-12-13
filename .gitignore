@@ -58,6 +58,7 @@ get_reference_base
 bc_coverage
 bc_flagstat
 bc_fragment_coverage
+pseudobulk_fragment_coverage
 
 # vim temp files
 *.swp
