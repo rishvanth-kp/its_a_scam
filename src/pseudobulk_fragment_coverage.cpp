@@ -23,11 +23,35 @@
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <unordered_map>
 
 #include "SamEntry.hpp"
 #include "SamReader.hpp"
 #include "FeatureVector.hpp"
 #include "GenomicStepVector.hpp"
+
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::string;
+using std::vector;
+using std::unordered_map;
+
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
 
 static string
 print_usage (const string &name) {
@@ -57,6 +81,7 @@ main (int argc, char* argv[]) {
 
   try {
   
+    // parse args
     string aln_file;
     string bc_file;
     
@@ -103,6 +128,55 @@ main (int argc, char* argv[]) {
         throw std::runtime_error(print_usage(argv[0]));
     }
 
+
+    if (aln_file.empty() || bc_file.empty() || regions_file.empty() ||
+        out_prefix.empty()) {
+      throw std::runtime_error(print_usage(argv[0]));
+    }
+
+    // process barcode and pseudo-bulk info
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+
+    unordered_map<string, string> bc_group;
+    unordered_map<string, size_t> group_index;
+    size_t group_counter = 0;
+    size_t bc_counter = 0;
+
+    std::ifstream bc_in(bc_file);
+    string line;
+    while (getline(bc_in, line)) {
+      vector<string> tokens;
+      split_string(line, tokens, '\t');
+      
+      // keep track of the group for each barcode
+      bc_group[tokens[0]] = tokens[1];
+      ++bc_counter;
+
+      // if a new group is encountered, create a new index for it
+      auto it = group_index.find(tokens[1]);
+      if (it == group_index.end()) {
+        group_index[tokens[1]] = group_counter++;
+      }
+    }    
+
+    bc_in.close();
+   
+    if (VERBOSE) {
+      cerr << "\tNumber of barcodes: " << bc_counter << endl;
+      cerr << "\tNumber of groups: " << group_counter << endl;
+    } 
+
+    // process regions bed file
+
+
+    // initialize sam reader
+
+
+    // process alignments
+
+    
+    // write output
     
   } 
   catch (std::exception &e) {
