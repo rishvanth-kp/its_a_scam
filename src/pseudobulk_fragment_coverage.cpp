@@ -210,6 +210,9 @@ main (int argc, char* argv[]) {
 
     // genomic step vector for storing coverage
     GenomicStepVector<FeatureVector<uint8_t>> coverage;
+    // to keep track of the counts
+    vector<size_t> group_frag_counts(group_counter, 0);
+    vector<size_t> group_base_counts(group_counter, 0);
 
     size_t aln_count = 0;
     while (reader.read_pe_sam(entry1, entry2)) {
@@ -268,6 +271,9 @@ main (int argc, char* argv[]) {
             // added the fragment for coverage
             coverage.add(entry1.rname, frag_start, frag_end, 
                          FeatureVector<uint8_t>(group_index[cell_group]));
+            // keep track of counts
+            group_base_counts[group_index[cell_group]] += (frag_end - frag_start);
+            ++group_frag_counts[group_index[cell_group]];
           }
         }
         
@@ -280,6 +286,8 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
 
+
+    // write the group coverage
     std::ofstream depth_file(out_prefix + "_pseudobulk_fragment_coverage.txt");
     // write header
     vector<string> group_index_ordered(group_counter, "");
@@ -313,6 +321,21 @@ main (int argc, char* argv[]) {
     }
 
     depth_file.close();
+
+
+    // write the group counts
+    std::ofstream counts_file(out_prefix + "_pseudobulk_fragment_counts.txt");
+    // write header
+    counts_file << "group\tfrag_count\tbase_count" << endl;
+
+    // write counts for each group
+    for (size_t i = 0; i < group_counter; ++i) {
+      counts_file << group_index_ordered[i]
+                  << "\t" << group_frag_counts[i]
+                  << "\t" << group_base_counts[i] << endl;
+    }
+
+    counts_file.close();
 
 
     
