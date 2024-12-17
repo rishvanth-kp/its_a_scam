@@ -27,6 +27,8 @@
 
 #include "SamEntry.hpp"
 #include "SamReader.hpp"
+#include "BedReader.hpp"
+#include "GenomicRegion.hpp"
 #include "FeatureVector.hpp"
 #include "GenomicStepVector.hpp"
 
@@ -53,13 +55,14 @@ split_string (const string &in, vector<string> &tokens,
   tokens.push_back(in.substr(start));
 }
 
+
 static string
 print_usage (const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-b barcode list file [required]" << endl
-      << "\t-t regions bed file [required]" << endl
+      << "\t-r regions bed file [required]" << endl
       << "\t-s distance to add to either side of region [default: 0]" << endl
       << "\t-o out file prefix [required]" << endl
       << "\t-d name split delimeter" 
@@ -101,7 +104,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:r:s:o:d:c:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:r:s:o:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
@@ -116,6 +119,8 @@ main (int argc, char* argv[]) {
         bc_delim = optarg[0];
       else if (opt == 'c')
         bc_col = std::stoi(optarg);
+      else if (opt == 't')
+        bc_tag = optarg;
       else if (opt == 'q')
         min_mapq = std::stoi(optarg);
       else if (opt == 'f')
@@ -139,7 +144,7 @@ main (int argc, char* argv[]) {
       cerr << "[PROCESSING BARCODES]" << endl;
 
     unordered_map<string, string> bc_group;
-    unordered_map<string, size_t> group_index;
+    unordered_map<string, uint8_t> group_index;
     size_t group_counter = 0;
     size_t bc_counter = 0;
 
@@ -167,16 +172,149 @@ main (int argc, char* argv[]) {
       cerr << "\tNumber of groups: " << group_counter << endl;
     } 
 
+  
     // process regions bed file
+    if (VERBOSE) 
+      cerr << "[PROCESSING REGIONS]" << endl;
 
+    GenomicStepVector<uint8_t> regions;
+    BedReader regions_reader(regions_file);
+    GenomicRegion region_pos;
+
+    while(regions_reader.read_bed3_line(region_pos)) {
+      // store the regions in a feature vetor for look up later.
+      // no need to store any info about the region, just need to know if the 
+      // a given genomc location needs to be processed. 
+      regions.add(region_pos.name, region_pos.start - side_dist, 
+        region_pos.end + side_dist, 1); 
+    }  
 
     // initialize sam reader
-
+    if (VERBOSE) 
+      cerr << "[INITIALIZING SAM/BAM READER]" << endl;
+    
+    SamReader reader(aln_file);
+    SamEntry entry1, entry2;
+  
+    // process reference chroms from sam header
+    // used later for retrieving coverage
+    vector<GenomicRegion> ref_chroms;
+    string header;
+    reader.read_sam_header(header);
+    get_seq_lengths(header, ref_chroms);
+   
 
     // process alignments
+    if (VERBOSE) 
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+
+    // genomic step vector for storing coverage
+    GenomicStepVector<FeatureVector<uint8_t>> coverage;
+
+    size_t aln_count = 0;
+    while (reader.read_pe_sam(entry1, entry2)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " alignments" << endl;   
+        }
+      }  
+
+      // make sure that the fragmmt passes qc
+      if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq && 
+          SamFlags::is_all_set(entry1.flag, include_all) &&
+          SamFlags::is_all_set(entry2.flag, include_all) &&
+          !SamFlags::is_any_set(entry1.flag, include_none) &&
+          !SamFlags::is_any_set(entry2.flag, include_none))  {
+
+        // get the cell barcode, either from a tag or the name
+        string cell_bc;
+        if (!bc_tag.empty()) {
+          // read bc from the appropriate tag
+          SamTags::get_tag(entry1.tags, bc_tag, cell_bc);
+        } 
+        else {
+          // parse the name to get the bc
+          vector<string> tokens;
+          split_string(entry1.qname, tokens, bc_delim);
+          cell_bc = tokens[bc_col];
+        }
+
+        // check the if the barcode needs to be processed
+        unordered_map<string, string>::iterator bc_it;
+        bc_it = bc_group.find(cell_bc);
+        if (bc_it != bc_group.end()) {
+          string cell_group = bc_it->second;
+
+          // find the start and end location of each read
+          size_t e1_start = entry1.pos - 1;
+          size_t e1_end = SamCigar::reference_end_pos(entry1);
+          size_t e2_start = entry2.pos - 1;
+          size_t e2_end = SamCigar::reference_end_pos(entry2);
+  
+          // fing the start and end location of the fragment
+          size_t frag_start = e1_start;
+          if (e2_start < e1_start)
+            frag_start = e2_start;
+
+          size_t frag_end = e1_end;
+          if (e2_end >= e1_end) 
+            frag_end = e2_end;
+  
+          // check if the fragment overlaps a region
+          vector<pair<GenomicRegion, uint8_t>> out;
+          regions.at(GenomicRegion(entry1.rname, frag_start, frag_end), out);
+          if (out.size() > 0) { 
+            // added the fragment for coverage
+            coverage.add(entry1.rname, frag_start, frag_end, 
+                         FeatureVector<uint8_t>(group_index[cell_group]));
+          }
+        }
+        
+      }
+
+    }
 
     
     // write output
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
+
+    std::ofstream depth_file(out_prefix + "_pseudobulk_fragment_coverage.txt");
+    // write header
+    vector<string> group_index_ordered(group_counter, "");
+    for(auto it = group_index.begin(); it != group_index.end(); ++it) {
+      group_index_ordered[it->second] = it->first;
+    }
+
+    depth_file << "chrom\tstart\tend";
+    for (size_t i = 0; i < group_counter; ++i) {
+      depth_file << "\t" << group_index_ordered[i];
+    }  
+    depth_file << endl;
+
+    // write the rest of the file
+    vector<pair<GenomicRegion, FeatureVector<uint8_t>>> out;
+    for (size_t i = 0; i < ref_chroms.size(); ++i) {
+      coverage.at(ref_chroms[i], out);
+      for (size_t j = 0; j < out.size(); ++j) {
+        depth_file << out[j].first;
+        // process the feature vector for each location
+        // need to count how many times each group occurs
+        vector<size_t> pos_group_count(group_counter, 0);
+        for (size_t k = 0; k < out[j].second.size(); ++k) {
+          ++pos_group_count[out[j].second.at(k)]; 
+        }
+        for (size_t k = 0; k < pos_group_count.size(); ++k) {
+          depth_file << "\t" << pos_group_count[k];
+        }
+        depth_file << endl;
+      }
+    }
+
+    depth_file.close();
+
+
     
   } 
   catch (std::exception &e) {

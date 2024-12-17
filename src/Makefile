@@ -137,7 +137,7 @@ bc_fragment_coverage: SamReader.o SamEntry.o GenomicRegion.o StepVector.hpp \
 						            GenomicStepVector.hpp FeatureVector.hpp
 
 pseudobulk_fragment_coverage: SamReader.o SamEntry.o GenomicRegion.o StepVector.hpp \
-						            GenomicStepVector.hpp FeatureVector.hpp
+						            GenomicStepVector.hpp FeatureVector.hpp BedReader.o
 
 %.o: %.cpp %.hpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $<
