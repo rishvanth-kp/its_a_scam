@@ -1,8 +1,9 @@
-# genomic_utils
-A library for building sequence analysis tools.
+# its_a_scam
+its_a_scam: It's a scam To Sell Another Single Cell Analysis Method.
+A collection of tools for single cell data analysis.
 
 ## Copyright and License Information
-Copyright (C) 2022 Rishvanth Prabakar
+Copyright (C) 2024 Rishvanth Prabakar
 
 Authors: Rish Prabakar
 
