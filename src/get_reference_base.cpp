@@ -23,8 +23,8 @@
 #include <fstream>
 #include <unistd.h>
 
-#include "GenomeReader.hpp"
-#include "BedReader.hpp"
+#include "gcatlib/GenomeReader.hpp"
+#include "gcatlib/BedReader.hpp"
 
 using std::cout;
 using std::cerr;

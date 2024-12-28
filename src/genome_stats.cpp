@@ -22,7 +22,7 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "GenomeReader.hpp"
+#include "gcatlib/GenomeReader.hpp"
 
 using std::cout;
 using std::cerr;

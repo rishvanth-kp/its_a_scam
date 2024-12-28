@@ -24,8 +24,8 @@
 #include <unistd.h>
 #include <unordered_map>
 
-#include "SamEntry.hpp"
-#include "SamReader.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/SamReader.hpp"
 
 using std::cout;
 using std::cerr;

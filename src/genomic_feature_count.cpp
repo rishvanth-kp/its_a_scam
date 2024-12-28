@@ -22,9 +22,9 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "SamReader.hpp"
-#include "SamEntry.hpp"
-#include "AlignedGenomicFeature.hpp"
+#include "gcatlib/SamReader.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/AlignedGenomicFeature.hpp"
 
 using std::cout;
 using std::cerr;

@@ -24,9 +24,9 @@
 #include <fstream>
 #include <unistd.h>
 
-#include "SamEntry.hpp"
-#include "SamReader.hpp"
-#include "GenomicStepVector.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/SamReader.hpp"
+#include "gcatlib/GenomicStepVector.hpp"
 
 using std::cout;
 using std::cerr;

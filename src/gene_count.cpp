@@ -22,9 +22,9 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "GeneCount.hpp"
-#include "SamReader.hpp"
-#include "SamEntry.hpp"
+#include "gcatlib/GeneCount.hpp"
+#include "gcatlib/SamReader.hpp"
+#include "gcatlib/SamEntry.hpp"
 
 using std::cout;
 using std::cerr;

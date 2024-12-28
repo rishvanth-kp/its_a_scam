@@ -25,10 +25,10 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "SamEntry.hpp"
-#include "SamReader.hpp"
-#include "FeatureVector.hpp"
-#include "GenomicStepVector.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/SamReader.hpp"
+#include "gcatlib/FeatureVector.hpp"
+#include "gcatlib/GenomicStepVector.hpp"
 
 
 using std::cout;

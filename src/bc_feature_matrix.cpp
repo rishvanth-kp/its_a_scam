@@ -23,9 +23,9 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "SamEntry.hpp"
-#include "SamReader.hpp"
-#include "AlignedOverlapGenomicFeature.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/SamReader.hpp"
+#include "gcatlib/AlignedOverlapGenomicFeature.hpp"
 
 using std::cout;
 using std::cerr;

@@ -26,11 +26,11 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "SamEntry.hpp"
-#include "SamReader.hpp"
-#include "FeatureVector.hpp"
-#include "GenomicStepVector.hpp"
-#include "AlignmentMismatches.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/SamReader.hpp"
+#include "gcatlib/FeatureVector.hpp"
+#include "gcatlib/GenomicStepVector.hpp"
+#include "gcatlib/AlignmentMismatches.hpp"
 
 using std::cout;
 using std::cerr;

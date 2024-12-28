@@ -25,7 +25,7 @@
 #include <fstream>
 #include <unistd.h>
 
-#include "FastqReader.hpp"
+#include "gcatlib/FastqReader.hpp"
 
 using std::cout;
 using std::cerr;
