@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "gcatlib/SamReader.hpp"
 #include "gcatlib/SamEntry.hpp"
@@ -33,6 +34,27 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::unordered_map;
+using std::unordered_set;
+
+static char
+complement (const char in) {
+  if (in == 'A')
+    return 'T';
+  else if (in == 'T')
+    return 'A';
+  else if (in == 'G')
+    return 'C';
+  else if (in == 'C')
+    return 'G';
+  else 
+    return 'N';
+}
+
+static void
+rev_comp (string &in) {
+  std::transform(in.begin(), in.end(), in.begin(), complement);
+  std::reverse(in.begin(), in.end()); 
+}
 
 void
 split_string (const string &in, vector<string> &tokens,
@@ -63,6 +85,8 @@ print_usage (const string &name) {
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-o out file prefix [required]" << endl
       << "\t-m minimun barcode count to output [default: 1000]" << endl
+      << "\t-w optional cell barcode whitelist [default: \"\"]" << endl
+      << "\t-r reverse complement the cell barcodes [default: true]" << endl
       << "\t-d name split delimeter" 
           << "[default: \":\"; ignored if -t is provided]" << endl
       << "\t-c barcode field in name" 
@@ -83,9 +107,13 @@ main (int argc, char* argv[]) {
     string aln_file;
     string out_prefix;
 
+    size_t min_bc_count = 1000;
+
+    string whitelist_file;
+    bool whitelist_rc = true;
+
     char bc_delim = ':';
     size_t bc_col = 7;
-    size_t min_bc_count = 1000;
     string bc_tag;
 
     size_t min_mapq = 0;
@@ -95,13 +123,17 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:o:m:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:o:m:w:rd:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
       else if (opt == 'm')
         min_bc_count = std::stoi(optarg);
+      else if (opt == 'w')
+        whitelist_file = optarg;
+      else if (opt == 'r')
+        whitelist_rc = false;
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -181,12 +213,40 @@ main (int argc, char* argv[]) {
       }
     }
 
+    // read and process the barocde whitelist
+    unordered_set<string> whitelist;    
+    if (!whitelist_file.empty()) {
+      if (VERBOSE) 
+        cerr << "[PROCESSING CELL BARCODE WHITELIST]" << endl;
+
+      std::ifstream wl_in(whitelist_file);
+      string line;
+      while (getline(wl_in, line)) {
+        if (whitelist_rc) {
+          rev_comp(line);
+        } 
+        whitelist.insert(line);
+      }
+      wl_in.close();
+    }
+
     // keep only barcodes meeting the min count
     if (VERBOSE)
-      cerr << "[FILTERING LOW BARCODE COUNTS]" << endl;
+      cerr << "[FILTERING BARCODES]" << endl;
     vector<pair<string, size_t>> bc_output;
     for (auto it = bc_counter.begin(); it != bc_counter.end(); ++it) {
-      if (it->second >= min_bc_count) {
+      // check if barcode is in the whitelist
+      bool wl_include = true;
+      if (!whitelist_file.empty()) {
+        unordered_set<string>::const_iterator wl_it;
+        wl_it = whitelist.find(it->first);
+        if (wl_it == whitelist.end()) {
+          wl_include = false;
+        }
+      }
+      
+      
+      if ((it->second >= min_bc_count) && wl_include) {
         bc_output.push_back(std::make_pair(it->first, it->second));
       }
     }
