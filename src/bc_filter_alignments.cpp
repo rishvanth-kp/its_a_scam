@@ -22,6 +22,7 @@
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <unordered_set>
 
 #include "gcatlib/SamReader.hpp"
 #include "gcatlib/SamEntry.hpp"
@@ -31,6 +32,25 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
+using std::unordered_set;
+
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
+
+
 
 static string
 print_usage(const string &name) {
@@ -100,6 +120,79 @@ main (int argc, char* argv[]) {
     if (aln_file.empty() || bc_file.empty() || out_file.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
+
+    // process barcodes
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+
+    unordered_set<string> barcodes;
+    std::ifstream bc_in(bc_file);
+    string line;
+    while (getline(bc_in, line)) {
+      vector<string> tokens;
+      split_string(line, tokens, '\t');
+      barcodes.insert(tokens[0]);
+    }
+    bc_in.close(); 
+    
+    // initialize sam reader
+    if (VERBOSE) 
+      cerr << "[INITIALIZING SAM/BAM READER AND WRITER]" << endl;
+
+    // reader
+    SamReader sam_reader(aln_file);
+    SamEntry e;
+    // writer
+    std::ofstream sam_out(out_file);
+
+    // write sam header
+    string header;
+    sam_reader.read_sam_header(header);
+    sam_out << header;
+
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+
+    size_t aln_count = 0;
+    while (sam_reader.read_sam_line(e)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " alignments" << endl;
+        }
+      }   
+
+      if (e.mapq >= min_mapq &&
+          SamFlags::is_all_set(e.flag, include_all) &&
+          !SamFlags::is_any_set(e.flag, include_none)) {
+
+        // get the cell barcode, either from a tag or the name
+        string cell_bc;
+        if (!bc_tag.empty()) {
+          // read barcode form the tag
+          SamTags::get_tag(e.tags, bc_tag, cell_bc);
+        }
+        else {
+          // parse the name to get the bc
+          vector<string> tokens;
+          split_string(e.qname, tokens, bc_delim);
+          cell_bc = tokens[bc_col];
+        }
+
+        // witre the alignment on a barcode match
+        unordered_set<string>::const_iterator it;
+        it = barcodes.find(cell_bc);
+        if (it != barcodes.end()) {
+          sam_out << e << endl;
+        }
+
+      } 
+ 
+    }
+   
+    sam_out.close(); 
 
   }
   catch (const std::exception &e) {
