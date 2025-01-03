@@ -77,6 +77,7 @@ bc_coverage
 bc_flagstat
 bc_fragment_coverage
 pseudobulk_fragment_coverage
+bc_filter_alignments
 
 # vim temp files
 *.swp
