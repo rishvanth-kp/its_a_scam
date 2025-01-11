@@ -18,13 +18,36 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <unordered_map>
 
 #include "gcatlib/SamEntry.hpp"
 #include "gcatlib/Metagene.hpp"
 #include "gcatlib/SamReader.hpp"
+
+using std::cout;
+using std::cerr;
+using std::string;
+using std::vector;
+using std::unordered_map;
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
 
 static string
 print_usage (const string &name) {
@@ -112,8 +135,145 @@ main (int argc, char* argv[]) {
     } 
 
 
+
+    // process the barcodes and pseudobulk info
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+    
+    unordered_map<string, string> bc_group;
+    unordered_map<string, size_t> group_index;
+    size_t group_counter = 0;
+    size_t bc_counter = 0;
+
+    std::ifstream bc_in(bc_file);
+    string line;
+    while (getline(bc_in, line)) {
+      vector<string> tokens;
+      split_string(line, tokens, '\t');
+
+      // keep track of the group for each barcode
+      bc_group[tokens[0]] = tokens[1];
+      ++bc_counter;
+
+      // if a new group is encountered, create a new index
+      auto it = group_index.find(tokens[1]);
+      if (it == group_index.end()) {
+        group_index[tokens[1]] = group_counter++;
+      }
+    }
+    bc_in.close();
+    
+    if (VERBOSE) {
+      cerr << "\tNumber of barcodes: " << bc_counter << endl;
+      cerr << "\tNumber of groups: " << group_counter << endl;
+    }
+     
+
+
     // process the regions
+    if (VERBOSE)
+      cerr << "[CREATING METAGENE OF REGIONS]" << endl;
     Metagene metagene(regions_file);
+   
+    // create count matrix
+    if (VERBOSE) 
+      cerr << "[INITIALIZING COUNT MATRIX]" << endl;
+    size_t n_features = 19;
+    vector<vector<size_t>> metagene_matrix(group_counter * n_features,
+                                            vector<size_t>(101, 0)); 
+   
+
+
+    // initalize sam reader
+    if (VERBOSE)
+      cerr << "[INITIALIZING SAM/BAM READER]" << endl;
+
+    SamReader reader(aln_file);
+    SamEntry entry1, entry2;
+
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+
+    size_t aln_count = 0;
+    while (reader.read_pe_sam(entry1, entry2)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " fragments" << endl;
+        }
+      }
+    
+
+      // make sure the fragment passed qc
+      if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry1.flag, include_all) &&
+          SamFlags::is_all_set(entry2.flag, include_all) &&
+          !SamFlags::is_any_set(entry1.flag, include_none) &&
+          !SamFlags::is_any_set(entry2.flag, include_none)) {
+    
+        // get the cell barcode, either from a tag or the name
+        string cell_bc;
+        if (!bc_tag.empty()) {
+          // read bc from the appropriate tag
+          SamTags::get_tag(entry1.tags, bc_tag, cell_bc);
+        } 
+        else {
+          // parse the name to get the bc
+          vector<string> tokens;
+          split_string(entry1.qname, tokens, bc_delim);
+          cell_bc = tokens[bc_col];
+        }
+
+        // check if the barcode needs to be processed
+        unordered_map<string, string>::iterator bc_it;
+        bc_it = bc_group.find(cell_bc);
+        if (bc_it != bc_group.end()) {
+          string cell_group = bc_it->second;
+
+          // find the start and end location of each read
+          size_t e1_start = entry1.pos - 1;
+          size_t e1_end = SamCigar::reference_end_pos(entry1);
+          size_t e2_start = entry2.pos - 1;
+          size_t e2_end = SamCigar::reference_end_pos(entry2);
+  
+          // fing the start and end location of the fragment
+          size_t frag_start = e1_start;
+          if (e2_start < e1_start)
+            frag_start = e2_start;
+
+          size_t frag_end = e1_end;
+          if (e2_end >= e1_end) 
+            frag_end = e2_end;
+ 
+
+          // query the metagene
+          vector<string> regions;
+          vector<size_t> first, last;
+          GenomicRegion entry_in;
+      
+          entry_in.name = entry1.rname;
+          entry_in.start = frag_start;
+          entry_in.end = frag_end;
+
+          metagene.at(entry_in, regions, first, last);
+          for (size_t i = 0; i < regions.size(); ++i) {
+            for (size_t j = first[i]; j <= last[i]; ++j) {
+              
+            }
+          }
+ 
+        }
+      }
+    }
+
+
+
+    // write output  
+
+
+
   }
   catch (const std::exception  &e) {
     cerr << "ERROR: " << e.what() << endl;
