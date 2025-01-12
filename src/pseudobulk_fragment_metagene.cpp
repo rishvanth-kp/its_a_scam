@@ -57,6 +57,7 @@ print_usage (const string &name) {
       << "\t-b barcode list file [required]" << endl
       << "\t-r regions bed file [required]" << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-n number of divisions for a region [default: 100]" << endl
       << "\t-m min. fragment length [default: 0]" << endl
       << "\t-M max. fragment length [default: 1024]" << endl
       << "\t-d name split delimeter" 
@@ -84,6 +85,8 @@ main (int argc, char* argv[]) {
 
     string out_prefix;
 
+    size_t n_divisions = 100;
+
     char bc_delim = ':';
     uint8_t bc_col = 7;
     string bc_tag;
@@ -98,7 +101,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:r:o:d:c:t:m:M:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:r:o:n:d:c:t:m:M:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b') 
@@ -107,6 +110,8 @@ main (int argc, char* argv[]) {
         regions_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'n')
+        n_divisions = std::stoi(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -142,8 +147,9 @@ main (int argc, char* argv[]) {
     
     unordered_map<string, string> bc_group;
     unordered_map<string, size_t> group_index;
-    size_t group_counter = 0;
-    size_t bc_counter = 0;
+    vector<string> group_names;
+    size_t n_groups = 0;
+    size_t n_bcs = 0;
 
     std::ifstream bc_in(bc_file);
     string line;
@@ -153,35 +159,49 @@ main (int argc, char* argv[]) {
 
       // keep track of the group for each barcode
       bc_group[tokens[0]] = tokens[1];
-      ++bc_counter;
+      ++n_bcs;
 
       // if a new group is encountered, create a new index
       auto it = group_index.find(tokens[1]);
       if (it == group_index.end()) {
-        group_index[tokens[1]] = group_counter++;
+        group_index[tokens[1]] = n_groups++;
+        group_names.push_back(tokens[1]);
       }
     }
     bc_in.close();
     
-    if (VERBOSE) {
-      cerr << "\tNumber of barcodes: " << bc_counter << endl;
-      cerr << "\tNumber of groups: " << group_counter << endl;
-    }
      
 
 
     // process the regions
     if (VERBOSE)
       cerr << "[CREATING METAGENE OF REGIONS]" << endl;
-    Metagene metagene(regions_file);
-   
+    Metagene metagene(regions_file, n_divisions);
+    // get the names of the regions and compute a region index
+    vector<string> feature_names; 
+    metagene.get_feature_names(feature_names);
+    unordered_map<string, size_t> feature_index;
+    for (size_t i = 0; i < feature_names.size(); ++i) {
+      feature_index[feature_names[i]] = i;
+    } 
+
+ 
     // create count matrix
     if (VERBOSE) 
       cerr << "[INITIALIZING COUNT MATRIX]" << endl;
-    size_t n_features = 19;
-    vector<vector<size_t>> metagene_matrix(group_counter * n_features,
-                                            vector<size_t>(101, 0)); 
+    size_t n_features = metagene.get_n_features();
+    vector<vector<size_t>> metagene_matrix(n_groups * n_features,
+                                            vector<size_t>(n_divisions + 1, 0)); 
    
+    if (feature_names.size() != n_features) {
+      throw std::runtime_error("feature counts do not match");
+    }
+ 
+    if (VERBOSE) {
+      cerr << "\tNumber of barcodes: " << n_bcs << endl;
+      cerr << "\tNumber of groups: " << n_groups << endl;
+      cerr << "\tNumber of features: " << n_features << endl;
+    }
 
 
     // initalize sam reader
@@ -230,7 +250,6 @@ main (int argc, char* argv[]) {
         unordered_map<string, string>::iterator bc_it;
         bc_it = bc_group.find(cell_bc);
         if (bc_it != bc_group.end()) {
-          string cell_group = bc_it->second;
 
           // find the start and end location of each read
           size_t e1_start = entry1.pos - 1;
@@ -246,33 +265,65 @@ main (int argc, char* argv[]) {
           size_t frag_end = e1_end;
           if (e2_end >= e1_end) 
             frag_end = e2_end;
- 
 
-          // query the metagene
-          vector<string> regions;
-          vector<size_t> first, last;
-          GenomicRegion entry_in;
-      
-          entry_in.name = entry1.rname;
-          entry_in.start = frag_start;
-          entry_in.end = frag_end;
+          size_t frag_len = frag_end - frag_start;
+     
 
-          metagene.at(entry_in, regions, first, last);
-          for (size_t i = 0; i < regions.size(); ++i) {
-            for (size_t j = first[i]; j <= last[i]; ++j) {
-              
+          // query the metagene, if it is within the desirefd frag len
+          if (frag_len >= min_frag_len && frag_len <= max_frag_len) {
+            vector<string> regions;
+            vector<size_t> first, last;
+            GenomicRegion entry_in;
+        
+            entry_in.name = entry1.rname;
+            entry_in.start = frag_start;
+            entry_in.end = frag_end;
+            
+
+            string cell_group = bc_it->second;
+            size_t cell_group_index = group_index[cell_group];
+
+            metagene.at(entry_in, regions, first, last);
+            for (size_t i = 0; i < regions.size(); ++i) {
+              size_t cell_feature_index = feature_index[regions[i]];
+              size_t row_index = (cell_group_index * n_features) + cell_feature_index;
+              for (size_t j = first[i]; j <= last[i]; ++j) {
+                ++metagene_matrix[row_index][j]; 
+              }
             }
           }
- 
+
+
         }
       }
     }
 
 
-
     // write output  
+    if (VERBOSE) 
+      cerr << "[WRITING OUTPUT]" << endl;
 
+    std::ofstream counts_file(out_prefix + "_metagene.txt");
 
+    // write the header
+    counts_file << "group\tfeature";
+    for (size_t i = 0; i <= n_divisions; ++i) {
+      counts_file << "\t" << i;
+    }
+    counts_file << endl;
+
+    for (size_t i = 0; i < n_groups; ++i) {
+      for (size_t j = 0; j < n_features; ++j) {
+        counts_file << group_names[i] << "\t" << feature_names[j];
+        for (size_t k = 0; k <= n_divisions; ++k) {
+          counts_file << "\t" 
+                      << metagene_matrix[(i * n_features) + j][k];
+        }
+        counts_file << endl;
+      }
+    }
+ 
+    counts_file.close();
 
   }
   catch (const std::exception  &e) {
