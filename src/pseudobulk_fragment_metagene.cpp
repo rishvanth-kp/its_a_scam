@@ -60,9 +60,9 @@ print_usage (const string &name) {
       << "\t-n number of divisions for a region [default: 100]" << endl
       << "\t-m min. fragment length [default: 0]" << endl
       << "\t-M max. fragment length [default: 1024]" << endl
-      << "\t-d name split delimeter" 
+      << "\t-d name split delimeter"
           << "[default: \":\"]; ignored if -t is provided" << endl
-      << "\t-c barcode field in name" 
+      << "\t-c barcode field in name"
           << "[default: 7 (0 based); ignored if -t is provided]" << endl
       << "\t-t barcode tag in SAM file [default \"\"]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
@@ -104,7 +104,7 @@ main (int argc, char* argv[]) {
     while ((opt = getopt(argc, argv, "a:b:r:o:n:d:c:t:m:M:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
-      else if (opt == 'b') 
+      else if (opt == 'b')
         bc_file = optarg;
       else if (opt == 'r')
         regions_file = optarg;
@@ -130,21 +130,21 @@ main (int argc, char* argv[]) {
         include_none = std::stoi(optarg);
       else if (opt == 'v')
         VERBOSE = true;
-      else 
+      else
         throw std::runtime_error(print_usage(argv[0]));
     }
 
     if (aln_file.empty() || bc_file.empty() || regions_file.empty() ||
         out_prefix.empty()) {
-      throw std::runtime_error(print_usage(argv[0]));  
-    } 
+      throw std::runtime_error(print_usage(argv[0]));
+    }
 
 
 
     // process the barcodes and pseudobulk info
     if (VERBOSE)
       cerr << "[PROCESSING BARCODES]" << endl;
-    
+
     unordered_map<string, string> bc_group;
     unordered_map<string, size_t> group_index;
     vector<string> group_names;
@@ -169,8 +169,8 @@ main (int argc, char* argv[]) {
       }
     }
     bc_in.close();
-    
-     
+
+
 
 
     // process the regions
@@ -178,25 +178,25 @@ main (int argc, char* argv[]) {
       cerr << "[CREATING METAGENE OF REGIONS]" << endl;
     Metagene metagene(regions_file, n_divisions);
     // get the names of the regions and compute a region index
-    vector<string> feature_names; 
+    vector<string> feature_names;
     metagene.get_feature_names(feature_names);
     unordered_map<string, size_t> feature_index;
     for (size_t i = 0; i < feature_names.size(); ++i) {
       feature_index[feature_names[i]] = i;
-    } 
+    }
 
- 
+
     // create count matrix
-    if (VERBOSE) 
+    if (VERBOSE)
       cerr << "[INITIALIZING COUNT MATRIX]" << endl;
     size_t n_features = metagene.get_n_features();
     vector<vector<size_t>> metagene_matrix(n_groups * n_features,
-                                            vector<size_t>(n_divisions + 1, 0)); 
-   
+                                            vector<size_t>(n_divisions + 1, 0));
+
     if (feature_names.size() != n_features) {
       throw std::runtime_error("feature counts do not match");
     }
- 
+
     if (VERBOSE) {
       cerr << "\tNumber of barcodes: " << n_bcs << endl;
       cerr << "\tNumber of groups: " << n_groups << endl;
@@ -224,7 +224,7 @@ main (int argc, char* argv[]) {
           cerr << "\tprocessed " << aln_count << " fragments" << endl;
         }
       }
-    
+
 
       // make sure the fragment passed qc
       if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq &&
@@ -232,13 +232,13 @@ main (int argc, char* argv[]) {
           SamFlags::is_all_set(entry2.flag, include_all) &&
           !SamFlags::is_any_set(entry1.flag, include_none) &&
           !SamFlags::is_any_set(entry2.flag, include_none)) {
-    
+
         // get the cell barcode, either from a tag or the name
         string cell_bc;
         if (!bc_tag.empty()) {
           // read bc from the appropriate tag
           SamTags::get_tag(entry1.tags, bc_tag, cell_bc);
-        } 
+        }
         else {
           // parse the name to get the bc
           vector<string> tokens;
@@ -256,29 +256,28 @@ main (int argc, char* argv[]) {
           size_t e1_end = SamCigar::reference_end_pos(entry1);
           size_t e2_start = entry2.pos - 1;
           size_t e2_end = SamCigar::reference_end_pos(entry2);
-  
+
           // fing the start and end location of the fragment
           size_t frag_start = e1_start;
           if (e2_start < e1_start)
             frag_start = e2_start;
 
           size_t frag_end = e1_end;
-          if (e2_end >= e1_end) 
+          if (e2_end >= e1_end)
             frag_end = e2_end;
 
           size_t frag_len = frag_end - frag_start;
-     
+
 
           // query the metagene, if it is within the desirefd frag len
           if (frag_len >= min_frag_len && frag_len <= max_frag_len) {
             vector<string> regions;
             vector<size_t> first, last;
             GenomicRegion entry_in;
-        
+
             entry_in.name = entry1.rname;
             entry_in.start = frag_start;
             entry_in.end = frag_end;
-            
 
             string cell_group = bc_it->second;
             size_t cell_group_index = group_index[cell_group];
@@ -288,7 +287,7 @@ main (int argc, char* argv[]) {
               size_t cell_feature_index = feature_index[regions[i]];
               size_t row_index = (cell_group_index * n_features) + cell_feature_index;
               for (size_t j = first[i]; j <= last[i]; ++j) {
-                ++metagene_matrix[row_index][j]; 
+                ++metagene_matrix[row_index][j];
               }
             }
           }
@@ -299,8 +298,8 @@ main (int argc, char* argv[]) {
     }
 
 
-    // write output  
-    if (VERBOSE) 
+    // write output
+    if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
 
     std::ofstream counts_file(out_prefix + "_metagene.txt");
@@ -316,13 +315,13 @@ main (int argc, char* argv[]) {
       for (size_t j = 0; j < n_features; ++j) {
         counts_file << group_names[i] << "\t" << feature_names[j];
         for (size_t k = 0; k <= n_divisions; ++k) {
-          counts_file << "\t" 
+          counts_file << "\t"
                       << metagene_matrix[(i * n_features) + j][k];
         }
         counts_file << endl;
       }
     }
- 
+
     counts_file.close();
 
   }
