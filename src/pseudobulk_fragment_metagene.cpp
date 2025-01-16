@@ -271,9 +271,10 @@ main (int argc, char* argv[]) {
 
           // query the metagene, if it is within the desirefd frag len
           if (frag_len >= min_frag_len && frag_len <= max_frag_len) {
-            vector<string> regions;
-            vector<size_t> first, last;
             GenomicRegion entry_in;
+
+            vector<pair<GenomicRegion,
+                      FeatureVector<pair<string, size_t>>>> out;
 
             entry_in.name = entry1.rname;
             entry_in.start = frag_start;
@@ -282,7 +283,22 @@ main (int argc, char* argv[]) {
             string cell_group = bc_it->second;
             size_t cell_group_index = group_index[cell_group];
 
-            metagene.at(entry_in, regions, first, last);
+            metagene.at(entry_in, out);
+            for(size_t i = 0; i < out.size(); ++i) {
+              for (size_t j = 0; j < out[i].second.size(); ++j) {
+
+                size_t cell_feature_index =
+                  feature_index[out[i].second.at(j).first];
+                size_t row_index =
+                  (cell_group_index * n_features) + cell_feature_index;
+
+                  metagene_matrix[row_index][out[i].second.at(j).second] +=
+                    (out[i].first.end - out[i].first.start);
+
+              }
+            }
+
+            /*
             for (size_t i = 0; i < regions.size(); ++i) {
               size_t cell_feature_index = feature_index[regions[i]];
               size_t row_index = (cell_group_index * n_features) + cell_feature_index;
@@ -290,6 +306,8 @@ main (int argc, char* argv[]) {
                 ++metagene_matrix[row_index][j];
               }
             }
+            */
+
           }
 
 
