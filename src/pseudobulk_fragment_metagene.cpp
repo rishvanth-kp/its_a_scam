@@ -191,7 +191,7 @@ main (int argc, char* argv[]) {
       cerr << "[INITIALIZING COUNT MATRIX]" << endl;
     size_t n_features = metagene.get_n_features();
     vector<vector<size_t>> metagene_matrix(n_groups * n_features,
-                                            vector<size_t>(n_divisions + 1, 0));
+                                            vector<size_t>(n_divisions, 0));
 
     if (feature_names.size() != n_features) {
       throw std::runtime_error("feature counts do not match");
@@ -324,7 +324,7 @@ main (int argc, char* argv[]) {
 
     // write the header
     counts_file << "group\tfeature";
-    for (size_t i = 0; i <= n_divisions; ++i) {
+    for (size_t i = 0; i < n_divisions; ++i) {
       counts_file << "\t" << i;
     }
     counts_file << endl;
@@ -332,7 +332,7 @@ main (int argc, char* argv[]) {
     for (size_t i = 0; i < n_groups; ++i) {
       for (size_t j = 0; j < n_features; ++j) {
         counts_file << group_names[i] << "\t" << feature_names[j];
-        for (size_t k = 0; k <= n_divisions; ++k) {
+        for (size_t k = 0; k < n_divisions; ++k) {
           counts_file << "\t"
                       << metagene_matrix[(i * n_features) + j][k];
         }
