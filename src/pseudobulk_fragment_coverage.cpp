@@ -65,6 +65,8 @@ print_usage (const string &name) {
       << "\t-r regions bed file [required]" << endl
       << "\t-s distance to add to either side of region [default: 0]" << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-m min. fragment length [default: 0]" << endl
+      << "\t-M max. fragment length [default: 1024]" << endl
       << "\t-d name split delimeter" 
           << "[default: \":\"]; ignored if -t is provided" << endl
       << "\t-c barcode field in name" 
@@ -93,6 +95,9 @@ main (int argc, char* argv[]) {
 
     string out_prefix;
 
+    size_t min_frag_len = 0;
+    size_t max_frag_len = 1024;
+
     char bc_delim = ':';
     uint8_t bc_col = 7;
     string bc_tag;
@@ -115,6 +120,10 @@ main (int argc, char* argv[]) {
         side_dist = std::stoi(optarg);
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'm')
+        min_frag_len = std::stoi(optarg);
+      else if (opt == 'M')
+        max_frag_len = std::stoi(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -263,18 +272,25 @@ main (int argc, char* argv[]) {
           size_t frag_end = e1_end;
           if (e2_end >= e1_end) 
             frag_end = e2_end;
-  
-          // check if the fragment overlaps a region
-          vector<pair<GenomicRegion, uint8_t>> out;
-          regions.at(GenomicRegion(entry1.rname, frag_start, frag_end), out);
-          if (out.size() > 0) { 
-            // added the fragment for coverage
-            coverage.add(entry1.rname, frag_start, frag_end, 
-                         FeatureVector<uint8_t>(group_index[cell_group]));
-            // keep track of counts
-            group_base_counts[group_index[cell_group]] += (frag_end - frag_start);
-            ++group_frag_counts[group_index[cell_group]];
+          
+          size_t frag_len = frag_end - frag_start;           
+ 
+          // query the metagene, if it is within the desirefd frag len
+          if (frag_len >= min_frag_len && frag_len <= max_frag_len) {
+ 
+            // check if the fragment overlaps a region
+            vector<pair<GenomicRegion, uint8_t>> out;
+            regions.at(GenomicRegion(entry1.rname, frag_start, frag_end), out);
+            if (out.size() > 0) { 
+              // added the fragment for coverage
+              coverage.add(entry1.rname, frag_start, frag_end, 
+                           FeatureVector<uint8_t>(group_index[cell_group]));
+              // keep track of counts
+              group_base_counts[group_index[cell_group]] += (frag_end - frag_start);
+              ++group_frag_counts[group_index[cell_group]];
+            }
           }
+
         }
         
       }
