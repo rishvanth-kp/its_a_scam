@@ -109,7 +109,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:r:s:o:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:r:s:o:m:M:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
