@@ -197,6 +197,18 @@ main (int argc, char* argv[]) {
       throw std::runtime_error("feature counts do not match");
     }
 
+    // create vectors to store normalization factors
+    // For tracking all the reads 
+    vector<size_t> group_frag_counts(n_groups, 0);
+    vector<size_t> group_base_counts(n_groups, 0); 
+    // For tracking reads that pass the fragment length criteria
+    vector<size_t> passed_frag_counts(n_groups, 0);
+    vector<size_t> passed_base_counts(n_groups, 0);
+    // For tacking reads that fall in the desired region
+    vector<size_t> region_frag_counts(n_groups, 0);
+    vector<size_t> region_base_counts(n_groups, 0);
+    
+
     if (VERBOSE) {
       cerr << "\tNumber of barcodes: " << n_bcs << endl;
       cerr << "\tNumber of groups: " << n_groups << endl;
@@ -269,8 +281,20 @@ main (int argc, char* argv[]) {
           size_t frag_len = frag_end - frag_start;
 
 
+          string cell_group = bc_it->second;
+          size_t cell_group_index = group_index[cell_group];
+         
+          // for group normalization
+          group_frag_counts[cell_group_index] += 1;
+          group_base_counts[cell_group_index] += frag_len; 
+
           // query the metagene, if it is within the desirefd frag len
           if (frag_len >= min_frag_len && frag_len <= max_frag_len) {
+          
+            // for normalization of reads the pass the fragment length
+            passed_frag_counts[cell_group_index] += 1;
+            passed_base_counts[cell_group_index] += frag_len; 
+
             GenomicRegion entry_in;
 
             vector<pair<GenomicRegion,
@@ -280,11 +304,15 @@ main (int argc, char* argv[]) {
             entry_in.start = frag_start;
             entry_in.end = frag_end;
 
-            string cell_group = bc_it->second;
-            size_t cell_group_index = group_index[cell_group];
+            bool in_region = false;
+            size_t region_size = 0;
 
             metagene.at(entry_in, out);
             for(size_t i = 0; i < out.size(); ++i) {
+              // for normalization
+              in_region = true;
+              region_size += (out[i].first.end - out[i].first.start);
+
               for (size_t j = 0; j < out[i].second.size(); ++j) {
 
                 size_t cell_feature_index =
@@ -297,7 +325,12 @@ main (int argc, char* argv[]) {
 
               }
             }
-
+            
+            // for normalization of reads that are in the region
+            if (in_region) {
+              passed_frag_counts[cell_group_index] += 1;
+              passed_base_counts[cell_group_index] += region_size; 
+            }
             /*
             for (size_t i = 0; i < regions.size(); ++i) {
               size_t cell_feature_index = feature_index[regions[i]];
@@ -341,6 +374,30 @@ main (int argc, char* argv[]) {
     }
 
     counts_file.close();
+
+
+    // write the normalization
+    std::ofstream norm_file(out_prefix + "_metagene_normalization.txt");
+    
+    // write the header
+    norm_file << "group"
+              << "\tgroup_frag_count\tgroup_base_count"
+              << "\tpassed_frag_count\tpassed_base_count"
+              << "\tregion_frag_count\tregion_base_count" << endl; 
+
+    // write the group counts
+    for (size_t i = 0; i < n_groups; ++i) {
+      norm_file << group_names[i] 
+                << "\t" << group_frag_counts[i]
+                << "\t" << group_base_counts[i]
+                << "\t" << passed_frag_counts[i]
+                << "\t" << passed_base_counts[i]
+                << "\t" << region_frag_counts[i]
+                << "\t" << region_base_counts[i]
+                << endl;
+    }
+
+    norm_file.close();
 
   }
   catch (const std::exception  &e) {
