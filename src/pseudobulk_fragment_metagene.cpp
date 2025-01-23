@@ -328,8 +328,8 @@ main (int argc, char* argv[]) {
             
             // for normalization of reads that are in the region
             if (in_region) {
-              passed_frag_counts[cell_group_index] += 1;
-              passed_base_counts[cell_group_index] += region_size; 
+              region_frag_counts[cell_group_index] += 1;
+              region_base_counts[cell_group_index] += region_size; 
             }
             /*
             for (size_t i = 0; i < regions.size(); ++i) {
