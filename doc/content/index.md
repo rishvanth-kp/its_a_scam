@@ -24,7 +24,8 @@ make install
 If `HTSlib` and `gcatlib` are installed in non-standard directories,
 the `configure` script should be executed with:
 ```
-../configure CPPFLAGS='' LDFLAGS=''
+../configure CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' 
+LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 ```
 
 Of note, the Git repo does not include the `configure` script.

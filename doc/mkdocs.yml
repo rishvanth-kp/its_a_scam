@@ -4,7 +4,9 @@ docs_dir: content
 
 nav:
   - Home: index.md
-
+  - Description of tools:
+    - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
+  
 theme:
   name: readthedocs
   collapse_navigation: False
