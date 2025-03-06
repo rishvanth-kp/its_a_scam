@@ -2,6 +2,8 @@
 
 
 ## Description
+`barcode_count` is used to count the number of fragmets that belong to
+each cell barcode for ATAC-seq analysis. 
 
 ## Parameters
 ```
@@ -19,5 +21,11 @@ barcode_count [options]
 	-F only include if none of the flags are present [default: 3340]
 	-v verbose [default: false]
 ```
+
+`-a`: The input aligned paired end SAM or BAM file. The cell barcode
+should be present either in a SAM tag or encoded in the query name
+(QNAME) field, see options `\t`, `-d`, and `-c`. [Required].
+
+`-o`: Output file prefix to name out files. [Required].
 
 ## Input and output file description

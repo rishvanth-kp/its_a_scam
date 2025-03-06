@@ -5,20 +5,28 @@ docs_dir: content
 nav:
   - Home: index.md
   - Description of tools:
-    - barcode_count: barcode_count.md
-    - bc_coverage: bc_coverage.md
-    - bc_feature_matrix: bc_feature_matrix.md
-    - bc_filter_alignments: bc_feature_matrix.md
-    - bc_flagstat: bc_flagstat.md
-    - bc_frag_dist: bc_frag_dist.md
-    - bc_fragment_coverage: bc_fragment_coverage.md
-    - bc_in_region: bc_in_region.md
-    - bc_mismatch_matrix: bc_mismatch_matrix.md
-    - nametag_to_samtag: nametag_to_samtag.md
-    - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
-    - pseudobulk_fragment_metagene: pseudobulk_fragment_metagene.md
-    - sc_rnaseq_feature_matrix: sc_rnaseq_feature_matrix.md
-    - tss_enrichment: tss_enrichment.md
+    - ATAC-seq:
+      - add_barcode_to_fastq_name: add_barcode_to_fastq_name.md
+      - barcode_count: barcode_count.md
+      - nametag_to_samtag: nametag_to_samtag.md
+      - bc_coverage: bc_coverage.md
+      - bc_feature_matrix: bc_feature_matrix.md
+      - bc_filter_alignments: bc_filter_alignments.md
+      - bc_frag_dist: bc_frag_dist.md
+      - bc_fragment_coverage: bc_fragment_coverage.md
+      - bc_in_region: bc_in_region.md
+      - bc_mismatch_matrix: bc_mismatch_matrix.md
+      - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
+      - pseudobulk_fragment_metagene: pseudobulk_fragment_metagene.md
+      - tss_enrichment: tss_enrichment.md
+    - GEX:
+      - sc_rnaseq_feature_matrix: sc_rnaseq_feature_matrix.md
+    - General:
+      - bc_flagstat: bc_flagstat.md
+      
+  - Analysis procedure:
+    - 10x GEX: 10x_gex.md
+    - 10x ATAC-seq: 10x_atac_seq.md
   
 theme:
   name: readthedocs
