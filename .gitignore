@@ -82,6 +82,7 @@ pseudobulk_fragment_metagene
 
 # vim temp files
 *.swp
+*.bak
 
 # Doxygen files
 Doxyfile
