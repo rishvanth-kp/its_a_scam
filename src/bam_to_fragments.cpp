@@ -55,6 +55,8 @@ print_usage (const string &name) {
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-b barcode list file [required]" << endl
       << "\t-o out file prefix [default = \"\"]" << endl
+      << "\t-l Number of bases to shift left [default: 4]" << endl
+      << "\t-r Number of bases to shift right [default: -5]" << endl
       << "\t-d name split delimeter" 
           << "[default: \":\"]; ignored if -t is provided" << endl
       << "\t-c barcode field in name" 
@@ -76,25 +78,32 @@ main (int argc, char* argv[]) {
     string aln_file;
     string bc_file;
     string out_prefix;
+    
+    float shift_left = 4;
+    float shift_right = -5;
 
     char bc_delim = ':';
     uint8_t bc_col = 7; 
+    string bc_tag;
 
     size_t min_mapq = 0;
     size_t include_all = 0x0003;
     size_t include_none = 0x0D0C;
-    string bc_tag;
 
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:o:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:o:l:r:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a') 
         aln_file = optarg;
       else if (opt == 'b')
         bc_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
+      else if (opt == 'l')
+        shift_left = std::stof(optarg);
+      else if (opt == 'r')
+        shift_right = std::stof(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -204,8 +213,8 @@ main (int argc, char* argv[]) {
 
           // write to fragments file
           frag_file << entry1.rname 
-                    << "\t" << frag_start
-                    << "\t" << frag_end
+                    << "\t" << frag_start + shift_left
+                    << "\t" << frag_end + shift_right
                     << "\t" << cell_bc
                     << "\t1" << endl; 
 
