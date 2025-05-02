@@ -23,7 +23,8 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
                sc_rnaseq_feature_matrix \
                tss_enrichment \
                bc_filter_alignments \
-               pseudobulk_fragment_metagene
+               pseudobulk_fragment_metagene \
+               bam_to_fragments
 
 LDADD = -lgcat -lhts
 
@@ -79,3 +80,5 @@ tss_enrichment_SOURCES = tss_enrichment.cpp
 bc_filter_alignments_SOURCES = bc_filter_alignments.cpp
 
 pseudobulk_fragment_metagene_SOURCES = pseudobulk_fragment_metagene.cpp
+
+bam_to_fragments_SOURCES = bam_to_fragments.cpp
