@@ -21,6 +21,7 @@
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <unordered_set>
 
 #include "gcatlib/SamEntry.hpp"
 #include "gcatlib/SamReader.hpp"
@@ -29,6 +30,23 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::unordered_set;
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
+
 
 static string
 print_usage (const string &name) {
@@ -99,6 +117,106 @@ main (int argc, char* argv[]) {
     if (aln_file.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
+
+    // if a barcode file is provided, keep track of them
+    unordered_set<string> barcodes;
+    if (!bc_file.empty()) {
+      if (VERBOSE) 
+        cerr << "[PROCESSING BARCODES]" << endl;
+
+      std::ifstream bc_in(bc_file);
+      string line;
+      while (getline(bc_in, line)) {
+        vector<string> tokens;
+        split_string(line, tokens, '\t');
+        barcodes.insert(tokens[0]);
+      }
+      bc_in.close();
+    }
+
+    // initialize sam reader
+    if (VERBOSE)
+      cerr << "[INITIALIZING SAM/BAM READER]" << endl;
+
+    SamReader sam_reader(aln_file);
+    SamEntry entry1, entry2;
+
+
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+    
+    size_t aln_count = 0;
+
+    string outfile_name = "fragments.tsv";
+    if (!out_prefix.empty());
+      outfile_name = out_prefix + "_fragments.tsv";
+
+    std::ofstream frag_file(outfile_name);
+
+    while (sam_reader.read_pe_sam(entry1, entry2)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " pairs" << endl;
+        }
+      }
+
+      if (entry1.mapq >= min_mapq && entry2.mapq >= min_mapq &&
+          SamFlags::is_all_set(entry1.flag, include_all) &&
+          SamFlags::is_all_set(entry2.flag, include_all) &&
+          !SamFlags::is_any_set(entry1.flag, include_none) &&
+          !SamFlags::is_any_set(entry2.flag, include_none)) {
+
+        // get cell barcode, either from a tag or the name
+        string cell_bc;
+        if (!bc_tag.empty()) {
+          // read barcode from the tag
+          SamTags::get_tag(entry1.tags, bc_tag, cell_bc);
+        }
+        else {
+          // parse the name to get the bc
+          vector<string> tokens;
+          split_string(entry1.qname, tokens, bc_delim);
+          cell_bc = tokens[bc_col];
+        }
+
+        // check if the barcode needs to be added
+        unordered_set<string>::const_iterator it;
+        it = barcodes.find(cell_bc);
+        if (barcodes.empty() || (it != barcodes.end())) {
+
+          // find the start and end location of each read
+          size_t e1_start = entry1.pos - 1;
+          size_t e1_end = SamCigar::reference_end_pos(entry1);
+          size_t e2_start = entry2.pos - 1;
+          size_t e2_end = SamCigar::reference_end_pos(entry1);
+
+          // find the start and end location of the fragment
+          size_t frag_start = e1_start;
+          if (e2_start < e1_start)
+            frag_start = e2_start;
+
+          size_t frag_end = e1_end;
+          if (e2_end >= e1_end) 
+            frag_end = e2_end;
+
+          // write to fragments file
+          frag_file << entry1.rname 
+                    << "\t" << frag_start
+                    << "\t" << frag_end
+                    << "\t" << cell_bc
+                    << "\t1" << endl; 
+
+        }
+
+      }
+
+    }
+
+    frag_file.close();
+
 
   }
   catch (std::exception &e) {
