@@ -150,7 +150,7 @@ main (int argc, char* argv[]) {
     size_t aln_count = 0;
 
     string outfile_name = "fragments.tsv";
-    if (!out_prefix.empty());
+    if (!out_prefix.empty())
       outfile_name = out_prefix + "_fragments.tsv";
 
     std::ofstream frag_file(outfile_name);
@@ -185,13 +185,13 @@ main (int argc, char* argv[]) {
         // check if the barcode needs to be added
         unordered_set<string>::const_iterator it;
         it = barcodes.find(cell_bc);
-        if (barcodes.empty() || (it != barcodes.end())) {
+        if ((barcodes.empty() && !cell_bc.empty()) || (it != barcodes.end())) {
 
           // find the start and end location of each read
           size_t e1_start = entry1.pos - 1;
           size_t e1_end = SamCigar::reference_end_pos(entry1);
           size_t e2_start = entry2.pos - 1;
-          size_t e2_end = SamCigar::reference_end_pos(entry1);
+          size_t e2_end = SamCigar::reference_end_pos(entry2);
 
           // find the start and end location of the fragment
           size_t frag_start = e1_start;
