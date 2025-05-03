@@ -79,8 +79,8 @@ main (int argc, char* argv[]) {
     string bc_file;
     string out_prefix;
     
-    float shift_left = 4;
-    float shift_right = -5;
+    int shift_left = 4;
+    int shift_right = -5;
 
     char bc_delim = ':';
     uint8_t bc_col = 7; 
@@ -225,7 +225,6 @@ main (int argc, char* argv[]) {
     }
 
     frag_file.close();
-
 
   }
   catch (std::exception &e) {
