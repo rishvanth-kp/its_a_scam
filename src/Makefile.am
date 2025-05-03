@@ -24,7 +24,8 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
                tss_enrichment \
                bc_filter_alignments \
                pseudobulk_fragment_metagene \
-               bam_to_fragments
+               bam_to_fragments \
+               barcode_match
 
 LDADD = -lgcat -lhts
 
@@ -82,3 +83,5 @@ bc_filter_alignments_SOURCES = bc_filter_alignments.cpp
 pseudobulk_fragment_metagene_SOURCES = pseudobulk_fragment_metagene.cpp
 
 bam_to_fragments_SOURCES = bam_to_fragments.cpp
+
+barcode_match_SOURCES = barcode_match.cpp
