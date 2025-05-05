@@ -83,6 +83,7 @@ inplace_rev_comp (string &s) {
 static void
 process_delimated_file (const string &in_file, const string &out_file,
                         const char bc_delim, const uint8_t bc_col,
+                        const string bc_suffix,
                         const unordered_map<string, string> &bc_match) {
 
   std::ifstream in(in_file);
@@ -107,6 +108,7 @@ process_delimated_file (const string &in_file, const string &out_file,
     if (it != bc_match.end()) {
       tokens[bc_col] = it->second;
     }
+    tokens[bc_col] += bc_suffix;
 
     // write output
     out << tokens[0];
@@ -136,6 +138,7 @@ print_usage (const string &name) {
       << "\t-c barcode field column"
           << "[default: 7 (0 based); ignored if -t is provided]" << endl
       << "\t-t barcode tag in SAM file [default \"\"]" << endl
+      << "\t-s suffix to add to output barcode [default: \"\"]" << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();
 }
@@ -155,10 +158,12 @@ main (int argc, char* argv[]) {
     uint8_t bc_col = 7;
     string bc_tag;
 
+    string bc_suffix;
+
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:g:b:o:d:c:t:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:g:b:o:d:c:t:s:v")) != -1) {
       if (opt == 'a')
         in_file = optarg;
       else if (opt == 'g')
@@ -177,6 +182,8 @@ main (int argc, char* argv[]) {
         bc_col = std::stoi(optarg);
       else if (opt == 't')
         bc_tag = optarg;
+      else if (opt == 's')
+        bc_suffix = optarg;
       else if (opt == 'v')
         VERBOSE = true;
       else
@@ -225,7 +232,8 @@ main (int argc, char* argv[]) {
     else {
       if (VERBOSE) {
         cerr << "\tProcessing a " << bc_delim << " delimated file." << endl;
-        process_delimated_file (in_file, out_file, bc_delim, bc_col, bc_match);
+        process_delimated_file (in_file, out_file, bc_delim, bc_col,
+                                bc_suffix, bc_match);
       }
 
 
