@@ -22,6 +22,7 @@
 #include <sstream>
 #include <fstream>
 #include <unistd.h>
+#include <algorithm>
 #include <unordered_map>
 
 #include "gcatlib/SamEntry.hpp"
@@ -36,7 +37,7 @@ using std::unordered_map;
 
 static void
 split_string (const string &in, vector<string> &tokens,
-              const char delim = ':') {
+              const char delim = '\t') {
 
   tokens.clear();
   size_t start = 0;
@@ -51,7 +52,7 @@ split_string (const string &in, vector<string> &tokens,
 
 
 static char
-complement (const char in) {  
+complement (const char in) {
   if (in == 'A')
     return 'T';
   else if (in == 'T')
@@ -68,19 +69,19 @@ complement (const char in) {
     return 'c';
   else if (in == 'c')
     return 'g';
-  else 
+  else
     return 'N';
 }
 
-static string
-match_barcode (const string &in_bc, 
-               const unordered_map<string, string> &bc_match) {
-
+static void
+inplace_rev_comp (string &s) {
+  std::transform(s.begin(), s.end(), s.begin(), complement);
+  std::reverse(s.begin(), s.end());
 }
 
 
 static void
-process_delimated_file (const string &in_file, const string &out_file, 
+process_delimated_file (const string &in_file, const string &out_file,
                         const char bc_delim, const uint8_t bc_col,
                         const unordered_map<string, string> &bc_match) {
 
@@ -95,18 +96,29 @@ process_delimated_file (const string &in_file, const string &out_file,
       cout << "\tprocessed " << in_count << " entries" << endl;
     }
 
-    // match the barcode
+    // parse the line
     string bc_matched;
     vector<string> tokens;
     split_string(line, tokens, bc_delim);
 
-    bc_matched = match_barcode(tokens[bc_col], bc_match);
+    // match the barcode
+    unordered_map<string, string>::const_iterator it;
+    it = bc_match.find(tokens[bc_col]);
+    if (it != bc_match.end()) {
+      tokens[bc_col] = it->second;
+    }
 
-    // replace with the matched barcode
+    // write output
+    out << tokens[0];
+    for (size_t i = 1; i < tokens.size(); ++i) {
+      out << bc_delim << tokens[i];
+    }
+    out << endl;
+
   }
-  
+
   in.close();
-  out.close();  
+  out.close();
 
 }
 
@@ -119,16 +131,16 @@ print_usage (const string &name) {
       << "\t-g GEX barcode list file [required]" << endl
       << "\t-b ATAC barcode list file [required]" << endl
       << "\t-o out file name [required]" << endl
-      << "\t-d split delimeter" 
+      << "\t-d split delimeter"
           << "[default: \":\"]; ignored if -t is provided" << endl
-      << "\t-c barcode field column" 
+      << "\t-c barcode field column"
           << "[default: 7 (0 based); ignored if -t is provided]" << endl
       << "\t-t barcode tag in SAM file [default \"\"]" << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();
 }
 
-int 
+int
 main (int argc, char* argv[]) {
   try {
 
@@ -138,7 +150,7 @@ main (int argc, char* argv[]) {
 
     string gex_bc_file;
     string atac_bc_file;
-    
+
     char bc_delim = ':';
     uint8_t bc_col = 7;
     string bc_tag;
@@ -155,8 +167,12 @@ main (int argc, char* argv[]) {
         atac_bc_file = optarg;
       else if (opt == 'o')
         out_file = optarg;
-      else if (opt == 'd')
-        bc_delim = optarg[0];
+      else if (opt == 'd') {
+        if (optarg[0] == 't')
+          bc_delim = '\t';
+        else
+          bc_delim = optarg[0];
+      }
       else if (opt == 'c')
         bc_col = std::stoi(optarg);
       else if (opt == 't')
@@ -172,7 +188,7 @@ main (int argc, char* argv[]) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
-    // process barcodes 
+    // process barcodes
     if (VERBOSE)
       cerr << "[PROCESSING BARCODES]" << endl;
 
@@ -182,12 +198,13 @@ main (int argc, char* argv[]) {
     unordered_map<string, string> bc_match;
     string gex_line, atac_line;
     while (getline(gex_bc_in, gex_line) && getline(atac_bc_in, atac_line)) {
+      inplace_rev_comp(atac_line);
       bc_match[atac_line] = gex_line;
     }
-    
+
     gex_bc_in.close();
-    atac_bc_in.close();    
-   
+    atac_bc_in.close();
+
     // process input
     if (VERBOSE)
       cerr << "[PROCESSING INPUT]" << endl;
@@ -196,22 +213,23 @@ main (int argc, char* argv[]) {
     if (in_file.length() < 4) {
       throw std::runtime_error("Invalid input file name.");
     }
-  
+
     string file_type = in_file.substr(in_file.length() - 4, 4);
     if (file_type == ".sam" || file_type == ".bam") {
       if (VERBOSE) {
         cerr << "\tProcessing a SAM/BAM file" << endl;
       }
 
-  
+
     }
     else {
       if (VERBOSE) {
-        cerr << "\tProcessing a " << bc_delim << " delimated file." << endl; 
-      }   
+        cerr << "\tProcessing a " << bc_delim << " delimated file." << endl;
+        process_delimated_file (in_file, out_file, bc_delim, bc_col, bc_match);
+      }
 
-   
-    } 
+
+    }
 
   }
   catch (const std::exception &e) {
