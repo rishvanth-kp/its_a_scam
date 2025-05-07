@@ -105,17 +105,18 @@ process_delimated_file (const string &in_file, const string &out_file,
     // match the barcode
     unordered_map<string, string>::const_iterator it;
     it = bc_match.find(tokens[bc_col]);
+    // write the barcode only if it is in the barcode whitelist
     if (it != bc_match.end()) {
       tokens[bc_col] = it->second;
-    }
-    tokens[bc_col] += bc_suffix;
+      tokens[bc_col] += bc_suffix;
 
-    // write output
-    out << tokens[0];
-    for (size_t i = 1; i < tokens.size(); ++i) {
-      out << bc_delim << tokens[i];
+      // write output
+      out << tokens[0];
+      for (size_t i = 1; i < tokens.size(); ++i) {
+        out << bc_delim << tokens[i];
+      }
+      out << endl;
     }
-    out << endl;
 
   }
 
