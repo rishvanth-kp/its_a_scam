@@ -231,13 +231,12 @@ main (int argc, char* argv[]) {
 
     }
     else {
-      if (VERBOSE) {
+      if (VERBOSE) { 
         cerr << "\tProcessing a " << bc_delim << " delimated file." << endl;
-        process_delimated_file (in_file, out_file, bc_delim, bc_col,
-                                bc_suffix, bc_match);
       }
 
-
+      process_delimated_file (in_file, out_file, bc_delim, bc_col,
+                              bc_suffix, bc_match);
     }
 
   }
