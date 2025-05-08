@@ -53,7 +53,7 @@ print_usage (const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
-      << "\t-b barcode list file [required]" << endl
+      << "\t-b barcode list file [default = \"\"]" << endl
       << "\t-o out file prefix [default = \"\"]" << endl
       << "\t-l Number of bases to shift left [default: 4]" << endl
       << "\t-r Number of bases to shift right [default: -5]" << endl

@@ -8,6 +8,8 @@ nav:
     - ATAC-seq:
       - add_barcode_to_fastq_name: add_barcode_to_fastq_name.md
       - barcode_count: barcode_count.md
+      - bam_to_fragments: bam_to_fragments.md
+      - barcode_match: barcode_match.md
       - nametag_to_samtag: nametag_to_samtag.md
       - bc_coverage: bc_coverage.md
       - bc_feature_matrix: bc_feature_matrix.md
