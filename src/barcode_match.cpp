@@ -81,10 +81,102 @@ inplace_rev_comp (string &s) {
 
 
 static void
+process_sam_file (const string &in_file, const string &out_file,
+                  const char bc_delim, const uint8_t bc_col,
+                  const string bc_tag, const string bc_suffix,
+                  const unordered_map<string, string> &bc_match,
+                  const bool VERBOSE = false) {
+
+  // initialize sam reader
+  if (VERBOSE) 
+    cerr << "[INITIALIZING SAM/BAM READER AND WRITER]" << endl;
+
+  // reader
+  SamReader sam_reader(in_file);
+  SamEntry e;
+  // writer
+  std::ofstream sam_out(out_file);
+
+  // write sam header
+  string header;
+  sam_reader.read_sam_header(header);
+  sam_out << header;
+
+
+  // process alignments
+  if (VERBOSE)
+    cerr << "[PROCESSING ALIGNMENTS]" << endl;
+
+  size_t aln_count = 0;
+  while (sam_reader.read_sam_line(e)) {
+    if (VERBOSE) {
+      ++aln_count;
+      if (!(aln_count % 1000000)) {
+        cerr << "\tprocessed " << aln_count << " alignments" << endl;
+      }
+    }   
+    
+    // get the cell barcode, either from a tag or the name
+    string cell_bc;
+    vector<string> qname_tokens;
+    if (!bc_tag.empty()) {
+      // read barcode form the tag
+      SamTags::get_tag(e.tags, bc_tag, cell_bc);
+    }
+    else {
+      // parse the name to get the bc
+      split_string(e.qname, qname_tokens, bc_delim);
+      cell_bc = qname_tokens[bc_col];
+    }
+
+    // match the barcode
+    unordered_map<string, string>::const_iterator it;
+    it = bc_match.find(cell_bc);
+    // write the barcode only if it is in the barcode whitelist
+    if (it != bc_match.end()) {
+      string matched_bc = it->second;
+      matched_bc += bc_suffix;
+
+
+      // replace the cell barcode, either from a tag or the name
+      if (!bc_tag.empty()) {
+        // replace the tag
+
+      } 
+      else {
+        // replace the barcode name
+        qname_tokens[bc_col] = matched_bc;
+         
+        // create a new qname with the matched barcode
+        string matched_qname = qname_tokens[0];
+        for (size_t i = 1; i < qname_tokens.size(); ++i) {
+          matched_qname += bc_delim;
+          matched_qname += qname_tokens[i];
+        }
+
+        // replace the sam query name
+        e.qname = matched_qname;
+
+      }      
+    
+      // write output
+      sam_out << e << endl;   
+ 
+    }
+
+
+  }
+
+  // close the output file
+  sam_out.close(); 
+}
+
+static void
 process_delimated_file (const string &in_file, const string &out_file,
                         const char bc_delim, const uint8_t bc_col,
                         const string bc_suffix,
-                        const unordered_map<string, string> &bc_match) {
+                        const unordered_map<string, string> &bc_match,
+                        const bool VERBOSE = false) {
 
   std::ifstream in(in_file);
   std::ofstream out(out_file);
@@ -92,9 +184,11 @@ process_delimated_file (const string &in_file, const string &out_file,
   size_t in_count = 0;
   string line;
   while (getline(in, line)) {
-    ++in_count;
-    if (!(in_count % 1000000)) {
-      cout << "\tprocessed " << in_count << " entries" << endl;
+    if (VERBOSE) {
+      ++in_count;
+      if (!(in_count % 1000000)) {
+        cerr << "\tprocessed " << in_count << " entries" << endl;
+      }
     }
 
     // parse the line
@@ -227,6 +321,9 @@ main (int argc, char* argv[]) {
       if (VERBOSE) {
         cerr << "\tProcessing a SAM/BAM file" << endl;
       }
+      
+      process_sam_file(in_file, out_file, bc_delim, bc_col,
+                        bc_tag, bc_suffix, bc_match, VERBOSE);
 
 
     }
@@ -235,8 +332,8 @@ main (int argc, char* argv[]) {
         cerr << "\tProcessing a " << bc_delim << " delimated file." << endl;
       }
 
-      process_delimated_file (in_file, out_file, bc_delim, bc_col,
-                              bc_suffix, bc_match);
+      process_delimated_file(in_file, out_file, bc_delim, bc_col,
+                              bc_suffix, bc_match, VERBOSE);
     }
 
   }
