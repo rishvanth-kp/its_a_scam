@@ -9,7 +9,7 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
                bc_fragment_coverage \
                bc_in_region \
                bc_mismatch_matrix \
-               bc_tss_matrix \
+               bc_count_matrix \
                gene_count \
                genome_stats \
                genomic_feature_count \
@@ -52,7 +52,7 @@ bc_in_region_SOURCES = bc_in_region.cpp
 
 bc_mismatch_matrix_SOURCES = bc_mismatch_matrix.cpp
 
-bc_tss_matrix_SOURCES = bc_tss_matrix.cpp
+bc_count_matrix_SOURCES = bc_count_matrix.cpp
 
 gene_count_SOURCES = gene_count.cpp
 

@@ -58,11 +58,11 @@ split_string (const string &in, vector<string> &tokens,
 }
 
 
-struct TssMetadata {
+struct RegionMetadata {
   string chrom;
   size_t start;
   size_t end;
-  string tss_id;
+  string region_id;
 };
 
 static string
@@ -71,10 +71,12 @@ print_usage (const string &name) {
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-b barcode list file [required]" << endl
-      << "\t-t TSS bed file [required]" << endl
-      << "\t-s distance to add to either side of each region [default: 1000]"
+      << "\t-t region bed file [required]" << endl
+      << "\t-s distance to add to either side of each region [default: 0]"
         << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-m min. fragment length [default: 0]" << endl
+      << "\t-M max. fragment length [default: 1024]" << endl
       << "\t-d name split delimeter [default: \":\"]" << endl
       << "\t-c barcode field in name [default: 7 (0 based)]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
@@ -91,10 +93,13 @@ main (int argc, char* argv[]) {
 
     string aln_file;
     string bc_file;
-    string tss_file;
+    string region_file;
     string out_prefix;
 
-    size_t side_dist = 1000;
+    size_t side_dist = 0;
+    
+    size_t min_frag_len = 0;
+    size_t max_frag_len = 1024;
 
     char bc_delim = ':';
     char bc_col = 7;
@@ -106,17 +111,21 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:t:s:o:d:c:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:t:s:o:m:M:d:c:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
         bc_file = optarg;
       else if (opt == 't')
-        tss_file = optarg;
+        region_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
       else if (opt == 's')
         side_dist = std::stoi(optarg);
+      else if (opt == 'm')
+        min_frag_len = std::stoi(optarg);
+      else if (opt == 'M')
+        max_frag_len = std::stoi(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -133,42 +142,42 @@ main (int argc, char* argv[]) {
         throw std::runtime_error(print_usage(argv[0]));
     }
 
-    if (aln_file.empty() || bc_file.empty() || tss_file.empty() ||
+    if (aln_file.empty() || bc_file.empty() || region_file.empty() ||
         out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
 
 
-    // progess the tss bed file and construct the GenomicStepVector
+    // progess the region bed file and construct the GenomicStepVector
     if (VERBOSE)
       cerr << "[PROCESSING REGIONS]" << endl;
 
-    GenomicStepVector<FeatureVector<string>> tss;
-    vector<TssMetadata> tss_metadata;
+    GenomicStepVector<FeatureVector<string>> region;
+    vector<RegionMetadata> region_metadata;
 
     // to index into the count matrix
-    unordered_map<string, size_t> tss_index;
-    size_t tss_counter = 0;
+    unordered_map<string, size_t> region_index;
+    size_t region_counter = 0;
 
-    BedReader tss_reader(tss_file);
+    BedReader region_reader(region_file);
     GenomicRegion bed_region;
     vector<string> bed_fields;
-    while(tss_reader.read_bed_line(bed_region, bed_fields)) {
+    while(region_reader.read_bed_line(bed_region, bed_fields)) {
       // store the actual feature vector
-      tss.add(bed_region.name, bed_region.start - side_dist,
+      region.add(bed_region.name, bed_region.start - side_dist,
                   bed_region.end + side_dist, 
                   FeatureVector<string>(bed_fields[0]));
 
       // store the metadata for final output
-      TssMetadata metadata;
+      RegionMetadata metadata;
       metadata.chrom = bed_region.name;
       metadata.start = bed_region.start - side_dist;
       metadata.end = bed_region.end + side_dist;
-      metadata.tss_id = bed_fields[0];
-      tss_metadata.push_back(metadata);
+      metadata.region_id = bed_fields[0];
+      region_metadata.push_back(metadata);
 
-      // assign a uniqe index for each TSS to index into the count matrix
-      tss_index[bed_fields[0]] = tss_counter++;
+      // assign a uniqe index for each region to index into the count matrix
+      region_index[bed_fields[0]] = region_counter++;
     }
 
 
@@ -191,12 +200,12 @@ main (int argc, char* argv[]) {
     }
     bc_in.close();
 
-    vector<vector<size_t>> tss_counts(tss_counter,
+    vector<vector<size_t>> region_counts(region_counter,
                                       vector<size_t>(bc_counter, 0));
 
 
     if (VERBOSE) {
-      cerr << "\tNumber of TSS: " << tss_counter << endl;
+      cerr << "\tNumber of TSS: " << region_counter << endl;
       cerr << "\tNumber of barcodes: " << bc_counter << endl;
     }
 
@@ -246,21 +255,27 @@ main (int argc, char* argv[]) {
           if (e2_end > e1_end)
             frag_end = e2_end;
 
-          // check if fragment overlaps a region
-          unordered_set<string> aligned_tss;
-          vector<pair<GenomicRegion, FeatureVector<string>>> out;
-          tss.at(GenomicRegion(entry1.rname, frag_start, frag_end), out);
-          for (auto jt = out.begin(); jt != out.end(); ++jt) {
-            for (size_t k = 0; k < jt->second.size(); ++k) {
-              aligned_tss.insert(jt->second.at(k));
-            }
-          }
+          // check if it is in the desired fragment length 
+          size_t frag_len = frag_end - frag_start;           
+          if (frag_len >= min_frag_len && frag_len <= max_frag_len) {
 
-          // increment count if a frament as aligned to a unique location
-          if (aligned_tss.size() == 1) {
-            size_t col_index = bc_index[tokens[bc_col]];
-            size_t row_index = tss_index[*aligned_tss.cbegin()];
-            ++tss_counts[row_index][col_index];
+            // check if fragment overlaps a region
+            unordered_set<string> aligned_region;
+            vector<pair<GenomicRegion, FeatureVector<string>>> out;
+            region.at(GenomicRegion(entry1.rname, frag_start, frag_end), out);
+            for (auto jt = out.begin(); jt != out.end(); ++jt) {
+              for (size_t k = 0; k < jt->second.size(); ++k) {
+                aligned_region.insert(jt->second.at(k));
+              }
+            }
+
+            // increment count if a frament as aligned to a unique location
+            if (aligned_region.size() == 1) {
+              size_t col_index = bc_index[tokens[bc_col]];
+              size_t row_index = region_index[*aligned_region.cbegin()];
+              ++region_counts[row_index][col_index];
+            }
+
           }
 
         }
@@ -270,21 +285,21 @@ main (int argc, char* argv[]) {
     // write output to file
     if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
-    std::ofstream out(out_prefix + "_tss_counts.txt");
+    std::ofstream out(out_prefix + "_region_counts.txt");
     // write header line
-    out << "chrom\tstart\tend\ttss\t";
+    out << "chrom\tstart\tend\tregion\t";
     for (size_t i = 0; i < bc_metadata.size(); ++i) {
       out << bc_metadata[i] << "\t";
     }
     out << endl;
     // write the matrix
-    for (size_t i = 0; i < tss_metadata.size(); ++i) {
-      out << tss_metadata[i].chrom << "\t"
-          << tss_metadata[i].start << "\t"
-          << tss_metadata[i].end << "\t"
-          << tss_metadata[i].tss_id << "\t";
+    for (size_t i = 0; i < region_metadata.size(); ++i) {
+      out << region_metadata[i].chrom << "\t"
+          << region_metadata[i].start << "\t"
+          << region_metadata[i].end << "\t"
+          << region_metadata[i].region_id << "\t";
       for (size_t j = 0; j < bc_metadata.size(); ++j) {
-        out << tss_counts[i][j] << "\t";
+        out << region_counts[i][j] << "\t";
       }
       out << endl;
     }
