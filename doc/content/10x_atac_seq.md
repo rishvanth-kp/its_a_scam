@@ -185,6 +185,15 @@ barcode_match -a sample_makrdup.bam -g gex_barcode.txt
   -b atac_barcode.txt -o sample_bc_match.sam
 ``` 
 
+Only the cell barcodes that are contained in the provided barcode files
+are included in the output. A cell barcode might not be contained in the
+barcode file do to a sequencing error in the barcode. It is possible to
+error correct the barcode prior to this step, which would increase the
+number of fragments per cell. However, from experience, the advantage
+gained from this step is minimal and so we have not included cell
+barcode error correction as a part of this pipeline.  
+
+
 ### A split in the road
 At this stage, the subsequent pre-processing step can be done any one
 of two ways:
@@ -198,10 +207,47 @@ and all the downstream pre-processing steps can be done there.
 To do this, perform only the next step. 
 
 ### Convert sam/bam file to fragments file
+While the SAM file contains all the information in regard to an aligned
+read, it typically has more information than for most applications and so
+can occupy a lot more space than necessary. The information that is needed
+for most downstream ATAC-seq analysis are the start and end location on
+the reference genome and the cell barcode for each fragment. The
+fragments file contains just this information. The fragments file is
+similar to a BED file: it is a 5 column tab-separated file with the
+chromosome, start location, end location, cell barcode, and number of
+PCR duplicates for each fragment. 
+
+```
+bam_to_fragments -a sample_bc_match.sam -q 30 -o sample_unsort
+```
+
+This will generate a file called `sample_unsort_fragments.tsv` that
+needs to be sorted by genome coordinates, compressed, and indexed. 
+
+```
+cat sample_unsort_fragments.tsv | sort -k1,1 -k2,2n > sample_fragments.tsv
+
+bgzip sample_fragments.tsv
+
+tabix --preset=bed sample_fragments.tsv.gz
+```
+
+The compressed `sample_fragments.tsv.gz` file can be directly be loaded
+into most downstream scATAC-seq analysis programs. These programs
+typically look for the indexed file `sample_fragments.tsv.gz.tbi` in the
+same directory that contains the fragments file.
+
+Of note, the fifth column in the generated fragments file is always 1
+since we have already removed PCR duplicates. This should not affect any
+downstream analysis, but it might affect any QC plots that are related
+to the number of number of PCR duplicates.
+
 
 ### Count number of fragments per cell barcode
 
+
 ### Filter unwanted alignments from bam file
+
 
 ### Peak calling
 
