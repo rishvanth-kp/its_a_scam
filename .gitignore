@@ -81,6 +81,7 @@ bc_filter_alignments
 pseudobulk_fragment_metagene
 bam_to_fragments
 barcode_match
+bc_count_matrix
 
 # vim temp files
 *.swp

@@ -29,6 +29,7 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
 
 LDADD = -lgcat -lhts
 
+AM_CPPFLAGS = -O2 -Wall -std=c++11
 
 add_barcode_to_fastq_name_SOURCES = add_barcode_to_fastq_name.cpp 
 
