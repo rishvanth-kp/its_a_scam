@@ -16,4 +16,20 @@ add_barcode_to_fastq_name [options]
         -d barcode read split delimeter [default: '+']
 ```
 
+`-1`: Name of the first fastq file of a paired-end sample. [Required].
+
+`-2`: Name of the second fastq file of a paired-end sample. [Required].
+
+`-b`: Name of the fastq file that contains the cell barcode. [Required].
+
+`-o`: Output file prefix to name out files. [Required].
+
+`-c`:
+
+`-f`:
+
+`-s`:
+
+`-d`:
+
 ## Input and output file description
