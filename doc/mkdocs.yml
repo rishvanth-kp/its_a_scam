@@ -11,7 +11,6 @@ nav:
       - bam_to_fragments: bam_to_fragments.md
       - barcode_match: barcode_match.md
       - nametag_to_samtag: nametag_to_samtag.md
-      - bc_coverage: bc_coverage.md
       - bc_feature_matrix: bc_feature_matrix.md
       - bc_filter_alignments: bc_filter_alignments.md
       - bc_frag_dist: bc_frag_dist.md
@@ -25,6 +24,7 @@ nav:
       - sc_rnaseq_feature_matrix: sc_rnaseq_feature_matrix.md
     - General:
       - bc_flagstat: bc_flagstat.md
+      - bc_coverage: bc_coverage.md
       
   - Analysis procedure:
     - 10x GEX: 10x_gex.md

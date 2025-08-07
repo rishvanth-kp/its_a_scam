@@ -1,7 +1,18 @@
 # bam_to_fragments
 
 ## Description
-Converts a SAM/BAM file to a Cellranger fragments file.
+Converts a SAM/BAM file to a Cellranger fragments file.  The fragments
+file contains sufficient information for most downstream analysis, and is
+much smaller and easier to work with then a SAM file. 
+The fragments file is 5-column BED-like file with the chromosome, start
+location, end location, cell barcode, and number of PCR duplicates for
+each fragment.
+
+IMPORTANT NOTE: this program must be used after all the PCR duplicated
+are removed or marked (and will be discarded by the default `-F` flag). 
+The fifth column in the generated fragments file is always set to 1.
+This should not affect any downstream analysis, but it might affect any
+QC plots that are related to the number of PCR duplicates. 
 
 ## Parameters
 ```
@@ -68,3 +79,13 @@ sum of these flags (1024 + 2048 = 3072). [default: 3340].
 standard error. [Default: false].
 
 ## Input and output file description
+### Description of input files
+1. A paired-end aligned SAM/BAM file that has a cell barcode encoded
+either in the query name or in a tag.  
+2. Optionally, a one column cell barcode whitelist file that contains a
+list of known cell barcodes.
+
+### Description of output files
+1. A file named `<output_prefix>_fragments.tsv` or `fragments.tsv` if
+`-o` is not provided. If needed, this file can then be compressed with
+`bgzip fragments.tsv` and indexed with `tabix --preset=bed fragments.tsv.gz` 
