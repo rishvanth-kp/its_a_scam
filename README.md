@@ -22,7 +22,10 @@ can be installed by following the procedure under
 'Basic Installation' described 
 [here](https://github.com/samtools/htslib/blob/develop/INSTALL)
 
-The installation for `gcatlib` is described here. 
+`gcat` can be downloaded
+[here](https://github.com/rishvanth-kp/gcatlib),
+and the installation is described 
+[here](https://github.com/rishvanth-kp/gcatlib). 
 
 `its_a_scam` can be obtained from here.
 
@@ -77,7 +80,7 @@ This will generate the programs into the `build` directory.
 
 Finally (optionally), install its_a_scam with:
 ```
-make intall
+make install
 ```
 This will copy all the programs into `installation_path/bin`.
 
@@ -102,13 +105,17 @@ autoreconf -i
 ```
 After which the configuration and installation can proceed as usual.
 
+## Documentation
+The documentation of its_a_scam can be found 
+[here](https://github.com/rishvanth-kp/its_a_scam/tree/main/doc).
+This is still a work in progress and will soon be hosted online.
 
 
 ## Contact
 Rishvanth Prabakar: kaliapp@cshl.edu
 
 ## Copyright and License Information
-Copyright (C) 2024 Rishvanth Prabakar
+Copyright (C) 2025 Rishvanth Prabakar
 
 Authors: Rish Prabakar
 
