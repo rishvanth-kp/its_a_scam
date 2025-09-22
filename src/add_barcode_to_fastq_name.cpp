@@ -27,10 +27,6 @@
 
 #include "gcatlib/FastqReader.hpp"
 
-#include "gcatlib/FastxEntry.hpp"
-#include "gcatlib/FastxReader.hpp"
-#include "gcatlib/FastxWriter.hpp"
-
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -148,19 +144,8 @@ main (int argc, char* argv[]) {
     if (!in_file_2.empty())
       se = false;
 
-
-
-
-    FastxReader fx_reader(bc_file);
-    FastxEntry e;
-    fx_reader.read_fastx_entry(e);
-
-    FastxWriter fx_writer(out_prefix);
-    fx_writer.write_fastx_entry(e);
-
     FastqReader bc_reader(bc_file);
     FastqEntry bc;
-
 
     if (se) {
       FastqReader se_reader(in_file_1);
