@@ -20,8 +20,8 @@ information.
 
 Alternatively, after step 2 the BAM file can be used to generate a
 fragments file that can be used as an input to any standard scATAC-seq
-tools such as `signac`. Downstream peak-calling, QC, and count matrix
-can be generated within `signac`.
+tools such as [`signac`](https://stuartlab.org/signac/).  Downstream
+peak-calling, QC, and count matrix can be generated within `signac`.
 
 Each of these steps are described in detail below.
 
@@ -40,7 +40,7 @@ bwa index {reference.fa}
 
 
 ### Add cell barcode to fastq names
-A bulk ATAC-seq experiment generates paired-end sequencing data that a
+A bulk ATAC-seq experiment generates paired-end sequencing data
 from DNA fragments that are flanked by two transposase cut sites.
 Paired-end fastq files consists of a pair of line matched files which
 correspond to the sequenced regions from the ends of the fragment.  10x
@@ -53,13 +53,14 @@ and a third fastq file that contains a line matched cell barcode for
 each pair of fragments. This cell barcode provides a cell identity for
 each fragment.
 
-`bwa` is designed for fast alignment of single/paired-end reads to the
-reference genome, and at the moment, cannot process the third FASTQ file
-containing the cell barcode.  This limitation can be easily overcome by
-appending the cell barcode information from the third FASTQ file to the
-name field of the paired end FASTQ files. The name field is retained in
-the aligned SAM output of BWA, and so the cell barcode information can
-be parsed for each alignment.
+[`bwa`](https://github.com/lh3/bwa) is designed for fast alignment of
+single/paired-end reads to the reference genome, and at the moment,
+cannot process the third FASTQ file containing the cell barcode.  This
+limitation can be easily overcome by appending the cell barcode
+information from the third FASTQ file to the name field of the paired
+end FASTQ files. The name field is retained in the aligned SAM output of
+BWA, and so the cell barcode information can be parsed for each
+alignment.
 
 The cell barcode can be appended to the paired-end FASTQ files using the
 program `add_barcode_to_fastq_name`. Unfortunately, gzipped fastq files
@@ -68,14 +69,14 @@ decompressed, add the cell barcode, and re-compressed again (his
 limitation will the fixed soon):
 
 ```
-pigz -p {threads} -k -d read_1.fastq.gz read_2_fastq.gz read_I_fastq.gz
+pigz -p {threads} -k -d read_1.fastq.gz read_2.fastq.gz read_I.fastq.gz
 
 add_barcode_to_fastq_name -1 read_1.fastq -2 read_2_fastq 
  -b read_I_fastq.gz -o read_bc;
 
 pigz -p {threads} read_bc_1.fastq read_bc_2.fastq
 
-rm read_1.fastq read_2_fastq read_I_fastq
+rm read_1.fastq read_2.fastq read_I.fastq
 ```
 
 ### Align the reads to the reference genome
@@ -100,13 +101,14 @@ entry for each read, and thus two entries for a read pair (but could
 contain more than two entries when a read is split and aligned to more
 than one location on the reference, these are called supplementary
 alignments).  A detailed specification of a sam file format can be found
-here.
+[here](https://samtools.github.io/hts-specs/SAMv1.pdf).
 
 Sam files are convenient to view on a text editor. However, these files
 consume a lot of disk space since they are not compressed. Bam files are
 the compressed version of sam files, and the formats can be converted
-with `samtools` (the sam file can then be deleted). The supplementary
-alignments can also be removed at the same time.  
+with [`samtools`](https://www.htslib.org/) (the sam file can then be
+deleted). The supplementary alignments can also be removed at the same
+time.  
 
 ```
 samtools view -@ {threads} -b -F 0x800 -o sample.bam sample.sam
@@ -178,7 +180,8 @@ same cell have different cell barcodes, and so they cannot easily be
 associated with one another. This step converts the scATAC-seq barcode
 to the respective scRNA-seq barcode from the same cell so that data can
 be associated. The location of these cell barcode files can be 
-found here. 
+found [here](
+https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-inclusion-list-formerly-barcode-whitelist). 
 
 ```
 barcode_match -a sample_makrdup.bam -g gex_barcode.txt 
@@ -201,10 +204,11 @@ of two ways:
 1. Perform peak calling and count matrix generation. To do this,
 skip the next step and proceed with the analysis.    
 
-2. Convert the barcode matched sam file to a fragments file.
-The fragments file is taken as input by scATAC-seq analysis tools,
-and all the downstream pre-processing steps can be done there. 
-To do this, perform only the next step. 
+2. Convert the barcode matched sam file to a fragments file.  The
+fragments file is taken as input by scATAC-seq analysis tools such as
+[`signac`](https://stuartlab.org/signac/), and all the downstream
+pre-processing steps can be done there.  To do this, perform only the
+next step. 
 
 ### Convert sam/bam file to fragments file
 While the SAM file contains all the information in regard to an aligned
@@ -235,7 +239,8 @@ tabix --preset=bed sample_fragments.tsv.gz
 The compressed `sample_fragments.tsv.gz` file can be directly be loaded
 into most downstream scATAC-seq analysis programs. These programs
 typically look for the indexed file `sample_fragments.tsv.gz.tbi` in the
-same directory that contains the fragments file.
+same directory that contains the fragments file. The peak calling and
+count matrix generation can be done within these programs.
 
 Of note, the fifth column in the generated fragments file is always 1
 since we have already removed PCR duplicates. This should not affect any
@@ -244,11 +249,70 @@ to the number of number of PCR duplicates.
 
 
 ### Count number of fragments per cell barcode
+Most cells in a 10x experiment would contain too few alignments than
+needed for any meaningful analysis. Typically any cells that have fewer
+than 1000 alignments are discarded (although this number can change
+depending on the downstream analysis). 
+
+After aligning a sample to the reference genome and removing PCR
+duplicates, we can determine the number of aligned fragments in each
+cell.
+
+```
+barcode_count -a {input} -o sample -q 30 -m 1000 
+  -w atac_barcode.txt
+```
+
+Where `{input}.bam` file is `sample_makrdup.bam` for 10x ATAC-seq
+protocol or the `sample_bc_match.sam` for the 10x multiome protocol. The
+`actc_barcode.txt` can be obtained [here](
+https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-inclusion-list-formerly-barcode-whitelist), 
+and it contains a list of all
+the known cell barcodes. 
+
+This program will generate a file called `sample_bc_counts.txt`. This
+is a 2 column TSV file that contains the cell barcode in the first column
+and the number of alignments fragments for that cell in the second
+column. Only cell barcodes that are in the provided barcode list and
+have at least a 1000 aligned fragments are included in the output. 
 
 
 ### Filter unwanted alignments from bam file
+Now, we can get rid of all the cell barcodes that have fewer than a 1000
+aligned fragments as these are very low quality cells, and are not
+needed for downstream analysis.
 
+```
+bc_filter_alignments {input} -b sample_bc_counts.txt -q 30
+  -o sample_bc_filtered.sam
+
+samtools  view -@ {threads} -o sample_bc_filtered.bam sample_bc_filtered.sam
+```
+
+Where `{input}.bam` file is `sample_makrdup.bam` for 10x ATAC-seq
+protocol or the `sample_bc_match.sam` for the 10x multiome protocol.
+
+This will generate a new bam file that have just the alignments that
+belong to cells contained in `sample_bc_counts.txt`. 
+ 
 
 ### Peak calling
+Peak calling then be done using standard tools such as [MACS](
+https://macs3-project.github.io/MACS/docs/callpeak.html). The input
+to the peak calling program would be the bam file generated in the
+above step. Peak callers generally produce a list of peaks in bed
+format (or the peaks can be easily converted to a bed format).
 
+### Cell-peak count matrix generation
+We can finally generate the cell-peak matrix using
 
+```
+bc_count_matrix -a sample_bc_filtered.bam -b sample_bc_counts.txt -t
+peaks.bed -q 30 -o sample
+``` 
+
+This will generate a file called `<output_prefix>_region_counts.txt`
+that contains the count matrix. The rows of the file are the regions and
+the columns are the cells. The first 4 columns contain the the chrom
+name, start, end, and region name. The cells start from the 5th columns.
+This file has a header line that has the cell barcodes.  

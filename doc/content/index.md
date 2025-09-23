@@ -4,18 +4,24 @@ It's a scam To Sell Another Single-Cell Analysis Tool (It's a scam) is a
 collection of programs to pre-process and quality control single cell
 data.
 
-While single cell genomic data is being generated at an ever increasing
-rate, the data is often pre-processed with proprietary tools. Born out
-of frustration with using these proprietary tools, we developed
-its_a_scam for processing and quality control of single cell genomic
-data.
+The era of designing bioinformatic pipelines using open source
+tools is giving way to monolithic, and often proprietary, tools designed
+for end-to-end analysis. While these tools can be convenient for going
+from sequencing data to an almost complete data analysis "in a few
+clicks", they are severely limiting to perform any custom analysis. We
+developed its_a_scam for processing and quality control of single cell
+genomic data, freeing users from the reliance on proprietary tools for
+single cell data analysis.
 
 its_a_scam is built of top on `gcatlib` and `HTSlib`, and provides tools
 for wide range of single cell data processing and quality control.  It's
 a scam can be used in conjugation with commonly used open source tools
-to build entire single cell analysis pipelines.  Complete pipelines for 
-scRNA-seq and scATAC-seq data processing are described here.
+to build entire single cell analysis pipelines. 
 
+**NOTE**: The latest version of the documentation is available 
+[here](https://github.com/rishvanth-kp/its_a_scam/tree/main/doc). The
+documentation in the source tarball might not be the latest version.  
+ 
 ## Installation
 It's a scam is dependent on `HTSlib` and `gcatlib`. `HTSlib` can be
 downloaded from [here](https://www.htslib.org/download/) and 
@@ -23,7 +29,8 @@ can be installed by following the procedure under
 'Basic Installation' described 
 [here](https://github.com/samtools/htslib/blob/develop/INSTALL)
 
-The installation for `gcatlib` is described here. 
+The installation for `gcatlib` is described 
+[here](https://github.com/rishvanth-kp/gcatlib). 
 
 `its_a_scam` can be obtained from here.
 
@@ -78,7 +85,7 @@ This will generate the programs into the `build` directory.
 
 Finally (optionally), install its_a_scam with:
 ```
-make intall
+make install
 ```
 This will copy all the programs into `installation_path/bin`.
 

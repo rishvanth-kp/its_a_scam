@@ -14,21 +14,22 @@ nav:
       - bc_feature_matrix: bc_feature_matrix.md
       - bc_filter_alignments: bc_filter_alignments.md
       - bc_frag_dist: bc_frag_dist.md
-      - bc_fragment_coverage: bc_fragment_coverage.md
-      - bc_in_region: bc_in_region.md
+      # - bc_fragment_coverage: bc_fragment_coverage.md
+      # - bc_in_region: bc_in_region.md
+      - bc_count_matrix: bc_count_matrix.md
       - bc_mismatch_matrix: bc_mismatch_matrix.md
-      - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
+      # - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
       - pseudobulk_fragment_metagene: pseudobulk_fragment_metagene.md
       - tss_enrichment: tss_enrichment.md
     - GEX:
       - sc_rnaseq_feature_matrix: sc_rnaseq_feature_matrix.md
-    - General:
-      - bc_flagstat: bc_flagstat.md
-      - bc_coverage: bc_coverage.md
+    # - General:
+      # - bc_flagstat: bc_flagstat.md
+      # - bc_coverage: bc_coverage.md
   - Analysis procedure:
-    - 10x GEX: 10x_gex.md
+    # - 10x GEX: 10x_gex.md
     - 10x ATAC-seq: 10x_atac_seq.md
-    - Parse Bioscience WT: parse_wt.md
+    # - Parse Bioscience WT: parse_wt.md
   - Misc.:
     - To do list: todo.md  
 
