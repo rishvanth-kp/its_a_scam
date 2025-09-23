@@ -27,11 +27,12 @@ can be installed by following the procedure under
 [here](https://github.com/samtools/htslib/blob/develop/INSTALL)
 
 `gcat` can be downloaded
-[here](https://github.com/rishvanth-kp/gcatlib),
+[here](https://github.com/rishvanth-kp/gcatlib/releases/download/0.0.1/gcatlib-0.0.1.tar.gz),
 and the installation is described 
 [here](https://github.com/rishvanth-kp/gcatlib). 
 
-`its_a_scam` can be obtained from here.
+`its_a_scam` can be obtained from [here](
+https://github.com/rishvanth-kp/its_a_scam/releases/download/0.0.1/its_a_scam-0.0.1.tar.gz).
 
 Untar the source files using:
 ```
@@ -67,7 +68,7 @@ LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 
 To install its_a_scam in a non-standard directory use:
 ```
-../configure --prefix installation_path
+../configure --prefix=installation_path
 ```
 
 Append the `CPPFLAGS` and `LDFLAGS` to the above command if any of the
