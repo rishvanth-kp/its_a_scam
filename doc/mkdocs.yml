@@ -29,7 +29,7 @@ nav:
   - Analysis procedure:
     - 10x GEX: 10x_gex.md
     - 10x ATAC-seq: 10x_atac_seq.md
-    # - Parse Bioscience WT: parse_wt.md
+    - Parse Bioscience WT: parse_wt.md
   - Misc.:
     - To do list: todo.md  
 
