@@ -186,6 +186,8 @@ https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-incl
 ```
 barcode_match -a sample_makrdup.bam -g gex_barcode.txt 
   -b atac_barcode.txt -o sample_bc_match.sam
+
+samtools view -@ {threads} -o sample_bc_match.bam sample_bc_match.sam
 ``` 
 
 Only the cell barcodes that are contained in the provided barcode files
@@ -222,7 +224,7 @@ chromosome, start location, end location, cell barcode, and number of
 PCR duplicates for each fragment. 
 
 ```
-bam_to_fragments -a sample_bc_match.sam -q 30 -o sample_unsort
+bam_to_fragments -a sample_bc_match.bam -q 30 -o sample_unsort
 ```
 
 This will generate a file called `sample_unsort_fragments.tsv` that
@@ -264,7 +266,7 @@ barcode_count -a {input} -o sample -q 30 -m 1000
 ```
 
 Where `{input}.bam` file is `sample_makrdup.bam` for 10x ATAC-seq
-protocol or the `sample_bc_match.sam` for the 10x multiome protocol. The
+protocol or the `sample_bc_match.bam` for the 10x multiome protocol. The
 `actc_barcode.txt` can be obtained [here](
 https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-inclusion-list-formerly-barcode-whitelist), 
 and it contains a list of all
@@ -290,7 +292,7 @@ samtools  view -@ {threads} -o sample_bc_filtered.bam sample_bc_filtered.sam
 ```
 
 Where `{input}.bam` file is `sample_makrdup.bam` for 10x ATAC-seq
-protocol or the `sample_bc_match.sam` for the 10x multiome protocol.
+protocol or the `sample_bc_match.bam` for the 10x multiome protocol.
 
 This will generate a new bam file that have just the alignments that
 belong to cells contained in `sample_bc_counts.txt`. 
