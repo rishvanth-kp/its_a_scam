@@ -224,7 +224,7 @@ chromosome, start location, end location, cell barcode, and number of
 PCR duplicates for each fragment. 
 
 ```
-bam_to_fragments -a sample_bc_match.bam -q 30 -o sample_unsort
+bam_to_fragments -a sample_bc_match.bam -q 31 -o sample_unsort
 ```
 
 This will generate a file called `sample_unsort_fragments.tsv` that
@@ -261,13 +261,15 @@ duplicates, we can determine the number of aligned fragments in each
 cell.
 
 ```
-barcode_count -a {input} -o sample -q 30 -m 1000 
-  -w atac_barcode.txt
+barcode_count -a {input}.bam -o sample -q 31 -m 1000 
+  -w {barcode}.txt
 ```
 
 Where `{input}.bam` file is `sample_makrdup.bam` for 10x ATAC-seq
-protocol or the `sample_bc_match.bam` for the 10x multiome protocol. The
-`actc_barcode.txt` can be obtained [here](
+protocol or the `sample_bc_match.bam` for the 10x multiome protocol. And
+the `{barcode}.txt` is the `actc_barcode.txt` for scATAC-seq protocol,
+and `gex_barcode.txt` for the 10x multiome protocol. The barcode files
+can be obtained [here](
 https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-inclusion-list-formerly-barcode-whitelist), 
 and it contains a list of all
 the known cell barcodes. 
@@ -285,7 +287,7 @@ aligned fragments as these are very low quality cells, and are not
 needed for downstream analysis.
 
 ```
-bc_filter_alignments {input} -b sample_bc_counts.txt -q 30
+bc_filter_alignments {input} -b sample_bc_counts.txt -q 31
   -o sample_bc_filtered.sam
 
 samtools  view -@ {threads} -o sample_bc_filtered.bam sample_bc_filtered.sam
@@ -310,7 +312,7 @@ We can finally generate the cell-peak matrix using
 
 ```
 bc_count_matrix -a sample_bc_filtered.bam -b sample_bc_counts.txt -t
-peaks.bed -q 30 -o sample
+peaks.bed -q 31 -o sample
 ``` 
 
 This will generate a file called `<output_prefix>_region_counts.txt`
