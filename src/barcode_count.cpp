@@ -86,7 +86,7 @@ print_usage (const string &name) {
       << "\t-o out file prefix [required]" << endl
       << "\t-m minimun barcode count to output [default: 1000]" << endl
       << "\t-w optional cell barcode whitelist [default: \"\"]" << endl
-      << "\t-r reverse complement the cell barcodes [default: true]" << endl
+      << "\t-r reverse complement the cell barcodes [default: false]" << endl
       << "\t-d name split delimeter" 
           << "[default: \":\"; ignored if -t is provided]" << endl
       << "\t-c barcode field in name" 
@@ -110,7 +110,7 @@ main (int argc, char* argv[]) {
     size_t min_bc_count = 1000;
 
     string whitelist_file;
-    bool whitelist_rc = true;
+    bool whitelist_rc = false;
 
     char bc_delim = ':';
     size_t bc_col = 7;
@@ -133,7 +133,7 @@ main (int argc, char* argv[]) {
       else if (opt == 'w')
         whitelist_file = optarg;
       else if (opt == 'r')
-        whitelist_rc = false;
+        whitelist_rc = true;
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')

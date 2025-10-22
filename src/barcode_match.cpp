@@ -227,6 +227,7 @@ print_usage (const string &name) {
       << "\t-a aligned SAM/BAM file or TSV/CSV file [required]" << endl
       << "\t-g GEX barcode list file [required]" << endl
       << "\t-b ATAC barcode list file [required]" << endl
+      << "\t-r reverse complement the cell barcodes [default: false]" << endl
       << "\t-o out file name [required]" << endl
       << "\t-d split delimeter"
           << "[default: \":\"]; ignored if -t is provided" << endl
@@ -248,6 +249,7 @@ main (int argc, char* argv[]) {
 
     string gex_bc_file;
     string atac_bc_file;
+    bool whitelist_rc = false;
 
     char bc_delim = ':';
     uint8_t bc_col = 7;
@@ -258,13 +260,15 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:g:b:o:d:c:t:s:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:g:b:ro:d:c:t:s:v")) != -1) {
       if (opt == 'a')
         in_file = optarg;
       else if (opt == 'g')
         gex_bc_file = optarg;
       else if (opt == 'b')
         atac_bc_file = optarg;
+      else if (opt == 'r')
+        whitelist_rc = true;
       else if (opt == 'o')
         out_file = optarg;
       else if (opt == 'd') {
@@ -300,7 +304,9 @@ main (int argc, char* argv[]) {
     unordered_map<string, string> bc_match;
     string gex_line, atac_line;
     while (getline(gex_bc_in, gex_line) && getline(atac_bc_in, atac_line)) {
-      inplace_rev_comp(atac_line);
+      if (whitelist_rc) {
+        inplace_rev_comp(atac_line);
+      }
       bc_match[atac_line] = gex_line;
     }
 
