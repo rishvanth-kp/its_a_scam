@@ -311,7 +311,7 @@ format (or the peaks can be easily converted to a bed format).
 We can finally generate the cell-peak matrix using
 
 ```
-bc_count_matrix -a sample_bc_filtered.bam -b sample_bc_counts.txt -t
+bc_count_matrix -a sample_bc_filtered.bam -b sample_bc_counts.txt -r
 peaks.bed -q 31 -o sample
 ``` 
 

@@ -63,6 +63,7 @@ print_usage (const string &name) {
           << "[default: \":\"; ignored if -t is provided]" << endl
       << "\t-c barcode field in name " 
           << "[default: 7 (0 based); ignored if -t is provided]" << endl
+      << "\t-t barcode tag in SAM file [default: \"\"]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();

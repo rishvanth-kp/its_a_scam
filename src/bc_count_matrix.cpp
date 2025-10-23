@@ -71,7 +71,7 @@ print_usage (const string &name) {
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-b barcode list file [required]" << endl
-      << "\t-t region bed file [required]" << endl
+      << "\t-r region bed file [required]" << endl
       << "\t-s distance to add to either side of each region [default: 0]"
         << endl
       << "\t-o out file prefix [required]" << endl
@@ -111,12 +111,12 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:t:s:o:m:M:d:c:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:r:s:o:m:M:d:c:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
         bc_file = optarg;
-      else if (opt == 't')
+      else if (opt == 'r')
         region_file = optarg;
       else if (opt == 'o')
         out_prefix = optarg;
@@ -205,7 +205,7 @@ main (int argc, char* argv[]) {
 
 
     if (VERBOSE) {
-      cerr << "\tNumber of TSS: " << region_counter << endl;
+      cerr << "\tNumber of regions: " << region_counter << endl;
       cerr << "\tNumber of barcodes: " << bc_counter << endl;
     }
 

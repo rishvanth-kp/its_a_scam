@@ -69,7 +69,7 @@ print_usage (const string &name) {
   std::ostringstream oss;
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
-      << "\t-t TSS bed file [required]" << endl
+      << "\t-r TSS region bed file [required]" << endl
       << "\t-b barcode list (if empty, treated as bulk sample)" << endl
       << "\t-o outfile prefix [required]" << endl
       << "\t-n min fragment length [default: 10]" << endl
@@ -112,10 +112,10 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:t:s:b:o:n:x:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:r:s:b:o:n:x:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
-      else if (opt == 't')
+      else if (opt == 'r')
         tss_file = optarg;
       else if (opt == 's')
         side_dist = std::stoi(optarg);

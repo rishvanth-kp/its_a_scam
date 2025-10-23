@@ -9,7 +9,7 @@ Generate a cell-region count matrix.
 bc_count_matrix [options]
   -a aligned SAM/BAM file [required]
   -b barcode list file [required]
-  -t region bed file [required]
+  -r region bed file [required]
   -s distance to add to either side of each region [default: 0]
   -o out file prefix [required]
   -m min. fragment length [default: 0]
@@ -30,7 +30,7 @@ should be encoded in the query name (QNAME) field, see options `-d` and
 `-b`: Only the SAM/BAM entries that match a barcode in this file are
 processed. [Required].
 
-`-t` A bed file with the regions of interest. A fourth column is
+`-r` A bed file with the regions of interest. A fourth column is
 expected that contains a unique name for each region. [Required].
 
 `-s` Number of bases to add to the  ends of each region in the above bed

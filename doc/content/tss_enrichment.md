@@ -7,7 +7,7 @@
 ```
 tss_enrichment [options]
 	-a aligned SAM/BAM file [required]
-	-t TSS bed file [required]
+	-r TSS region bed file [required]
 	-b barcode list (if empty, treated as bulk sample)
 	-o outfile prefix [required]
 	-n min fragment length [default: 10]
