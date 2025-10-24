@@ -154,7 +154,7 @@ main (int argc, char* argv[]) {
     //  7: paired in sequencing
     //  8: read 1
     //  9: read 2
-    //  10: properly paried
+    //  10: properly paired
     //  11: with itself and mate mapped
     //  12: singletons
 
@@ -240,7 +240,7 @@ main (int argc, char* argv[]) {
               is_set(entry.flag, SamFlags::Flag::first_in_pair)) {
             ++bc_flagstat[entry_bc_index][9];
           }
-          //  10: properly paried
+          //  10: properly paired
           if (is_set(entry.flag, SamFlags::Flag::read_paired) &&
               is_set(entry.flag, SamFlags::Flag::proper_pair) &&
               !is_set(entry.flag, SamFlags::Flag::read_unmapped)) { 
@@ -282,7 +282,7 @@ main (int argc, char* argv[]) {
         << "\tpaired_in_sequencing"
         << "\tread_1"
         << "\tread_2"
-        << "\tproperly_paried"
+        << "\tproperly_paired"
         << "\twith_itself_and_mate_mapped"
         << "\tsingletons" << endl;
 
