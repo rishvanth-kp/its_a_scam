@@ -241,7 +241,7 @@ main (int argc, char* argv[]) {
     // write the sample fragment length distribution
     std::ofstream sample_out(out_prefix + "_sample_frag_len.txt");
     // write header line
-    sample_out << "frag_len\tcount\tnorm_count";
+    sample_out << "frag_len\tcount\tnorm_count" << endl;
     size_t sample_frag_count = 0;
     for (size_t i = 0; i < max_frag_len; ++i) {
       sample_frag_count += frag_dist[i];

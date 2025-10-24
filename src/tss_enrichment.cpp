@@ -70,6 +70,8 @@ print_usage (const string &name) {
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-r TSS region bed file [required]" << endl
+      << "\t-s side distance to add to the ends of the TSS [default: 1000]" 
+          << endl
       << "\t-b barcode list (if empty, treated as bulk sample)" << endl
       << "\t-o outfile prefix [required]" << endl
       << "\t-n min fragment length [default: 10]" << endl
