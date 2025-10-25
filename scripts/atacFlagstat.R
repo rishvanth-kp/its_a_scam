@@ -22,6 +22,8 @@ main <- function() {
   parser <- OptionParser()
   parser <- add_option(parser, c("-f", "--flagstatFile"),
               help="single cell flagstat QC file")
+  parser <- add_option(parser, c("-c", "--clusterIdFile"),
+              help="single cell flagstat QC file")
   parser <- add_option(parser, c("-o", "--outPrefix"),
               help="Outfile prefix")
   opt <- parse_args(parser)
@@ -34,7 +36,7 @@ main <- function() {
 
   ## Read the input
   fstat <- read_tsv(opt$flagstatFile)
-  
+ 
   ## Normalize
   fstat.norm <- tibble(barcode = fstat$barcode, 
     primary = fstat$primary)
@@ -42,7 +44,7 @@ main <- function() {
   fstat.norm$primary_duplicates <- fstat$primary_duplicates / fstat$primary
   fstat.norm$primary_mapped <- fstat$primary_mapped / fstat$primary
   fstat.norm$properly_paired <- fstat$properly_paired / fstat$primary
-  print(fstat.norm)
+
 
   ## Plots
   ggplot(data = fstat.norm) +
@@ -78,6 +80,35 @@ main <- function() {
   ggsave(sprintf("%s_proper_pair.pdf", opt$outPrefix), 
     height = 5, width = 5)
 
+
+  ## if the cluster id file is provided, make cluster-wise plots
+  if (!is.null(opt$clusterIdFile)) {
+    # read the cluster IDs
+    id <- read_tsv(opt$clusterIdFile, col_names = F)
+    names(id) <- c("barcode", "cluster")
+    id$cluster <- as.factor(id$cluster)  
+  
+    # keep only the cells that have a cluster ID
+    fstat.norm <- fstat.norm[fstat.norm$barcode %in% id$barcode, ]
+    
+    # format and join the cluster IDs
+    fstat.norm <- fstat.norm %>%
+      select(!primary) %>% 
+      pivot_longer(!barcode, names_to = "type", values_to = "value") %>%
+      left_join(id)
+
+    # plot
+    ggplot(data = fstat.norm) +
+      geom_boxplot(mapping = aes(x = cluster, y = value)) +
+      facet_wrap(vars(type), scales = "free_y") +
+      labs(x = "Cluster", y = "Fraction of primary alignments",
+           title = sprintf("%s", opt$outPrefix)) +
+      theme_bw()
+    ggsave(sprintf("%s_cluster_flagstat.pdf", opt$outPrefix), 
+      height = 4, width = 6)
+  
+
+  }
 }
 
 

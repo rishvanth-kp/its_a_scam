@@ -25,6 +25,8 @@ main <- function() {
               help = "single cell flagstat QC file")
   parser <- add_option(parser, c("-s", "--sampleFraglenFile"),
               help = "single cell flagstat QC file")
+  parser <- add_option(parser, c("-c", "--clusterIdFile"),
+              help="single cell flagstat QC file")
   parser <- add_option(parser, c("-m", "--minFraglen"), default = 25,
               help = "min fragment length to plot [default: %default]")
   parser <- add_option(parser, c("-M", "--maxFraglen"), default = 300,
@@ -58,19 +60,46 @@ main <- function() {
   fl <- read_tsv(opt$fraglenFile)
   
   # remove unwanted columns
-  fl <- fl %>%
+  fl.len <- fl %>%
     select(!barcode) %>%
     select(seq(opt$minFraglen, opt$maxFraglen))
-
- 
-  print(fl)
- 
-  # plot
+  
+  # heatmap for all cells
   pdf(sprintf("%s_bc_frag_len.pdf", opt$outPrefix), 
     height = 6, width = 8)
-  pheatmap(fl, cluster_cols = FALSE, 
+  pheatmap(fl.len, cluster_cols = FALSE, 
     show_rownames = FALSE, show_colnames = FALSE)
   dev.off()
+
+
+  # heatmap with cluster ids
+  if (is.null(opt$clusterIDFile)) {
+   
+    # read the cluster IDs
+    id <- read_tsv(opt$clusterIdFile, col_names = F)
+    names(id) <- c("barcode", "cluster")
+    id$cluster <- as.factor(id$cluster)  
+  
+    # keep only the cells that have a cluster ID
+    fl <- fl[fl$barcode %in% id$barcode, ]
+  
+    # keep only the needed fragment lenghts 
+    fl.len <- fl %>%
+      select(barcode, seq(opt$minFraglen, opt$maxFraglen))
+ 
+    # format for plotting
+    fl.len <- column_to_rownames(fl.len, var = "barcode")
+ 
+    anno <- data.frame(cluster = id$cluster)
+    rownames(anno) <- id$barcode
+
+    # plot with cluster annotation
+    pdf(sprintf("%s_cluster_frag_len.pdf", opt$outPrefix), 
+      height = 6, width = 8)
+    pheatmap(fl.len, cluster_cols = FALSE, annotation_row = anno, 
+      show_rownames = FALSE, show_colnames = FALSE)
+    dev.off() 
+  }
  
 }
 

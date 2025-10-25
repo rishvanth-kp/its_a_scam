@@ -20,22 +20,23 @@ suppressMessages(library("tidyverse"))
 main <- function() {
 
   parser <- OptionParser()
-  parser <- add_option(parser, c("-c", "--featureCounts"),
+  parser <- add_option(parser, c("-f", "--featureCounts"),
               help="Cell barcoded feature count QC file")
-  parser <- add_option(parser, c("-a", "--featureAlignLen"),
-              help="Cell barcoded aligned fragment QC file")
-  parser <- add_option(parser, c("-f", "--featureFragLen"),
+  parser <- add_option(parser, c("-l", "--featureFragLen"),
               help="Cell barcoded fragment length QC file")
+  parser <- add_option(parser, c("-c", "--clusterIdFile"),
+              help="single cell flagstat QC file")
   parser <- add_option(parser, c("-o", "--outPrefix"),
               help="Outfile prefix")
   opt <- parse_args(parser)
 
-  if (is.null(opt$featureCounts) | is.null(opt$featureAlignLen) |
-      is.null(opt$featureFragLen) | is.null(opt$outPrefix)) {
+  if (is.null(opt$featureCounts) | is.null(opt$featureFragLen) | 
+      is.null(opt$outPrefix)) {
     print_help(parser)
     quit(status = 1)
   }
  
+  #### counts for each feature
   ## Read the feature qc files
   counts <- read_tsv(opt$featureCounts)
  
@@ -57,38 +58,33 @@ main <- function() {
     labs(x = "Genomic Region", y = "Percent of reads",
          title = sprintf("%s", opt$outPrefix)) +
     theme_bw()
-
   ggsave(sprintf("%s_genome_feature_counts.pdf", opt$outPrefix), 
     height = 4, width = 6)
 
+  ## plot by cluster
+  if (!is.null(opt$clusterIdFile)) {
+    # read the cluster IDs
+    id <- read_tsv(opt$clusterIdFile, col_names = F)
+    names(id) <- c("barcode", "cluster")
+    id$cluster <- as.factor(id$cluster)  
 
-
-
-  #### Aligned region of entire fragment 
-  ## Read the feature qc files
-  align <- read_tsv(opt$featureAlignLen)
-
-  ## as fraction of aligned bases
-  align[, 2:ncol(align)] <- (align[, 2:ncol(align)] / align$bases) * 100
-
-  ## format for ggplot
-  align <- align %>% 
-    select(!c(bases)) %>% 
-    pivot_longer(!barcode, names_to = "region", values_to = "value")
-  align$region <- factor(align$region, 
-    labels = row.order, levels = row.order)
-
-  ## plot the data
-  ggplot(data = align) + 
-    geom_boxplot(mapping = aes(x = region, y = value), outlier.size = 0.5) +
-    labs(x = "Genomic Region", y = "Percent of aligned bases",
-         title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
-
-  ggsave(sprintf("%s_genome_feature_align_len.pdf", opt$outPrefix), 
-    height = 4, width = 6)
-
-
+    # keep only the cells that have a cluster ID   
+    counts <- counts[counts$barcode %in% id$barcode, ]
+ 
+    # join the cluster IDs
+    counts <- counts %>%
+      left_join(id)
+ 
+    # plot 
+    ggplot(data = counts) + 
+      geom_boxplot(mapping = aes(x = cluster, y = value), outlier.size = 0.5) +
+      facet_wrap(vars(region), scales = "free_y") +
+      labs(x = "Cluster", y = "Percent of reads",
+           title = sprintf("%s", opt$outPrefix)) +
+      theme_bw()
+    ggsave(sprintf("%s_cluster_genome_feature_counts.pdf", opt$outPrefix), 
+      height = 4, width = 6)
+  }
 
   #### mean fragment lenth for each feature
   ## read QC file
@@ -108,9 +104,28 @@ main <- function() {
     labs(x = "Genomic Region", y = "Mean fragment length",
          title = sprintf("%s", opt$outPrefix)) +
     theme_bw()
-
   ggsave(sprintf("%s_genome_feature_frag_len.pdf", opt$outPrefix), 
     height = 4, width = 6)
+  
+  ## plot by cluster
+  if (!is.null(opt$clusterIdFile)) {
+    # keep only the cells that have a cluster ID   
+    frag.len <- frag.len[frag.len$barcode %in% id$barcode, ]
+ 
+    # join the cluster IDs
+    frag.len <- frag.len %>%
+      left_join(id)
+ 
+    # plot 
+    ggplot(data = frag.len) + 
+      geom_boxplot(mapping = aes(x = cluster, y = value), outlier.size = 0.5) +
+      facet_wrap(vars(region), scales = "free_y") +
+      labs(x = "Cluster", y = "Mean fragment length",
+           title = sprintf("%s", opt$outPrefix)) +
+      theme_bw()
+    ggsave(sprintf("%s_cluster_genome_feature_frag_len.pdf", opt$outPrefix), 
+      height = 4, width = 6)
+  }
 
 }
 
