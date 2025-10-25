@@ -6,31 +6,36 @@ nav:
   - Home: index.md
   - Description of tools:
     - ATAC-seq:
-      - add_barcode_to_fastq_name: add_barcode_to_fastq_name.md
-      - barcode_count: barcode_count.md
-      - bam_to_fragments: bam_to_fragments.md
-      - barcode_match: barcode_match.md
-      - nametag_to_samtag: nametag_to_samtag.md
-      - bc_feature_matrix: bc_feature_matrix.md
-      - bc_filter_alignments: bc_filter_alignments.md
-      - bc_frag_dist: bc_frag_dist.md
-      # - bc_fragment_coverage: bc_fragment_coverage.md
-      # - bc_in_region: bc_in_region.md
-      - bc_count_matrix: bc_count_matrix.md
-      - bc_mismatch_matrix: bc_mismatch_matrix.md
-      # - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
-      - pseudobulk_fragment_metagene: pseudobulk_fragment_metagene.md
-      - tss_enrichment: tss_enrichment.md
+      - Count matrix generation:
+        - add_barcode_to_fastq_name: add_barcode_to_fastq_name.md
+        - barcode_count: barcode_count.md
+        - bam_to_fragments: bam_to_fragments.md
+        - barcode_match: barcode_match.md
+        - nametag_to_samtag: nametag_to_samtag.md
+        - bc_feature_matrix: bc_feature_matrix.md
+        - bc_filter_alignments: bc_filter_alignments.md
+        - bc_count_matrix: bc_count_matrix.md
+        - bc_mismatch_matrix: bc_mismatch_matrix.md
+      - Quality control:
+        - bc_frag_dist: bc_frag_dist.md
+        - tss_enrichment: tss_enrichment.md
+        - pseudobulk_fragment_metagene: pseudobulk_fragment_metagene.md
+        # - bc_fragment_coverage: bc_fragment_coverage.md
+        # - bc_in_region: bc_in_region.md
+        # - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
     - GEX:
       - sc_rnaseq_feature_matrix: sc_rnaseq_feature_matrix.md
     # - General:
       # - bc_flagstat: bc_flagstat.md
       # - bc_coverage: bc_coverage.md
   - Analysis procedure:
-    - 10x GEX: 10x_gex.md
-    - 10x ATAC-seq: 10x_atac_seq.md
-    - 10x ATAC-seq quick start: 10x_atac_seq_quick_start.md
-    - Parse Bioscience WT: parse_wt.md
+    - Count matrix generation:
+      - 10x GEX: 10x_gex.md
+      - 10x ATAC-seq: 10x_atac_seq.md
+      - 10x ATAC-seq quick start: 10x_atac_seq_quick_start.md
+      - Parse Bioscience WT: parse_wt.md
+    - Quality control:
+      - 10x ATAC-seq: 10x_atac_seq_qc.md
   - Misc.:
     - To do list: todo.md  
 
