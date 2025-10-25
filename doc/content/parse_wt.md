@@ -24,7 +24,7 @@ add another cell barcode can be repeated multiple times to ensure that
 the probability of multiome cells getting the same combination of barcodes
 is low.
 
-Aftrer sequencing, each read pair contains both the cell barcodes and
+After sequencing, each read pair contains both the cell barcodes and
 the transcripts. Each read be assigned to a cell using this cell barcode
 information. Conceptually, aligning a read from the SPLIT-seq protocol
 is identical to the 10x protocol, but with much longer cell barcodes
@@ -102,7 +102,7 @@ protocol user manual.
 
 Furthermore, a sample is split into 8 different sublibraries. Each
 sublibrary gets a different Illumina barcodes, and are thus sequenced as
-8 indipanes libraries each yielding a pair of fastq files. Note that
+8 independent libraries each yielding a pair of fastq files. Note that
 this Illumina barcode implicitly acts at the 4th cell barcode. 
 
 ### Alignment and gene quantification with STAR
@@ -150,7 +150,10 @@ the read file that contains the cell barcode and UMI.
 `--outFileNamePrefix {output_prefix}`: The prefix used for the output
 file names.
 
-`--soloCBwhitelist {cb_2_3.txt} {cb_2_3.txt} {cb_1.txt}`:
+`--soloCBwhitelist {cb_2_3.txt} {cb_2_3.txt} {cb_1.txt}`: One column
+cell barcode file that contains a list of valid barcodes. The CSV cell
+barcode files from Parse can be parsed to obtain just the cell barcode
+column. 
 
 `--soloCBposition {cb_3_pos} {cb_2_pos} {cb_1_pod}`: 
 For the WTv2 protocol the positions of the barcode are 
@@ -203,26 +206,35 @@ intricate process. We can use the `parseRandhexCollapse.R` script to
 generate a Seurat object with the count matrix:
 
 ```
-  parseRandhexCollapse.R -r {count_matrix_dir} -n {min_count} 
-  -s {sample_ids.csv} -l {sublibrary_id} 
+  parseRandhexCollapse.R -r {count_matrix_dir} -m {matrix.mtx}
+  -n {min_count} -s {sample_ids.csv} -l {sublibrary_id} 
   -a {cb_1.csv} -b {cb_2_3.csv} -o {outfile_prefix}
 ``` 
 
 where:
 
-`-r {count_matrix_dir}`: 
+`-r {count_matrix_dir}`: Path to the directory containing the STARsolo
+output files. 
 
-`-n {min_count}`:
+`-m {matrix.mtx}`: The name of the matrix file to use.
 
-`-s {sample_ids.csv}`: 
+`-n {min_count}`: Keep only cells that have more than `min_count`
+counts.
 
-`-l {sublibrary_id}`:
+`-s {sample_ids.csv}`: A 2 column CSV file (without a header) that
+contains the well ID in the first column and the sample name in the
+second column. This file is used for sample demultiplexing based on the
+wells to which samples were loaded in the first cell barcode plate.
+
+`-l {sublibrary_id}`: The ID for the sublibrary. Typically should be
+number between 1 and 8 indication the sublibrary tube ID that acts at
+the implicit 4th barcode. 
  
-`-a {cb_1.csv}`: 
+`-a {cb_1.csv}`: csv file with the first cell barcode. 
 
-`-b {cb_2_3.csv}`: 
+`-b {cb_2_3.csv}`: csv file with the second and third barcodes.
 
-`-o {outfile_prefix}`:
+`-o {outfile_prefix}`: output file prefix.
 
 This step needs to be done independently for each sublibrary, and so
 eight count matrices will be generated. 
@@ -230,5 +242,5 @@ eight count matrices will be generated.
 ### Merging sub-libraries
 We can them merge all sublibraries into one count matrix by simply
 appending the all the matrices by columns. With Seurat this can be done
-with the `` function. 
+with the `merge` function. 
 
