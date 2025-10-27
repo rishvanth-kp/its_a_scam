@@ -21,53 +21,34 @@ suppressMessages(library("tidyverse"))
 main <- function() {
 
   parser <- OptionParser()
-  parser <- add_option(parser, c("-f", "--fraglenFile"),
-              help = "single cell flagstat QC file")
-  parser <- add_option(parser, c("-s", "--sampleFraglenFile"),
+  parser <- add_option(parser, c("-g", "--genebodyCovFile"),
               help = "single cell flagstat QC file")
   parser <- add_option(parser, c("-c", "--clusterIdFile"),
               help="single cell cluster ID TSV file")
-  parser <- add_option(parser, c("-m", "--minFraglen"), default = 25,
-              help = "min fragment length to plot [default: %default]")
-  parser <- add_option(parser, c("-M", "--maxFraglen"), default = 300,
-              help = "max fragment length to plot [default: %default]")
   parser <- add_option(parser, c("-o", "--outPrefix"),
               help = "Outfile prefix")
   opt <- parse_args(parser)
 
-  if (is.null(opt$fraglenFile) | is.null(opt$sampleFraglenFile) | 
-      is.null(opt$outPrefix)) {
+  if (is.null(opt$genebodyCovFile) | is.null(opt$outPrefix)) {
     print_help(parser)
     quit(status = 1)
   }
 
-  ## sample fragment length distribution
-  # read the data
-  sample.fl <- read_tsv(opt$sampleFraglenFile)
-  
-  # plot
-  ggplot(data = sample.fl) +
-    geom_line(mapping = aes(x = frag_len, y = norm_count)) +
-    labs(x = "Fragment length", y = "Normalized fragment count",
-         title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
-  ggsave(sprintf("%s_sample_frag_len.pdf", opt$outPrefix), 
-    height = 5, width = 5)
-    
 
-  ## single cell fragment length distribution
   # read data
-  fl <- read_tsv(opt$fraglenFile)
+  gb <- read_tsv(opt$genebodyCovFile)
   
   # remove unwanted columns
-  fl.len <- fl %>%
-    select(!barcode) %>%
-    select(seq(opt$minFraglen, opt$maxFraglen))
-  
+  gb <- gb %>%
+    select(!barcode)
+ 
+  # normalize
+  gb <- (gb / rowSums(gb)) * 100
+ 
   # heatmap for all cells
-  pdf(sprintf("%s_bc_frag_len.pdf", opt$outPrefix), 
+  pdf(sprintf("%s_bc_genebody_cov.pdf", opt$outPrefix), 
     height = 6, width = 8)
-  pheatmap(fl.len, cluster_cols = FALSE, 
+  pheatmap(gb, cluster_cols = FALSE, 
     show_rownames = FALSE, show_colnames = FALSE)
   dev.off()
 
@@ -81,22 +62,19 @@ main <- function() {
     id$cluster <- as.factor(id$cluster)  
   
     # keep only the cells that have a cluster ID
-    fl <- fl[fl$barcode %in% id$barcode, ]
+    gb <- gb[gb$barcode %in% id$barcode, ]
   
-    # keep only the needed fragment lenghts 
-    fl.len <- fl %>%
-      select(barcode, seq(opt$minFraglen, opt$maxFraglen))
  
     # format for plotting
-    fl.len <- column_to_rownames(fl.len, var = "barcode")
+    gb <- column_to_rownames(gb, var = "barcode")
  
     anno <- data.frame(cluster = id$cluster)
     rownames(anno) <- id$barcode
 
     # plot with cluster annotation
-    pdf(sprintf("%s_cluster_frag_len.pdf", opt$outPrefix), 
+    pdf(sprintf("%s_cluster_genebody_cov.pdf", opt$outPrefix), 
       height = 6, width = 8)
-    pheatmap(fl.len, cluster_cols = FALSE, annotation_row = anno, 
+    pheatmap(gb, cluster_cols = FALSE, annotation_row = anno, 
       show_rownames = FALSE, show_colnames = FALSE)
     dev.off() 
   }

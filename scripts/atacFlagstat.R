@@ -23,7 +23,7 @@ main <- function() {
   parser <- add_option(parser, c("-f", "--flagstatFile"),
               help="single cell flagstat QC file")
   parser <- add_option(parser, c("-c", "--clusterIdFile"),
-              help="single cell flagstat QC file")
+              help="single cell cluster ID TSV file")
   parser <- add_option(parser, c("-o", "--outPrefix"),
               help="Outfile prefix")
   opt <- parse_args(parser)
