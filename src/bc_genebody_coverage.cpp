@@ -25,13 +25,36 @@
 #include <sstream>
 #include <fstream>
 #include "unistd.h"
+#include <unordered_map>
+#include <unordered_set>
 
+#include "gcatlib/Metagene.hpp"
+#include "gcatlib/SamEntry.hpp"
+#include "gcatlib/SamReader.hpp"
 
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
+using std::unordered_map;
+using std::unordered_set;
+
+
+static void
+split_string (const string &in, vector<string> &tokens,
+              const char delim = ':') {
+
+  tokens.clear();
+  size_t start = 0;
+  size_t end = in.find(delim);
+  while (end != string::npos) {
+    tokens.push_back(in.substr(start, end - start));
+    start = ++end;
+    end = in.find(delim, start);
+  }
+  tokens.push_back(in.substr(start));
+}
 
 
 static string
@@ -108,7 +131,156 @@ main (int argc, char* argv[]) {
         out_prefix.empty()) {
       throw std::runtime_error(print_usage(argv[0]));
     }
-  
+ 
+
+    // process the barcodes
+    if (VERBOSE)
+      cerr << "[PROCESSING BARCODES]" << endl;
+
+    // index into the count matrix
+    unordered_map<string, size_t> bc_index;
+    size_t bc_counter = 0;
+    vector<string> bc_metadata;
+    
+    std::ifstream bc_in(bc_file);
+    string line;
+    while (getline(bc_in, line)) {
+      vector<string> tokens;
+      split_string(line, tokens, '\t');
+      bc_index[tokens[0]] = bc_counter++;
+      bc_metadata.push_back(tokens[0]);
+    }
+    bc_in.close();
+
+    // check if umi needs to be prcoressed
+    bool process_umi = false;
+    if (!umi_tag.empty()) {
+      process_umi = true;
+    }
+    // set to keep track of bc+umi pairs
+    // will be used only if process_umi is true
+    unordered_set<string> seen_cb_umi;
+    
+
+
+    // process the regions
+    if (VERBOSE)
+      cerr << "[CREATING METAGENE OF REGIONS]" << endl;
+    Metagene genebody_metagene(regions_file, n_divisions);
+    
+    // create the count matrix
+    if (VERBOSE) {
+      cerr << "[INITIALIZING COUNT MATRIX]" << endl;
+      cerr << "\tNumber of barcodes: " << bc_counter << endl;
+      cerr << "\tNumber of genes:" << genebody_metagene.get_n_features() 
+              << endl;
+    }
+
+    vector<vector<size_t>> genebody_mat(bc_counter, 
+                                        vector<size_t>(n_divisions, 0));
+
+    // initialize sam/bam reader
+    if (VERBOSE)
+      cerr << "[INITIALIZING SAM/BAM READER]" << endl;
+    
+    SamReader sam_reader(aln_file);
+    SamEntry sam_entry;
+
+
+    // process alignments
+    if (VERBOSE)
+      cerr << "[PROCESSING ALIGNMENTS]" << endl;
+
+    size_t aln_count = 0;
+    while (sam_reader.read_sam_line(sam_entry)) {
+      ++aln_count;
+      if (VERBOSE) {
+        if (!(aln_count % 1000000)) {
+          cerr << "\tprocessed " << aln_count << " fragments" << endl;
+        }
+      }
+
+      // make sure the read passes QC
+      if (sam_entry.mapq >= min_mapq &&
+          SamFlags::is_all_set(sam_entry.flag, include_all) &&
+          !SamFlags::is_any_set(sam_entry.flag, include_none)) {
+
+
+        // get cell barcode
+        bool process_cell = false;
+        string cell_bc;
+        SamTags::get_tag(sam_entry.tags, bc_tag, cell_bc);          
+        unordered_map<string, size_t>::iterator bc_it;
+        bc_it = bc_index.find(cell_bc);
+        if (bc_it != bc_index.end()) {
+          process_cell = true;
+        }
+
+        // if needed, get cell umi
+        string cell_umi;
+        if (process_cell && process_umi) {
+          SamTags::get_tag(sam_entry.tags, umi_tag, cell_umi);
+          // check if the BC+UMI combo has already been processed
+          if (seen_cb_umi.find(cell_bc + cell_umi) != seen_cb_umi.end()) {
+            // has already been seen
+            process_cell = false;
+          }
+          else {
+            // has not been seen, so add to list
+            seen_cb_umi.insert(cell_bc + cell_umi);
+          }
+        } 
+    
+        // get the gene body regions
+        if (process_cell) {
+
+          // query the metagene index
+          GenomicRegion query;
+          query.name = sam_entry.rname;
+          query.start = sam_entry.pos - 1;
+          query.end = sam_entry.pos;
+
+          vector<string> feature;
+          vector<size_t> first;
+          vector<size_t> last;
+
+          genebody_metagene.at_ends(query, feature, first, last);
+          for (size_t i = 0; i < feature.size(); ++i) {
+            ++genebody_mat[bc_it->second][first[i]];
+          }
+
+        } 
+
+      }
+    }
+
+
+    // write output
+    if (VERBOSE)
+      cerr << "[WRITING OUTPUT]" << endl;
+   
+    std::ofstream cov_file(out_prefix + "genebody_coverage.txt"); 
+    // write header
+    cov_file << "barcode";
+    for (size_t i = 0; i < n_divisions; ++i) {
+      cov_file << "\t" << i;
+    }
+    cov_file << endl;
+
+    // write the content
+    for (size_t i = 0; i < bc_metadata.size(); ++i) {
+      cov_file << bc_metadata[i];
+      // sanity check
+      if (bc_index.find(bc_metadata[i])->second != i) {
+        throw std::runtime_error("bc metadata does not match index");
+      }
+      for (size_t j = 0; j < n_divisions; ++j) {
+        cov_file << "\t" << genebody_mat[i][j];
+      }
+      cov_file << endl;
+    }
+    cov_file.close();
+
   }
   catch (const std::exception &e) {
     cerr << "ERROR: " << e.what() << endl;
