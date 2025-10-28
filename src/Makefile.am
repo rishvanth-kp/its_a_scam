@@ -1,5 +1,4 @@
 bin_PROGRAMS = add_barcode_to_fastq_name \
-               alignment_depth \
                alignment_gc_distribution \
                barcode_count \
                bc_coverage \
@@ -33,8 +32,6 @@ LDADD = -lgcat -lhts
 AM_CXXFLAGS = -O2 -Wall -std=c++11
 
 add_barcode_to_fastq_name_SOURCES = add_barcode_to_fastq_name.cpp 
-
-alignment_depth_SOURCES = alignment_depth.cpp
 
 alignment_gc_distribution_SOURCES = alignment_gc_distribution.cpp
 
