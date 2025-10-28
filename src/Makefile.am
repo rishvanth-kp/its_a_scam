@@ -1,5 +1,4 @@
 bin_PROGRAMS = add_barcode_to_fastq_name \
-               alignment_gc_distribution \
                barcode_count \
                bc_coverage \
                bc_feature_matrix \
@@ -9,14 +8,6 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
                bc_in_region \
                bc_mismatch_matrix \
                bc_count_matrix \
-               gene_count \
-               genome_stats \
-               genomic_feature_count \
-               get_clipped_bases \
-               get_reference_base \
-               mismatch_jaccard \
-               mismatch_profile \
-               mismatch_profile_vaf \
                nametag_to_samtag \
                pseudobulk_fragment_coverage \
                sc_rnaseq_feature_matrix \
@@ -32,8 +23,6 @@ LDADD = -lgcat -lhts
 AM_CXXFLAGS = -O2 -Wall -std=c++11
 
 add_barcode_to_fastq_name_SOURCES = add_barcode_to_fastq_name.cpp 
-
-alignment_gc_distribution_SOURCES = alignment_gc_distribution.cpp
 
 barcode_count_SOURCES = barcode_count.cpp
 
@@ -52,22 +41,6 @@ bc_in_region_SOURCES = bc_in_region.cpp
 bc_mismatch_matrix_SOURCES = bc_mismatch_matrix.cpp
 
 bc_count_matrix_SOURCES = bc_count_matrix.cpp
-
-gene_count_SOURCES = gene_count.cpp
-
-genome_stats_SOURCES = genome_stats.cpp
-
-genomic_feature_count_SOURCES = genomic_feature_count.cpp
-
-get_clipped_bases_SOURCES = get_clipped_bases.cpp
-
-get_reference_base_SOURCES = get_reference_base.cpp
-
-mismatch_jaccard_SOURCES = mismatch_jaccard.cpp
-
-mismatch_profile_SOURCES = mismatch_profile.cpp
-
-mismatch_profile_vaf_SOURCES = mismatch_profile_vaf.cpp
 
 nametag_to_samtag_SOURCES = nametag_to_samtag.cpp
 
