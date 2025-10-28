@@ -14,6 +14,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 
+suppressMessages(library("viridis"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
@@ -67,7 +68,7 @@ main <- function() {
   # heatmap for all cells
   pdf(sprintf("%s_bc_frag_len.pdf", opt$outPrefix), 
     height = 6, width = 8)
-  pheatmap(fl.len, cluster_cols = FALSE, 
+  pheatmap(fl.len, cluster_cols = FALSE, color = viridis(100), 
     show_rownames = FALSE, show_colnames = FALSE)
   dev.off()
 
@@ -97,7 +98,8 @@ main <- function() {
     pdf(sprintf("%s_cluster_frag_len.pdf", opt$outPrefix), 
       height = 6, width = 8)
     pheatmap(fl.len, cluster_cols = FALSE, annotation_row = anno, 
-      show_rownames = FALSE, show_colnames = FALSE)
+      show_rownames = FALSE, show_colnames = FALSE,
+      color = viridis(100))
     dev.off() 
   }
  

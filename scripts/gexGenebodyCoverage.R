@@ -14,6 +14,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 
+suppressMessages(library("viridis"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
@@ -39,16 +40,16 @@ main <- function() {
   gb <- read_tsv(opt$genebodyCovFile)
   
   # remove unwanted columns
-  gb <- gb %>%
+  gb.plot <- gb %>%
     select(!barcode)
  
   # normalize
-  gb <- (gb / rowSums(gb)) * 100
+  gb.plot <- (gb.plot / rowSums(gb.plot)) * 100
  
   # heatmap for all cells
   pdf(sprintf("%s_bc_genebody_cov.pdf", opt$outPrefix), 
     height = 6, width = 8)
-  pheatmap(gb, cluster_cols = FALSE, 
+  pheatmap(gb.plot, cluster_cols = FALSE, color = viridis(100),
     show_rownames = FALSE, show_colnames = FALSE)
   dev.off()
 
@@ -67,6 +68,7 @@ main <- function() {
  
     # format for plotting
     gb <- column_to_rownames(gb, var = "barcode")
+    gb <- (gb / rowSums(gb)) * 100
  
     anno <- data.frame(cluster = id$cluster)
     rownames(anno) <- id$barcode
@@ -75,7 +77,8 @@ main <- function() {
     pdf(sprintf("%s_cluster_genebody_cov.pdf", opt$outPrefix), 
       height = 6, width = 8)
     pheatmap(gb, cluster_cols = FALSE, annotation_row = anno, 
-      show_rownames = FALSE, show_colnames = FALSE)
+      show_rownames = FALSE, show_colnames = FALSE,
+      color = viridis(100))
     dev.off() 
   }
  
