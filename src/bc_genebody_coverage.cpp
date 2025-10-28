@@ -100,7 +100,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:r:n:o:c:u:q;f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:r:n:o:c:u:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
@@ -259,7 +259,7 @@ main (int argc, char* argv[]) {
     if (VERBOSE)
       cerr << "[WRITING OUTPUT]" << endl;
    
-    std::ofstream cov_file(out_prefix + "genebody_coverage.txt"); 
+    std::ofstream cov_file(out_prefix + "_genebody_coverage.txt"); 
     // write header
     cov_file << "barcode";
     for (size_t i = 0; i < n_divisions; ++i) {
