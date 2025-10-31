@@ -36,8 +36,6 @@ nav:
       - Parse Bioscience WT: parse_wt.md
     - Quality control:
       - 10x ATAC-seq: 10x_atac_seq_qc.md
-  - Misc.:
-    - To do list: todo.md  
 
 theme:
   name: readthedocs

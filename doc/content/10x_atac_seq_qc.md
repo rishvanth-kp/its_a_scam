@@ -24,15 +24,25 @@ bc_flagstat -a {sample}_bc_match.bam -b {sample}_bc_counts.txt
 
 The helper scripts can then be used to generate the plots:
 ```
-
+~/code/genomics/its_a_scam/scripts/atacFlagstat.R -f {sample}_bc_flagstat.txt 
+  -c {cluster_id.tsv} -o {sample}
 ```
 
-If we have the cluster information, we can make the sample plots as above
-for each cluster:
-```
+Where `-c {cluster_id.tsv}` is an optional parameter with the cluster
+identity for each cell. This this file is provided, additional plots
+with cell split by clusters are generated. 
 
-```
+The number of alignments per cell:
 
+![](figs/pbmc_granulocyte_sorted_3k_pcr_duplicates-1.png) 
+
+The fraction of PCR duplicates per cell:
+
+![](figs/pbmc_granulocyte_sorted_3k_primary_alignments-1.png)
+
+When the cluster ID is provides, these are also plotted per cluster:
+
+![](figs/pbmc_granulocyte_sorted_3k_cluster_flagstat-1.png)
 
 ## Fragment length distribution
 ATAC-seq data generates the characteristic fragment length distribution
@@ -46,11 +56,25 @@ bc_frag_dist -a {sample}_bc_match.bam -b {sample}_bc_counts.txt
 
 We can them use the helper scripts for visualization:
 ```
-
+atacFragLength.R -f {sample}_bc_frag_len.txt -s {sample}_sample_frag_len.txt 
+  -c {cluster_id.tsv} -o {sample}
 ```
+
 The bulk fragment length distribution across all cells:
 
-Single cell fragment length distribution:
+![](figs/pbmc_granulocyte_sorted_3k_cluster_sample_frag_len-1.png) 
+
+The fragment lengths distributions are plotted for each cell. The x-axis
+is the fragment length, it starts at 25bp at the left end and 300bp at
+the right end.  They are not shown for clarity. When the cluster ID id
+is provided, it annotates the heatmap with the ID. 
+
+![](figs/pbmc_granulocyte_sorted_3k_cluster_cluster_frag_len-1.png) 
+
+Also, when the cluster ID is provides, the pseudo-bulked fragment
+lengths for all cells in a clusters are also plotted:
+
+![](figs/pbmc_granulocyte_sorted_3k_cluster_cluster_frag_len_summary-1.png) 
 
 
 ## Aligned genomic regions
@@ -65,9 +89,25 @@ bc_feature_matrix -a {sample}_bc_match.bam -b {sample}_bc_counts.txt
 ```
 
 We can them use the helper scripts for visualization:
-```
 
 ```
+atacGenomicRegionStats.R -f {sample}_feature_counts.txt 
+  -l {sample}_feature_frag_len.txt -c {cluster_id.tsv} -o {sample}
+```
+
+The fraction of reads aligned to distinct genomic regions for each cell:
+![](figs/pbmc_granulocyte_sorted_3k_genome_feature_counts-1.png) 
+
+The mean fragment lengths of the fragments aligned to these regions:
+![](figs/pbmc_granulocyte_sorted_3k_genome_feature_frag_len-1.png) 
+
+When the cluster ID is provided, these plots are also stratified by
+clusters. 
+
+![](figs/pbmc_granulocyte_sorted_3k_cluster_genome_feature_counts-1.png) 
+
+![](figs/pbmc_granulocyte_sorted_3k_cluster_genome_feature_frag_len-1.png) 
+
 
 ## Transcription start site enrichment score
 
