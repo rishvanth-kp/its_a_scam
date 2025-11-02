@@ -10,7 +10,7 @@ The key steps in the analysis of scATAC-seq data are:
 
 1. Aligning the reads to the reference genome in a way that the cell barcode 
 information is preserved.
-2. Removal of PCR duplicated taking into account that cell barcode
+2. Removal of PCR duplicated taking into account the cell barcode
 information. 
 3. Counting the number of fragments per cell.
 4. Filter out unwanted alignments from the BAM file. 
@@ -31,8 +31,9 @@ Reference genomes can be downloaded from the UCSC genome browser or
 Gencode. Be sure to down the right version of the reference genome and
 to keep the reference genome version consistent across all analysis.
 
-`BWA`, the program used to align reads to the reference genome, requires
-the genome to be pre-processed once before first use: 
+[`BWA`](https://github.com/lh3/bwa), the program used to align reads to
+the reference genome, requires the genome to be pre-processed once
+before first use: 
 
 ``` 
 bwa index {reference.fa} 
@@ -45,8 +46,8 @@ from DNA fragments that are flanked by two transposase cut sites.
 Paired-end fastq files consists of a pair of line matched files which
 correspond to the sequenced regions from the ends of the fragment.  10x
 single-cell ATAC-seq and multiome sequencing performs ATAC-seq at a
-single cell resolution by addition of a cell barcode sequence at the
-transposase cut sites. This cell barcode is sequenced as a separate
+single cell resolution by adding a cell barcode sequence at the
+transposase cut sites. This cell barcode is sequenced in a separate
 fastq file. A 10x single-cell ATAC-seq experiment generates 3 read
 files: paired-end fastq files that correspond to the ATAC-seq fragments,
 and a third fastq file that contains a line matched cell barcode for
@@ -128,7 +129,8 @@ assumption that two read pairs that align to exactly the same location
 on the reference genome are more likely due to a PCR duplicate rather
 than two different fragments. Multiple read pairs that align exactly to
 the same reference genome location are considered as PCR duplicates. A
-graphical representation of a PCR duplicate can be here.
+graphical representation of PCR duplicates is [here](
+https://www.htslib.org/algorithms/duplicate.html).
 
 For single-cell sequencing experiments, two fragments from different
 cells could align to the same reference genome location (and so meet the
@@ -214,14 +216,14 @@ next step.
 
 ### Convert sam/bam file to fragments file
 While the SAM file contains all the information in regard to an aligned
-read, it typically has more information than for most applications and so
-can occupy a lot more space than necessary. The information that is needed
-for most downstream ATAC-seq analysis are the start and end location on
-the reference genome and the cell barcode for each fragment. The
-fragments file contains just this information. The fragments file is
-similar to a BED file: it is a 5 column tab-separated file with the
-chromosome, start location, end location, cell barcode, and number of
-PCR duplicates for each fragment. 
+read, it typically has more information than needed for most
+applications and so can occupy a lot more space than necessary. The
+information that is needed for most downstream ATAC-seq analysis are the
+start and end location on the reference genome and the cell barcode for
+each fragment. The fragments file contains just this information. The
+fragments file is similar to a BED file: it is a 5 column tab-separated
+file with the chromosome, start location, end location, cell barcode,
+and number of PCR duplicates for each fragment. 
 
 ```
 bam_to_fragments -a sample_bc_match.bam -q 31 -o sample_unsort
@@ -247,7 +249,7 @@ count matrix generation can be done within these programs.
 Of note, the fifth column in the generated fragments file is always 1
 since we have already removed PCR duplicates. This should not affect any
 downstream analysis, but it might affect any QC plots that are related
-to the number of number of PCR duplicates.
+to the number of PCR duplicates.
 
 
 ### Count number of fragments per cell barcode
@@ -308,7 +310,7 @@ above step. Peak callers generally produce a list of peaks in bed
 format (or the peaks can be easily converted to a bed format).
 
 ### Cell-peak count matrix generation
-We can finally generate the cell-peak matrix using
+We can finally generate the cell-peak matrix using:
 
 ```
 bc_count_matrix -a sample_bc_filtered.bam -b sample_bc_counts.txt -r
@@ -318,5 +320,5 @@ peaks.bed -q 31 -o sample
 This will generate a file called `<output_prefix>_region_counts.txt`
 that contains the count matrix. The rows of the file are the regions and
 the columns are the cells. The first 4 columns contain the the chrom
-name, start, end, and region name. The cells start from the 5th columns.
-This file has a header line that has the cell barcodes.  
+name, start, end, and region name. The cells start from the 5th column.
+This file has a header line with the cell barcodes.  

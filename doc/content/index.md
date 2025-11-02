@@ -18,9 +18,6 @@ for wide range of single cell data processing and quality control.  It's
 a scam can be used in conjugation with commonly used open source tools
 to build entire single cell analysis pipelines. 
 
-**NOTE**: The latest version of the documentation is available 
-[here](https://github.com/rishvanth-kp/its_a_scam/tree/main/doc). The
-documentation in the source tarball might not be the latest version.  
  
 ## Installation
 It's a scam is dependent on `HTSlib` and `gcatlib`. `HTSlib` can be
@@ -32,7 +29,8 @@ can be installed by following the procedure under
 The installation for `gcatlib` is described 
 [here](https://github.com/rishvanth-kp/gcatlib). 
 
-`its_a_scam` can be obtained from here.
+`its_a_scam` can be obtained from 
+[here](https://github.com/rishvanth-kp/its_a_scam/releases).
 
 Untar the source files using:
 ```

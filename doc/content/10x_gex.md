@@ -14,14 +14,14 @@ differences when using other protocols.
 
 In this tutorial we will start with the fastq files and use STARsolo to
 align these read to the reference genome and generate a cell-gene count
-matrix. STARsolo is a very well documented. This tutorial is a starting
-point to get started from the scRNA-seq analysis from scratch. Reading
-the [STAR documentation](
+matrix.  This tutorial is a starting point to perform scRNA-seq analysis
+from scratch.  STARsolo is a very well documented, reading the [STAR
+documentation](
 https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf),
 [STARsolo documentation](
-https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md),
-[the paper](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1)
-are highly recommended, especially for using the software beyond what is
+https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md), [the
+paper](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) are
+highly recommended, especially for using the software beyond what is
 described here. 
 
 ## Analysis of 10x 3' datasets
@@ -69,9 +69,13 @@ sequencing errors.
 doublet drops that contain multiple cells.
 
 Each of these steps are controlled with user defined parameters to STAR
-described here. Parameters used specifically for single-cell and 10x
-data are described here.  For reads generated using a standard 10x 3'v3
+described [here](
+https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
+Parameters used specifically for single-cell and 10x data are described
+[here]( https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md).  
+For reads generated using a standard 10x 3'v3
 protocol, STAR can be run as follows:
+
 ```
 STAR --genomeDir {genome_dir} --runThreadN {threads} 
   --readFilesIn {read_1.fastq.gz} {read_I.fastq.gz} --readFilesCommand zcat
@@ -120,7 +124,7 @@ and the v3 protocol uses a 12bp UMI.
 `--soloBarcodeReadLength {1/0}`: The length of the reads in the 
 `read_I.fastq.gz` file should ideally be the sum of the barcode length
 (16bp) and the UMI length (12bp for v3). Setting this parameter to `1`
-explicitly checks that the index reads of is of this specified length.
+explicitly checks that the index reads is of this specified length.
 However, sometimes these index reads can be longer than needed, in
 these cases set the parameter to `0` so that the read length is not
 checked (and any bases over the needed are ignored).
@@ -133,20 +137,20 @@ reality the captured transcripts can be immature (or due to technical
 reasons) and can align to both introns and exons. The choice of how a
 alignment to the exon/intron is quantified is defined by the gene model
 used (specified by the `soloFeatures` parameter). At the most basic
-level, just the reads aligning to exons can be counted and reads align
-to introns can be ignored (as done by the default `Gene` option).
-However, this is too restrictive since we are expected to capture
-immature transcripts that could have reads aligning to introns.  Using
-the `GeneFull` counts all reads toward a gene if it aligned to ether the
-intron of exons of a genes. Options, `GeneFull_ExonOverIntron` and
-`GeneFull_Ex50pAS` prioritize exonic reads over intronic reads. The
+level, just the reads aligning to exons can be counted and reads
+aligning to introns can be ignored (as done by the default `Gene`
+option).  However, this is too restrictive since we are expected to
+capture immature transcripts that could have reads aligning to introns.
+Using the `GeneFull` counts all reads toward a gene if it aligned to
+ether the intron of exons of a genes. Options, `GeneFull_ExonOverIntron`
+and `GeneFull_Ex50pAS` prioritize exonic reads over intronic reads. The
 details of the prioritization are described [here](
 https://github.com/alexdobin/STAR/issues/1460). Multiple options can be
 specified to `soloFeatures` to get them all in a single run of STAR. 
 
 **Dealing with reads aligned to overlapping genes (multi-mapping reads):**
-A lot of genes have overlapping regions on the genome. So if a read
-aligns to such an overlapping regions, which gene should it be
+A lot of genes overlap on the genome. So if a read
+aligns to such an overlapping region, which gene should it be
 counted toward? The choice is controlled by the `soloMultiMappers`. 
 The easiest option is to simply ignore such reads, just
 count the reads that align to non-overlapping gene regions (as done by
@@ -164,7 +168,7 @@ Cell-gene count matrix is a large matrix where the rows correspond to a
 gene and the columns correspond to a cell. Each element of the matrix
 represents the count assigned to a specific gene for a specific cell. 
 
-STARsolo stores the count matrices withing a folder labeled
+STARsolo stores the count matrices within a folder labeled
 `{output_prefix}_Solo.out`. This folder contains a sub-folder for each
 `soloFeatures` specified, each of which contain a sub-folder called `raw`
 and `filtered`. 
@@ -211,7 +215,7 @@ sample <- CreateSeuratObject(counts = sample.mtx)
 To load the the count matrices under the other multi-mapping model, we
 need to load the count matrix for all cells and then subset it to
 include only the filtered cells (since only the raw count matrices are
-provided for these models). As an example to use the `GeneFull_Ex50pAS`
+provided for these models). As an example, to use the `GeneFull_Ex50pAS`
 gene model with the `EM` option:
 
 ```
@@ -253,7 +257,7 @@ multiome protocol.
 The 10x 5' protocol sequences a transcript from the 5' end, and they
 align in the opposite orientation as compared to the 3' protocol. 
 To ensure that STAR counts the reads that align in the reverse
-orientation to the reference genome, just this additional parameters
+orientation to the reference genome, just this additional parameter
 `--soloStrand Reverse` needs to be added to the command used for the
 10x3 protocol. Be sure to verify that the length of the cell barcode and
 UMI match the version of the protocol that you are using. 
