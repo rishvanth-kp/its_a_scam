@@ -9,7 +9,7 @@ All the QC metrics below are computed for each cell, and they can be
 visualized across all cell in a sample as a first step prior to any
 analysis. Though, these metrics could also be useful after the user as
 clustered and/or annotated the data where the metrics can be stratified by
-the cluster ID that is useful for comparing differences between clusters. 
+the cluster ID and are useful for comparing differences between clusters. 
 
 ## Alignment statistics
 `samtools flagstat` is extremely useful to get alignment statistics
@@ -18,14 +18,12 @@ a sam/bam file. `bc_flagstat` is used to give almost the same information as
 `flagstat` at a single cell level:
 
 ```
-bc_flagstat -a {sample}_bc_match.bam -b {sample}_bc_counts.txt 
-  -o {sample}
+bc_flagstat -a {sample}_bc_match.bam -b {sample}_bc_counts.txt -o {sample}
 ```
 
 The helper scripts can then be used to generate the plots:
 ```
-~/code/genomics/its_a_scam/scripts/atacFlagstat.R -f {sample}_bc_flagstat.txt 
-  -c {cluster_id.tsv} -o {sample}
+atacFlagstat.R -f {sample}_bc_flagstat.txt -c {cluster_id.tsv} -o {sample}
 ```
 
 Where `-c {cluster_id.tsv}` is an optional parameter with the cluster
@@ -40,7 +38,7 @@ The fraction of PCR duplicates per cell:
 
 ![](figs/pbmc_granulocyte_sorted_3k_primary_alignments-1.png)
 
-When the cluster ID is provides, these are also plotted per cluster:
+When the cluster ID is provided, these are also plotted per cluster:
 
 ![](figs/pbmc_granulocyte_sorted_3k_cluster_flagstat-1.png)
 
@@ -72,7 +70,7 @@ is provided, it annotates the heatmap with the ID.
 ![](figs/pbmc_granulocyte_sorted_3k_cluster_cluster_frag_len-1.png) 
 
 Also, when the cluster ID is provides, the pseudo-bulked fragment
-lengths for all cells in a clusters are also plotted:
+lengths for all cells in a cluster are also plotted:
 
 ![](figs/pbmc_granulocyte_sorted_3k_cluster_cluster_frag_len_summary-1.png) 
 

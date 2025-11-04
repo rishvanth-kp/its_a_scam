@@ -2,15 +2,17 @@
 
 ## Background
 Single-cell RNA-seq relies on barcoding each cell with an unique
-barcode, so that the reads generated can them be de-multiplexed and
-assigned to a cell. The combinatorial barcoding or the SPLIT-seq
+barcode, so that the reads generated can then be de-multiplexed and
+assigned to a cell. The [combinatorial
+barcoding](https://www.science.org/doi/10.1126/science.aam8940) or the
+[SPLIT-seq](https://www.science.org/doi/10.1126/science.aam8999)
 protocol is an approach to accomplish this without the need for
-additional instrumentation to isolate individual cells. Instead it used
+additional instrumentation to isolate individual cells. Instead it uses
 each cell as an isolated compartment to tag all transcripts within a
 cell with an unique combination of barcodes. 
 
 The cells are mildly fixed and permeabilized so that the transcripts are
-contained within the cell. The cells split and deposited into wells
+contained within the cell. The cells are split and deposited into wells
 (typically in 96 well plates) that contain a unique barcode in each
 well. Since the number of cells are much larger than the number of
 wells, each well would contain multiple cells that get the same barcode.
@@ -33,15 +35,15 @@ split over multiple positions on a reads.
 ## A brief description of the Parse whole-transcriptome protocol
 The Parse Bioscience whole-transcriptome protocol is an implementation
 of the combinatorial barcoding approach for scRNA-seq. This protocols
-uses 3 sets of cell barcodes with UMIs, and allows for sample
-multiplexing pool cells from multiple samples.
+uses 3 sets of cell barcodes with UMIs, and allows for multiplexing
+cells from multiple samples.
 
 Briefly, cells from one or more samples are deposited into distinct
-wells in the first barcode plate. Each well contains a oligo that
+wells in the first barcode plate. Each well contains an oligo that is
 attached to a transcript on one end (to sever as the reverse
 transcriptase primer) and has an overhang on the other end with the cell
 barcode sequence.  Each well contains two kinds of oligos: (1) poly-T
-ologos that attach to the ploy-A tails at the 3' end of the transcript,
+oligos that attach to the ploy-A tails at the 3' end of the transcript,
 and (2) random hexamer oligos that attach to random locations on the
 transcripts. Each of these oligos contain distinct cell barcodes, a well
 thus contains two different barcodes one for the 3' primers and the other
@@ -53,10 +55,10 @@ application. Moreover, since each well contains a unique set of
 barcodes, the samples in distinct wells can be separated out by this
 barcode. The RNA molecules are then reverse-transcribed. 
 
-The cells are them polled and split to add the second set of barcodes,
+The cells are then pooled and split to add the second set of barcodes,
 and the process is repeated to add the third set. The cells are pooled
 again and split into 8 different tubes. The cDNA amplification and
-library preparation are them performed. Since each of these 8 tubes are
+library preparation are then performed. Since each of these 8 tubes are
 processed and sequenced independently, this acts as an implicit 4th cell
 barcode. 
 
@@ -90,15 +92,14 @@ The Parse protocol generates paired-end reads, however, these are not
 the typical paired-end reads. One read contains the transcript and the
 other read contains the cell barcode and UMI.  The transcript read can
 either originate form the 3' end captured by a poly-T primer, or an
-internal region captured by a random hexamer primer.  The other reads
-contain several the three cell barcodes and the UMI that are at fixed
-locations on the read. For example, for the WTv2 protocol: the UMI is
-at location 0-9 (0-based, inclusive intervals), the barcode 3 is at
-location 10-17, barcode 2 at location 48-55, and barcode 1 at
-location 78-85. These based in between the barcodes and UMIs are
-filler bases and can be ignored. These positions of the UMI and barcode
-locations in the read varies by protocol, and can be count in the
-protocol user manual. 
+internal region captured by a random hexamer primer.  The other read
+contains the three cell barcodes and the UMI that are at fixed locations
+on the read. For example, for the WTv2 protocol: the UMI is at location
+0-9 (0-based, inclusive intervals), the barcode 3 is at location 10-17,
+barcode 2 at location 48-55, and barcode 1 at location 78-85. These
+bases in between the barcodes and UMIs are filler bases and can be
+ignored. These positions of the UMI and barcode locations in the read
+varies by protocol, and can be found in the protocol user manual. 
 
 Furthermore, a sample is split into 8 different sublibraries. Each
 sublibrary gets a different Illumina barcodes, and are thus sequenced as
@@ -195,7 +196,7 @@ The first cell barcode in involved in several different functions:
 
 1. It acts as the sample barcode, where each sample is assigned one or more
 barcodes. The sample barcodes are based on the wells to which the sample 
-was added to it the first round of barcoding. 
+was added in the first round of barcoding. 
 2. Within each sample it functions as a standard cell barcode. 
 3. Each cell contains two different barcode sequences: one for fragments
 starting at the 3' end (using a ploy-T primer) and another for fragments
@@ -240,7 +241,7 @@ This step needs to be done independently for each sublibrary, and so
 eight count matrices will be generated. 
 
 ### Merging sub-libraries
-We can them merge all sublibraries into one count matrix by simply
-appending the all the matrices by columns. With Seurat this can be done
+We can then merge all sublibraries into one count matrix by simply
+appending all the matrices by columns. With Seurat, this can be done
 with the `merge` function. 
 

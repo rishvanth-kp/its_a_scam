@@ -1,8 +1,8 @@
 # its_a_scam
 
-It's a scam To Sell Another Single-Cell Analysis Tool (It's a scam) is a
-collection of programs to pre-process and quality control single cell
-data.
+**I**t's a scam **T**o **S**ell **A**nother **S**ingle **C**ell
+**A**nalysis **M**ethod (It's a scam) is a collection of programs to
+pre-process and quality control single cell data.
 
 The era of designing bioinformatic pipelines using open source
 tools is giving way to monolithic, and often proprietary, tools designed

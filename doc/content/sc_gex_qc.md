@@ -9,7 +9,7 @@ All the QC metrics below are computed for each cell, and they can be
 visualized across all cells in a sample as a first step prior to any
 analysis. These metrics could also be useful after the user as
 clustered and/or annotated the cells. The metrics can be stratified by
-the cluster ID that is useful for comparing differences between clusters. 
+the cluster ID and are useful for comparing differences between clusters. 
 
 ## Aligned genomic regions
 In an scRNA-seq experiment we would expect a lot reads aligning to the
