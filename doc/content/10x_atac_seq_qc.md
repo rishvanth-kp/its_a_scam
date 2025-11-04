@@ -107,9 +107,3 @@ clusters.
 ![](figs/pbmc_granulocyte_sorted_3k_cluster_genome_feature_frag_len-1.png) 
 
 
-## Transcription start site enrichment score
-
-```
-tss_enrichment -a {sample}_bc_match.bam -b {sample}_bc_counts.txt 
-  -r tss_pm1k.bed -q 30 -o {sample}
-```
