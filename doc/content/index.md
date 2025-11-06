@@ -24,22 +24,23 @@ its_a_scam can be used for scRNA-seq and scATAC-seq count matrix
 generation and quality control. Refer to following documents to get
 started:
 
-1. 10x scATAC-seq count matrix generation:
-<https://its-a-scam.readthedocs.io/en/latest/10x_atac_seq/>
+1. [10x scATAC-seq count matrix generation](
+https://its-a-scam.readthedocs.io/en/latest/10x_atac_seq/).
 
 1. scRNA-seq count matrix generation: There are several well
-designed tools already available for this task. 
-<https://its-a-scam.readthedocs.io/en/latest/10x_gex/>
-describes the procedure to get started with using STARsolo for 10x
-data and <https://its-a-scam.readthedocs.io/en/latest/10x_gex/> for
+designed tools already available for this task. We describe the procedure 
+to get started with using STARsolo for [10x data](
+https://its-a-scam.readthedocs.io/en/latest/10x_gex/) and for
+[Parse data](https://its-a-scam.readthedocs.io/en/latest/10x_gex/) for
 Parse data.
 
-1. scATAC-seq quality control: 
-<https://its-a-scam.readthedocs.io/en/latest/10x_atac_seq_qc/>
+1. [scATAC-seq quality control](
+https://its-a-scam.readthedocs.io/en/latest/10x_atac_seq_qc/).
 
-1. scRNA-seq quality control: 
-<https://its-a-scam.readthedocs.io/en/latest/sc_gex_qc/>
- 
+1. [scRNA-seq quality control](
+https://its-a-scam.readthedocs.io/en/latest/sc_gex_qc/).
+
+
 
 ## Contact
 Rishvanth Prabakar: [kaliapp@cshl.edu](mailto:kaliapp@cshl.edu). Please
