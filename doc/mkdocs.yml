@@ -25,8 +25,9 @@ nav:
         # - pseudobulk_fragment_coverage: pseudobulk_fragment_coverage.md
     - GEX:
       - sc_rnaseq_feature_matrix: sc_rnaseq_feature_matrix.md
-    # - General:
-      # - bc_flagstat: bc_flagstat.md
+      - bc_genebody_coverage: bc_genebody_coverage.md
+    - General:
+      - bc_flagstat: bc_flagstat.md
       # - bc_coverage: bc_coverage.md
   - Analysis procedure:
     - Count matrix generation:

@@ -1,7 +1,13 @@
 # pseudobulk_fragment_metagene 
 
-
 ## Description
+`pseudobulk_fragment_metagene` is used for creating scATAC-seq metagene
+plots stratified by cell groups (such as cell clusters). It takes as
+input a list of regions (such as gene body regions or regions
+surrounding transcription start sites). It divides each region into
+identical number of bins, and computes the number of bases that are
+aligned in each bin. All the cells belonging to a specific group are
+treated as one, in effect pseudo-bulking the cells.  
 
 ## Parameters
 ```
@@ -26,12 +32,14 @@ pseudobulk_fragment_metagene [options]
 should be present either in a SAM tag or encoded in the query name
 (QNAME) field, see options `\t`, `-d`, and `-c`. [Required].
 
-`-b`: Only the SAM/BAM entries that match a barcode in this file are
-processed. [Required].
+`-b`: A two column file with cell barcodes in the first column and the
+group the cell belongs to in the second column.  Only the SAM/BAM
+entries that match a barcode in this file are processed. [Required].
 
 `-r` A bed-6 file with the regions of interest. Specifically the first 3
-standard columns, the 4HT column with the region name, and the 6th column
-with the stand orientation info are used. [Required].
+standard columns, the 4th column with the region name, and the 6th column
+with the stand orientation info are used. See below on how to generate
+this file [Required]. 
 
 `-o`: Output file prefix. [Default = ""].
 
@@ -78,3 +86,30 @@ sum of these flags (1024 + 2048 = 3072). [default: 3340].
 standard error. [Default: false].
 
 ## Input and output file description
+
+### Description of input files
+1. An aligned SAM/BAM file that has a cell barcode encoded
+either in the query name or in a tag.  
+1. A two column TSV file with cell barcodes in the first column and the
+group the cell belongs to in the second column. Only the alignments
+containing barcodes in the file are retained in the output SAM file.  
+1. A bed-6 file with the regions of interest. This file is expected to
+contain all the 6 bed columns. Additionally, all the regions that have a
+same name (in the 4th columns) are expected to be contiguous, and they
+should be sorted by genome positions within each regions. This can be
+accomplished by sorting a bed file with:
+
+```
+cat in_unsorted.bed | sort -k1,1 -k4,4 -k2,2n > out_sorted.bed
+```
+
+### Description of output files
+1. `<output_prefix>_metagene.txt`: A file with one row pre group and per
+region (in the input bed file). The first two columns are the group ID
+and region ID, these are followed by number columns specified in the `n`
+parameter (default: 100). They contain the number of bases aligned to
+a specific bin within a region. This file contains a header line.  
+1. `<output_prefix>_metagene_normalization.txt`: A number of per group
+stats that could be useful for downstream normalization. This file
+contains a header line.  
+
