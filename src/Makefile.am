@@ -1,7 +1,7 @@
 bin_PROGRAMS = add_barcode_to_fastq_name \
                barcode_count \
                bc_coverage \
-               bc_feature_matrix \
+               bc_atac_genomic_features \
                bc_flagstat \
                bc_frag_dist \
                bc_fragment_coverage \
@@ -10,7 +10,7 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
                bc_count_matrix \
                nametag_to_samtag \
                pseudobulk_fragment_coverage \
-               sc_rnaseq_feature_matrix \
+               bc_gex_genomic_features \
                tss_enrichment \
                bc_filter_alignments \
                pseudobulk_fragment_metagene \
@@ -28,7 +28,7 @@ barcode_count_SOURCES = barcode_count.cpp
 
 bc_coverage_SOURCES = bc_coverage.cpp
 
-bc_feature_matrix_SOURCES = bc_feature_matrix.cpp
+bc_atac_genomic_features_SOURCES = bc_atac_genomic_features.cpp
 
 bc_flagstat_SOURCES = bc_flagstat.cpp
 
@@ -46,7 +46,7 @@ nametag_to_samtag_SOURCES = nametag_to_samtag.cpp
 
 pseudobulk_fragment_coverage_SOURCES = pseudobulk_fragment_coverage.cpp
 
-sc_rnaseq_feature_matrix_SOURCES = sc_rnaseq_feature_matrix.cpp
+bc_gex_genomic_features_SOURCES = bc_gex_genomic_features.cpp
 
 tss_enrichment_SOURCES = tss_enrichment.cpp
 
