@@ -55,7 +55,7 @@ print_usage (const string &name) {
   oss << name << " [options]" << endl
       << "\t-a aligned SAM/BAM file [required]" << endl
       << "\t-b barcode list file [required]" << endl
-      << "\t-g gtf file [optional]" << endl
+      << "\t-g gtf file [required]" << endl
       << "\t-t tsr bed file [optional]" << endl
       << "\t-e enhancers bed file [optional]" << endl
       << "\t-o out file prefix [required]" << endl

@@ -14,11 +14,11 @@ the cluster ID and are useful for comparing differences between clusters.
 ## Aligned genomic regions
 In an scRNA-seq experiment we would expect a lot reads aligning to the
 exonic regions and, depending on the protocol, to the intronic regions.
-`sc_rnaseq_feature_matrix` is used to determine the fraction of aligned bases 
+`bc_gex_genomic_features` is used to determine the fraction of aligned bases 
 to different genomic regions at the single cell level:
 
 ```
-sc_rnaseq_feature_matrix -a {sample}.bam -b {barcodes}.tsv 
+bc_gex_genomic_features -a {sample}.bam -b {barcodes}.tsv 
   -g {annotation}.gtf  -u UB -q 30 -F 2308 -o {sample}
 ```
 

@@ -78,11 +78,11 @@ lengths for all cells in a cluster are also plotted:
 ## Aligned genomic regions
 In an ATAC-seq experiment, we would expect a lot reads to aligning to the
 the open chromatin regions that are mostly located in TSS and gene body
-regions. `bc_feature_matrix` is used to determine the fraction reads
+regions. `bc_atac_genomic_features` is used to determine the fraction reads
 aligned to different genomic regions at the single cell level:
 
 ```
-bc_feature_matrix -a {sample}_bc_match.bam -b {sample}_bc_counts.txt 
+bc_atac_genomic_features -a {sample}_bc_match.bam -b {sample}_bc_counts.txt 
   -g annotation.gtf -q 30 -o {sample} [-t tss_m1k.bed]
 ```
 

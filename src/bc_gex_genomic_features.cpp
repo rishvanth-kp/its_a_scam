@@ -48,7 +48,7 @@ print_usage (const string &name) {
       << "\t-u UMI tag in SAM/BAM file [default: \"\"]" << endl
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all the flags are present [default: 0]" << endl
-      << "\t-F only include if none of the flags are present [defauly: 2052]" 
+      << "\t-F only include if none of the flags are present [defauly: 2308]" 
         << endl
       << "\t-v verbose [default: false]" << endl;
   return oss.str();
@@ -69,7 +69,7 @@ main (int argc, char* argv[]) {
 
     size_t min_mapq = 0;
     size_t include_all = 0;
-    size_t include_none = 0x0804;
+    size_t include_none = 0x0904;
 
     bool VERBOSE = false;
 
