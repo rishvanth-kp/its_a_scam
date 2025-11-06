@@ -4,6 +4,7 @@ docs_dir: content
 
 nav:
   - Home: index.md
+  - Installation: installation.md
   - Description of tools:
     - ATAC-seq:
       - Count matrix generation:
