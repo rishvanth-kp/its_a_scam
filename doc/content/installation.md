@@ -39,9 +39,9 @@ the standard system paths (typically `/usr/bin` and `/usr/lib`), and to
 install its_a_scam in a non-standard path:
 
 ```
-../configure --prefix=path_to_install_its_a_scam 
-CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' 
-LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
+../configure --prefix=path_to_install_its_a_scam \
+  CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' \
+  LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 ```
 
 
@@ -57,8 +57,9 @@ to be installed in the standard system paths, use the following:
 the `configure` script should be executed with:
 
 ```
-../configure CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' 
-LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
+../configure \ 
+  CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' \
+  LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 ```
 
 4) To install its_a_scam in a non-standard directory, and if `HTSlib`
