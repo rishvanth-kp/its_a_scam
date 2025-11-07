@@ -113,7 +113,7 @@ main (int argc, char* argv[]) {
       else if (opt == 'q')
         min_mapq = std::stoi(optarg);
       else if (opt == 'f')
-        include_all == std::stoi(optarg);
+        include_all = std::stoi(optarg);
       else if (opt == 'F')
         include_none = std::stoi(optarg);
       else if (opt == 'v')
