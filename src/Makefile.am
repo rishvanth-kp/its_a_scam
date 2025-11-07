@@ -11,7 +11,7 @@ bin_PROGRAMS = add_barcode_to_fastq_name \
                nametag_to_samtag \
                pseudobulk_fragment_coverage \
                bc_gex_genomic_features \
-               tss_enrichment \
+               bc_tss_enrichment \
                bc_filter_alignments \
                pseudobulk_fragment_metagene \
                bam_to_fragments \
@@ -48,7 +48,7 @@ pseudobulk_fragment_coverage_SOURCES = pseudobulk_fragment_coverage.cpp
 
 bc_gex_genomic_features_SOURCES = bc_gex_genomic_features.cpp
 
-tss_enrichment_SOURCES = tss_enrichment.cpp
+bc_tss_enrichment_SOURCES = bc_tss_enrichment.cpp
 
 bc_filter_alignments_SOURCES = bc_filter_alignments.cpp
 
