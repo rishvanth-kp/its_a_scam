@@ -98,7 +98,7 @@ main (int argc, char* argv[]) {
     string bc_file; 
     string out_prefix;
 
-    size_t side_dist = 1000;
+    int side_dist = 1000;
 
     size_t min_frag_len = 1;
     size_t max_frag_len = 1000;
@@ -369,6 +369,20 @@ main (int argc, char* argv[]) {
     std::ofstream out_en(out_prefix + "_tss_enrichmet.txt");
     std::ofstream out_counts(out_prefix + "_tss_raw_counts.txt");
     std::ofstream out_norm(out_prefix + "_tss_norm_factor.txt");
+    
+    // write header
+    out_en << "barcode";
+    out_counts << "barcode";
+    out_norm << "barcode";
+    for (size_t i = 0; i < tss_coverage[i].size(); ++i) {
+      out_en << "\t" << i; 
+      out_counts << "\t" << i; 
+      out_norm << "\t" << i; 
+    }
+    out_en << endl;
+    out_counts << endl;
+    out_norm << endl;
+
     for (size_t i = 0; i < bc_metadata.size(); ++i) {
       out_en << bc_metadata[i];
       out_counts << bc_metadata[i];

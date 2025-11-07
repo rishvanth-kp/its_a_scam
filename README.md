@@ -84,7 +84,7 @@ the standard system paths (typically `/usr/bin` and `/usr/lib`), and to
 install its_a_scam in a non-standard path:
 
 ```
-../configure --prefix path_to_install_its_a_sam 
+../configure --prefix=path_to_install_its_a_scam 
 CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' 
 LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 ```
@@ -110,7 +110,7 @@ LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 and `gcatlib` are in the standard system paths use:
 
 ```
-../configure --prefix installation_path
+../configure --prefix=path_to_install_its_a_scam
 ```
 
 
