@@ -83,7 +83,7 @@ aligned to different genomic regions at the single cell level:
 
 ```
 bc_atac_genomic_features -a {sample}_bc_match.bam -b {sample}_bc_counts.txt 
-  -g annotation.gtf -q 30 -o {sample} [-t tss_m1k.bed]
+  -g annotation.gtf -q 30 -o {sample} [-r tss_m1k.bed]
 ```
 
 We can them use the helper scripts for visualization:

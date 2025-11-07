@@ -58,8 +58,11 @@ print_usage (const string &name) {
       << "\t-b barcode list file [required]" << endl
       << "\t-o out file prefix [required]" << endl
       << "\t-m max fragment length to track [default: 600]" << endl
-      << "\t-d name split delimeter [default: \":\"]" << endl
-      << "\t-c barcode field in name [default: 7 (0 based)]" << endl
+      << "\t-d name split delimeter " 
+          << "[default: \":\"; ignored if -t is provided]" << endl
+      << "\t-c barcode field in name " 
+          << "[default: 7 (0 based); ignored if -t is provided]" << endl
+      << "\t-t barcode tag in SAM/BAM file [default \"\"]" << endl 
       << "\t-q minimum mapping quality to include [default: 0]" << endl
       << "\t-f only include if all the flags are present [default: 3]" << endl
       << "\t-F only include if none of the flags are present [default: 3340]"
@@ -78,6 +81,7 @@ main (int argc, char* argv[]) {
 
     char bc_delim = ':';
     char bc_col = 7;
+    string bc_tag;
 
     size_t max_frag_len = 600;
 
@@ -88,7 +92,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:o:m:d:c:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:o:m:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
@@ -101,6 +105,8 @@ main (int argc, char* argv[]) {
         bc_delim = optarg[0];
       else if (opt == 'c')
         bc_col = std::stoi(optarg);
+      else if (opt == 't')
+        bc_tag = optarg;
       else if (opt == 'q')
         min_mapq = std::stoi(optarg);
       else if (opt == 'f')
@@ -171,11 +177,23 @@ main (int argc, char* argv[]) {
           !SamFlags::is_any_set(entry1.flag, include_none) &&
           !SamFlags::is_any_set(entry2.flag, include_none)) {
 
-        vector<string> tokens;
-        split_string(entry1.qname, tokens, bc_delim);
+
+        
+        // get the cell barcode, either from a tag or the name
+        string cell_bc;
+        if (!bc_tag.empty()) {
+          // read barcode form the tag
+          SamTags::get_tag(entry1.tags, bc_tag, cell_bc);
+        }
+        else {
+          // parse the name to get the bc
+          vector<string> tokens;
+          split_string(entry1.qname, tokens, bc_delim);
+          cell_bc = tokens[bc_col];
+        }
 
         unordered_map<string, size_t>::iterator bc_it;
-        bc_it = bc_index.find(tokens[bc_col]);
+        bc_it = bc_index.find(cell_bc);
         if (bc_it != bc_index.end()) {
 
           size_t entry_bc_index = bc_it->second;
