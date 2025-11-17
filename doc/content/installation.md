@@ -15,12 +15,12 @@ The installation for `gcatlib` is described
 
 Untar the source files using:
 ```
-tar -xf its_a_scam-0.0.1.tar.gz
+tar -xf its_a_scam-x.y.z.tar.gz
 ```
 
 Create a build directory with:
 ```
-cd its_a_scam-0.0.1
+cd its_a_scam-x.y.z
 mkdir build 
 cd build
 ```
