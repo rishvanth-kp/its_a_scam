@@ -13,12 +13,13 @@ creates a SAM filed for it.
 ## Parameters
 ```
 nametag_to_samtag [options]
-	-a aligned SAM/BAM file [required]
-	-o out SAM file [required]
-	-d name split delimeter [default: ":"]
-	-c barcode field in name [default: 7]
-	-t SAM tag to add barcode to [default: CB]
-	-z SAM tag type [default: Z]
+  -a aligned SAM/BAM file [required]
+  -o out SAM file [required]
+  -d name split delimeter [default: ":"]
+  -c barcode field in name [default: 7]
+  -t SAM tag to add barcode to [default: CB]
+  -z SAM tag type [default: Z]
+  -s suffix to add to output barcode [default: \"\"]" << endl;
 ```
 
 `-a`: The input aligned SAM or BAM file. The cell barcode
@@ -41,6 +42,10 @@ two-character string according to the SAM specifications.  [default: CB]
 
 `-z`: The type of the SAM field. `Z` indicates a printable string, and
 is the appropriate type for a cell barcode string. [default: Z].
+
+`-s` Suffix to add to the end of the barcode. This parameter is
+useful to make the barcode format consistent with tools that suffix the
+barcodes with a `-1`. [Default: none].
  
 ## Input and output file description
 ### Description of input files

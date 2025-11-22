@@ -57,7 +57,8 @@ print_usage (const string &name) {
       << "\t-d name split delimeter [default: \":\"]" << endl
       << "\t-c barcode field in name [default: 7]" << endl
       << "\t-t SAM tag to add barcode to [default: CB]" << endl
-      << "\t-z SAM tag type [default: z]" << endl;
+      << "\t-z SAM tag type [default: z]" << endl
+      << "\t-s suffix to add to output barcode [default: \"\"]" << endl;
   return oss.str();
 }
 
@@ -74,8 +75,10 @@ main (int argc, char* argv[]) {
     string bc_tag = "CB";
     char bc_tag_type = 'Z';
   
+    string bc_suffix;
+
     int opt;
-    while ((opt = getopt(argc, argv, "a:o:d:c:t:z")) != -1) {
+    while ((opt = getopt(argc, argv, "a:o:d:c:t:z:s")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'o')
@@ -88,6 +91,8 @@ main (int argc, char* argv[]) {
         bc_tag = optarg;
       else if (opt == 'z')
         bc_tag_type = optarg[0];
+      else if (opt == 's')
+        bc_suffix = optarg;
       else
         throw std::runtime_error(print_usage(argv[0]));
     }
@@ -114,7 +119,7 @@ main (int argc, char* argv[]) {
       vector<string> qname_tokens;
       split_string(e.qname, qname_tokens, bc_delim);
       string new_tag = bc_tag + ":" + bc_tag_type + ":" + 
-        qname_tokens[bc_col];
+        qname_tokens[bc_col] + bc_suffix;
 
       e.tags.push_back(new_tag); 
 
