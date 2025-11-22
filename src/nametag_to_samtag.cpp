@@ -78,7 +78,7 @@ main (int argc, char* argv[]) {
     string bc_suffix;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:o:d:c:t:z:s")) != -1) {
+    while ((opt = getopt(argc, argv, "a:o:d:c:t:z:s:")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'o')
