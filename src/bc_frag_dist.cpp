@@ -232,16 +232,21 @@ main (int argc, char* argv[]) {
 
     // write the per barcode fragment length distribution
     std::ofstream bc_out(out_prefix + "_bc_frag_len.txt");
+    std::ofstream bc_raw_out(out_prefix + "_bc_raw_frag_len.txt");
     // write header line
     bc_out << "barcode";
+    bc_raw_out << "barcode";
     for (size_t i = 1; i <= max_frag_len; ++i) {
       bc_out << "\t" << i;
+      bc_raw_out << "\t" << i;
     }
     bc_out << endl;
+    bc_raw_out << endl;
 
     // write frag len matrix
     for (auto it = bc_index.begin(); it != bc_index.end(); ++it) {
       bc_out << it->first;
+      bc_raw_out << it->first;
       size_t bc_frag_count = 0;
       // get the total number of fragemnts for the barcode for normalization
       for (size_t j = 0; j < max_frag_len; ++j) {
@@ -251,10 +256,13 @@ main (int argc, char* argv[]) {
       for (size_t j = 0; j < max_frag_len; ++j) {
         bc_out << "\t" << static_cast<float>(bc_frag_dist[it->second][j]) /
                           static_cast<float>(bc_frag_count);
+        bc_raw_out << "\t" << bc_frag_dist[it->second][j];
       }
       bc_out << endl;
+      bc_raw_out << endl;
     }
     bc_out.close();
+    bc_raw_out.close();
 
     // write the sample fragment length distribution
     std::ofstream sample_out(out_prefix + "_sample_frag_len.txt");

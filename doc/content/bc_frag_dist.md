@@ -84,7 +84,9 @@ of the are fragment lengths. Each row contains the fragment length
 distribution of a cell. The distribution is normalized by the total
 number of fragments per cell. This file contains a header
 line. 
-2. `<output_prefix_sample_frag_len.txt>`: Sample level fragment length
+2. `<output_prefix_bc_raw_frag_len.txt>`: Similar to the above, but the
+fragment counts are not normalized. 
+3. `<output_prefix_sample_frag_len.txt>`: Sample level fragment length
 distribution. The bulk fragment length distribution of all cells (that are
 included in the cell barcode TSV file). This is a 3 column TSV file
 (with the header). The first column contains the fragment length, the
