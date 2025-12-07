@@ -117,8 +117,8 @@ main (int argc, char* argv[]) {
     string bc_tag;
 
     size_t min_mapq = 0;
-    uint16_t include_all = 0x0003;
-    uint16_t include_none = 0x0D0C;
+    size_t include_all = 0x0003;
+    size_t include_none = 0x0D0C;
 
     bool VERBOSE = false;
 

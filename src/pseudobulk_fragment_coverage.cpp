@@ -22,6 +22,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <cstdint>
 #include <unistd.h>
 #include <unordered_map>
 
@@ -99,7 +100,7 @@ main (int argc, char* argv[]) {
     size_t max_frag_len = 1024;
 
     char bc_delim = ':';
-    uint8_t bc_col = 7;
+    size_t bc_col = 7;
     string bc_tag;
 
     size_t min_mapq = 0;

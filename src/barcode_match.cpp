@@ -82,7 +82,7 @@ inplace_rev_comp (string &s) {
 
 static void
 process_sam_file (const string &in_file, const string &out_file,
-                  const char bc_delim, const uint8_t bc_col,
+                  const char bc_delim, const size_t bc_col,
                   const string bc_tag, const string bc_suffix,
                   const unordered_map<string, string> &bc_match,
                   const bool VERBOSE = false) {
@@ -173,7 +173,7 @@ process_sam_file (const string &in_file, const string &out_file,
 
 static void
 process_delimated_file (const string &in_file, const string &out_file,
-                        const char bc_delim, const uint8_t bc_col,
+                        const char bc_delim, const size_t bc_col,
                         const string bc_suffix,
                         const unordered_map<string, string> &bc_match,
                         const bool VERBOSE = false) {
@@ -252,7 +252,7 @@ main (int argc, char* argv[]) {
     bool whitelist_rc = false;
 
     char bc_delim = ':';
-    uint8_t bc_col = 7;
+    size_t bc_col = 7;
     string bc_tag;
 
     string bc_suffix;

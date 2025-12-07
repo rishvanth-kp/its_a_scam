@@ -83,7 +83,7 @@ main (int argc, char* argv[]) {
     int shift_right = -5;
 
     char bc_delim = ':';
-    uint8_t bc_col = 7; 
+    size_t bc_col = 7; 
     string bc_tag;
 
     size_t min_mapq = 0;

@@ -217,8 +217,8 @@ main (int argc, char* argv[]) {
 
     string bc_tag = "CB";
 
-    uint16_t include_all = 0;
-    uint16_t include_none = 0x804;
+    size_t include_all = 0;
+    size_t include_none = 0x804;
 
     bool VERBOSE = false;
 
