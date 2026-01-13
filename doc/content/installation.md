@@ -99,12 +99,12 @@ This will copy all the programs into `installation_path/bin`.
 ## Testing
 
 The installation can be tested by running any executable. On successful
-installation the you will an output describing the program's arguments. 
+installation the you will have an output describing the program's arguments. 
 
 If you get the following error message 
 `error while loading shared libraries: libhts.so.3: cannot open shared object file: No such file or directory `, 
 it likely means that `HTSlib` is in a non-standard path and that is not
-know to the program. This can be fixed adding the path to
+known to the program. This can be fixed adding the path to
 `LD_LIBRARY_PATH` environment variables:
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path_to_htslib/lib/

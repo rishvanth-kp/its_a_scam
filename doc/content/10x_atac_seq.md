@@ -10,7 +10,7 @@ The key steps in the analysis of scATAC-seq data are:
 
 1. Aligning the reads to the reference genome in a way that the cell barcode 
 information is preserved.
-2. Removal of PCR duplicated taking into account the cell barcode
+2. Removal of PCR duplicates taking into account the cell barcode
 information. 
 3. Counting the number of fragments per cell.
 4. Filter out unwanted alignments from the BAM file. 
@@ -28,8 +28,8 @@ Each of these steps are described in detail below.
 ## Analysis of 10x ATAC-seq datasets
 ### Reference genome preparation
 Reference genomes can be downloaded from the UCSC genome browser or
-Gencode. Be sure to down the right version of the reference genome and
-to keep the reference genome version consistent across all analysis.
+Gencode. Be sure to download the right version of the reference genome
+and to keep the reference genome version consistent across all analysis.
 
 [`BWA`](https://github.com/lh3/bwa), the program used to align reads to
 the reference genome, requires the genome to be pre-processed once
@@ -66,7 +66,7 @@ alignment.
 The cell barcode can be appended to the paired-end FASTQ files using the
 program `add_barcode_to_fastq_name`. Unfortunately, gzipped fastq files
 are not supported at the moment. The fastq files need to be
-decompressed, add the cell barcode, and re-compressed again (his
+decompressed, add the cell barcode, and re-compressed again (this
 limitation will the fixed soon):
 
 ```
@@ -81,11 +81,11 @@ rm read_1.fastq read_2.fastq read_I.fastq
 ```
 
 ### Align the reads to the reference genome
-The reads are aligned to the reference genome using `bwa`. The input to
+The reads are aligned to the reference genome using `bwa`. The inputs to
 BWA are the pre-built pre-built reference genome index and the fastq
 files. 
 
-The input reads usually contain primer and adapter sequence form the
+The input reads usually contain primer and adapter sequences form the
 library preparation. `bwa` performs a local alignment on the reads and
 soft clips any of these unwanted technical bases that would not align to
 the reference genome. Therefore, it is not required to explicitly trim the
@@ -135,7 +135,7 @@ https://www.htslib.org/algorithms/duplicate.html).
 For single-cell sequencing experiments, two fragments from different
 cells could align to the same reference genome location (and so meet the
 above criteria for being a PCR duplicate). However, these should
-not be considered as a PCR duplicates since the fragment belongs to
+not be considered as PCR duplicates since the fragment belongs to
 different cells. Therefore for removing PCR duplicates in single-cell
 data, an additional criteria of read pairs having distinct cell barcodes
 is applied.  
@@ -194,7 +194,7 @@ samtools view -@ {threads} -o sample_bc_match.bam sample_bc_match.sam
 
 Only the cell barcodes that are contained in the provided barcode files
 are included in the output. A cell barcode might not be contained in the
-barcode file do to a sequencing error in the barcode. It is possible to
+barcode file due to a sequencing error in the barcode. It is possible to
 error correct the barcode prior to this step, which would increase the
 number of fragments per cell. However, from experience, the advantage
 gained from this step is minimal and so we have not included cell
@@ -298,12 +298,12 @@ samtools  view -@ {threads} -o sample_bc_filtered.bam sample_bc_filtered.sam
 Where `{input}.bam` file is `sample_makrdup.bam` for 10x ATAC-seq
 protocol or the `sample_bc_match.bam` for the 10x multiome protocol.
 
-This will generate a new bam file that have just the alignments that
+This will generate a new bam file that has just the alignments that
 belong to cells contained in `sample_bc_counts.txt`. 
  
 
 ### Peak calling
-Peak calling then be done using standard tools such as [MACS](
+Peak calling can then be done using standard tools such as [MACS](
 https://macs3-project.github.io/MACS/docs/callpeak.html). The input
 to the peak calling program would be the bam file generated in the
 above step. Peak callers generally produce a list of peaks in bed

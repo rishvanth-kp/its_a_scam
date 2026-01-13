@@ -15,7 +15,7 @@ single cell data analysis.
 
 its_a_scam is built of top on `gcatlib` and `HTSlib`, and provides tools
 for wide range of single cell data processing and quality control.  It's
-a scam can be used in conjugation with commonly used open source tools
+a scam can be used in conjunction with commonly used open source tools
 to build entire single cell analysis pipelines. 
 
 ## Getting started
