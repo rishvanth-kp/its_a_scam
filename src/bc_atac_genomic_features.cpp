@@ -59,6 +59,8 @@ print_usage (const string &name) {
       << "\t-r tsr bed file [optional]" << endl
       << "\t-e enhancers bed file [optional]" << endl
       << "\t-o out file prefix [required]" << endl
+      << "\t-s Number of bases to shift left [default: 4]" << endl
+      << "\t-S Number of bases to shift right [default: -5]" << endl
       << "\t-m min fragment length [default: 0]" << endl
       << "\t-M max fragment length [default: inf]" << endl
       << "\t-d name split delimeter " 
@@ -92,6 +94,9 @@ main (int argc, char* argv[]) {
 
     size_t min_frag_len = 0;
     size_t max_frag_len = std::numeric_limits<size_t>::max();
+    
+    int shift_left = 4;
+    int shift_right = -5;
 
     size_t min_mapq = 0;
     size_t include_all = 0x0003;
@@ -100,7 +105,7 @@ main (int argc, char* argv[]) {
     bool VERBOSE = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "a:b:g:r:e:o:m:M:d:c:t:q:f:F:v")) != -1) {
+    while ((opt = getopt(argc, argv, "a:b:g:r:e:o:m:M:s:S:d:c:t:q:f:F:v")) != -1) {
       if (opt == 'a')
         aln_file = optarg;
       else if (opt == 'b')
@@ -117,6 +122,10 @@ main (int argc, char* argv[]) {
         min_frag_len = std::stoi(optarg);
       else if (opt == 'M')
         max_frag_len = std::stoi(optarg);
+      else if (opt == 's')
+        shift_left = std::stof(optarg);
+      else if (opt == 'S')
+        shift_right = std::stof(optarg);
       else if (opt == 'd')
         bc_delim = optarg[0];
       else if (opt == 'c')
@@ -162,6 +171,10 @@ main (int argc, char* argv[]) {
     // set fragment lengths
     aligned_feature.set_min_frag_len(min_frag_len);
     aligned_feature.set_max_frag_len(max_frag_len);
+
+    // set the shifts for atac seq
+    aligned_feature.set_shift_left(shift_left); 
+    aligned_feature.set_shift_right(shift_right); 
 
     // process alignments
     if (VERBOSE)
