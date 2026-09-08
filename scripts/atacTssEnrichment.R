@@ -18,6 +18,7 @@ suppressMessages(library("viridis"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
+suppressMessages(library("RColorBrewer"))
 
 main <- function() {
 
@@ -67,7 +68,7 @@ main <- function() {
     labs(x = "TSS enrichment score", y = "Number of cells",
          title = sprintf("%s", opt$outPrefix)) +
     theme_bw()
-  ggsave(sprintf("%s_bc_ess.pdf", opt$outPrefix), 
+  ggsave(sprintf("%s_bc_tss.pdf", opt$outPrefix), 
     height = 5, width = 5)
 
 
@@ -99,22 +100,28 @@ main <- function() {
     # plot with cluster annotation
     col.breaks <- seq(quantile(tss.plot, 0.01),
       quantile(tss.plot, 0.99), length.out=101)
+  
+    cluster.col <- brewer.pal(length(unique(id$cluster)), "Set1")
+    names(cluster.col) <- levels(id$cluster)
+    cluster.col <- list(cluster = cluster.col)
+
 
     pdf(sprintf("%s_cluster_tss_enrichment.pdf", opt$outPrefix), 
       height = 6, width = 8)
     pheatmap(tss.plot[order(tss.ess$ess, decreasing = TRUE),], 
       cluster_cols = FALSE, cluster_rows = FALSE, annotation_row = anno, 
+      annotation_color = cluster.col,
       show_rownames = FALSE, show_colnames = FALSE,
       color = viridis(101), breaks = col.breaks)
     dev.off()
 
     # plot the TSS enrichment score 
     ggplot(data = tss.ess) +
-      geom_boxplot(mapping = aes(x = cluster, y = ess)) +
+      geom_boxplot(mapping = aes(x = cluster, y = ess), outlier.size = 0.25) +
       labs(x = "Cluster", y = "TSS enrichment score",
            title = sprintf("%s", opt$outPrefix)) +
       theme_bw()
-    ggsave(sprintf("%s_cluster_ess.pdf", opt$outPrefix), 
+    ggsave(sprintf("%s_cluster_tss.pdf", opt$outPrefix), 
       height = 4, width = 6)
  
   }

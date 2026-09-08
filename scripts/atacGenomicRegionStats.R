@@ -77,7 +77,7 @@ main <- function() {
  
     # plot 
     ggplot(data = counts) + 
-      geom_boxplot(mapping = aes(x = cluster, y = value), outlier.size = 0.5) +
+      geom_boxplot(mapping = aes(x = cluster, y = value), outliers = FALSE) +
       facet_wrap(vars(region), scales = "free_y") +
       labs(x = "Cluster", y = "Percent of reads",
            title = sprintf("%s", opt$outPrefix)) +
@@ -118,7 +118,7 @@ main <- function() {
  
     # plot 
     ggplot(data = frag.len) + 
-      geom_boxplot(mapping = aes(x = cluster, y = value), outlier.size = 0.5) +
+      geom_boxplot(mapping = aes(x = cluster, y = value), outliers = FALSE) +
       facet_wrap(vars(region), scales = "free_y") +
       labs(x = "Cluster", y = "Mean fragment length",
            title = sprintf("%s", opt$outPrefix)) +

@@ -18,6 +18,7 @@ suppressMessages(library("viridis"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
+suppressMessages(library("RColorBrewer"))
 
 main <- function() {
 
@@ -87,6 +88,36 @@ main <- function() {
     # keep only the needed fragment lenghts 
     fl.len <- fl %>%
       select(barcode, seq(opt$minFraglen, opt$maxFraglen))
+
+
+    ## summary plot
+    fl.cluster <- fl.len %>% 
+      left_join(id) %>% 
+      select(barcode, cluster, everything())
+    print(fl.cluster) 
+
+    fl.summary <- fl.cluster %>% 
+      group_by(cluster) %>% 
+      summarise(across(where(is.numeric), mean)) %>% 
+      ungroup() 
+  
+    fl.summary <- fl.summary %>% 
+      pivot_longer(!cluster, names_to="frag.len", values_to = "count")
+
+    cluster.col <- brewer.pal(length(unique(id$cluster)), "Set1")
+    names(cluster.col) <- levels(id$cluster)
+
+    ## plot cluster summary
+    ggplot(data = fl.summary) + 
+      geom_line(mapping = aes(x = as.numeric(frag.len), y = count, 
+        group = cluster, color = cluster)) +
+      labs(x = "Fragment length", y = "Normalized fragment count",
+        title = sprintf("%s", opt$outPrefix)) +
+      scale_colour_manual(values = cluster.col) +
+      theme_bw()
+    ggsave(sprintf("%s_cluster_frag_len_summary.pdf", opt$outPrefix), 
+      height = 5, width = 5)
+
  
     # format for plotting
     fl.len <- column_to_rownames(fl.len, var = "barcode")
@@ -95,11 +126,12 @@ main <- function() {
     rownames(anno) <- id$barcode
 
     # plot with cluster annotation
+    cluster.col <- list(cluster = cluster.col)
     pdf(sprintf("%s_cluster_frag_len.pdf", opt$outPrefix), 
       height = 6, width = 8)
     pheatmap(fl.len, cluster_cols = FALSE, annotation_row = anno, 
       show_rownames = FALSE, show_colnames = FALSE,
-      color = viridis(100))
+      annotation_color = cluster.col, color = viridis(100))
     dev.off() 
   }
  

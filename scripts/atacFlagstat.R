@@ -46,39 +46,22 @@ main <- function() {
   fstat.norm$properly_paired <- fstat$properly_paired / fstat$primary
 
 
-  ## Plots
-  ggplot(data = fstat.norm) +
-    geom_histogram(mapping = aes(primary), binwidth = 0.01) +
-    scale_x_log10() +
-    labs(x = "Number of primary alignments", y = "Number of cells",
-         title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
-  ggsave(sprintf("%s_primary_alignments.pdf", opt$outPrefix), 
-    height = 5, width = 5)
 
+  # format data
+  fstat.norm <- fstat.norm %>%
+    # select(!primary) %>% 
+    pivot_longer(!barcode, names_to = "type", values_to = "value")
+  
+  # plot sample level stats  
   ggplot(data = fstat.norm) +
-    geom_histogram(mapping = aes(primary_duplicates), binwidth = 0.01) +
-    labs(x = "Fraction of PCR duplicates", y = "Number of cells",
+    geom_histogram(mapping = aes(value), bins = 100) +
+    facet_wrap(vars(type), scales = "free") +
+    labs(x = "Number/Fraction of primary alignments", 
+         y = "Number of cells",
          title = sprintf("%s", opt$outPrefix)) +
     theme_bw()
-  ggsave(sprintf("%s_pcr_duplicates.pdf", opt$outPrefix), 
-    height = 5, width = 5)
-
-  ggplot(data = fstat.norm) +
-    geom_histogram(mapping = aes(primary_mapped), binwidth = 0.01) +
-    labs(x = "Fraction of primary mapped alignments", y = "Number of cells",
-         title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
-  ggsave(sprintf("%s_mapped.pdf", opt$outPrefix), 
-    height = 5, width = 5)
-
-  ggplot(data = fstat.norm) +
-    geom_histogram(mapping = aes(properly_paired), binwidth = 0.01) +
-    labs(x = "Fraction of properly paired alignments", y = "Number of cells",
-         title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
-  ggsave(sprintf("%s_proper_pair.pdf", opt$outPrefix), 
-    height = 5, width = 5)
+  ggsave(sprintf("%s_sample_flagstat.pdf", opt$outPrefix), 
+    height = 4, width = 6)
 
 
   ## if the cluster id file is provided, make cluster-wise plots
@@ -91,17 +74,15 @@ main <- function() {
     # keep only the cells that have a cluster ID
     fstat.norm <- fstat.norm[fstat.norm$barcode %in% id$barcode, ]
     
-    # format and join the cluster IDs
+    # join the cluster IDs
     fstat.norm <- fstat.norm %>%
-      select(!primary) %>% 
-      pivot_longer(!barcode, names_to = "type", values_to = "value") %>%
       left_join(id)
 
-    # plot
+    # plot cluster level stats
     ggplot(data = fstat.norm) +
-      geom_boxplot(mapping = aes(x = cluster, y = value)) +
+      geom_boxplot(mapping = aes(x = cluster, y = value), outliers = FALSE) +
       facet_wrap(vars(type), scales = "free_y") +
-      labs(x = "Cluster", y = "Fraction of primary alignments",
+      labs(x = "Cluster", y = "Number/Fraction of primary alignments",
            title = sprintf("%s", opt$outPrefix)) +
       theme_bw()
     ggsave(sprintf("%s_cluster_flagstat.pdf", opt$outPrefix), 
