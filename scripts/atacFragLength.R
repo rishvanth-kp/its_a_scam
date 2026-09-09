@@ -15,6 +15,7 @@
 # General Public License for more details.
 
 suppressMessages(library("viridis"))
+suppressMessages(library("cowplot"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
@@ -52,7 +53,7 @@ main <- function() {
     geom_line(mapping = aes(x = frag_len, y = norm_count)) +
     labs(x = "Fragment length", y = "Normalized fragment count",
          title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
+    theme_cowplot(10)
   ggsave(sprintf("%s_sample_frag_len.pdf", opt$outPrefix), 
     height = 5, width = 5)
     
@@ -114,7 +115,7 @@ main <- function() {
       labs(x = "Fragment length", y = "Normalized fragment count",
         title = sprintf("%s", opt$outPrefix)) +
       scale_colour_manual(values = cluster.col) +
-      theme_bw()
+      theme_cowplot(10)
     ggsave(sprintf("%s_cluster_frag_len_summary.pdf", opt$outPrefix), 
       height = 5, width = 5)
 

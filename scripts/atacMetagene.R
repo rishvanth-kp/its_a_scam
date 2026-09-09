@@ -17,6 +17,7 @@
 suppressMessages(library("tidyverse"))
 suppressMessages(library("optparse"))
 suppressMessages(library("cowplot"))
+suppressMessages(library("RColorBrewer"))
 
 main <- function() {
   
@@ -71,13 +72,17 @@ main <- function() {
     ungroup() %>%
     pivot_longer(cols = !c("group"), names_to = "pct", values_to = "count" )
   
+  color.keys = brewer.pal(length(unique(metagene.mean$group)), "Set1")
+  names(color.keys) = levels(metagene.mean$group)
+  
   metagene.mean$group <- as.factor(metagene.mean$group)
   ## plot the merged metagene 
   ggplot(metagene.mean, aes(x = as.numeric(pct), y = as.numeric(count), 
       color = group)) + 
     geom_line(linewidth=0.5) + 
     labs(x = "Genomic position", y = "Bases per million") + 
-    theme_bw()
+    scale_color_manual(values = color.keys) +
+    theme_cowplot(10)
   ggsave(sprintf("%s_metagene.pdf", opt$outPrefix), height = 4, width = 5)
 
 

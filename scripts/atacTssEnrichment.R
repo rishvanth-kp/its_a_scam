@@ -15,6 +15,7 @@
 # General Public License for more details.
 
 suppressMessages(library("viridis"))
+suppressMessages(library("cowplot"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
@@ -67,7 +68,7 @@ main <- function() {
     geom_histogram(mapping = aes(ess), binwidth = 0.01) +
     labs(x = "TSS enrichment score", y = "Number of cells",
          title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
+    theme_cowplot(10)
   ggsave(sprintf("%s_bc_tss.pdf", opt$outPrefix), 
     height = 5, width = 5)
 
@@ -120,7 +121,7 @@ main <- function() {
       geom_boxplot(mapping = aes(x = cluster, y = ess), outlier.size = 0.25) +
       labs(x = "Cluster", y = "TSS enrichment score",
            title = sprintf("%s", opt$outPrefix)) +
-      theme_bw()
+      theme_cowplot(10)
     ggsave(sprintf("%s_cluster_tss.pdf", opt$outPrefix), 
       height = 4, width = 6)
  

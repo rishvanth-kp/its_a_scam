@@ -14,8 +14,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 
-suppressMessages(library("optparse"))
 suppressMessages(library("tidyverse"))
+suppressMessages(library("optparse"))
+suppressMessages(library("cowplot"))
 
 main <- function() {
 
@@ -59,7 +60,7 @@ main <- function() {
     labs(x = "Number/Fraction of primary alignments", 
          y = "Number of cells",
          title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
+    theme_cowplot(10)
   ggsave(sprintf("%s_sample_flagstat.pdf", opt$outPrefix), 
     height = 4, width = 6)
 
@@ -84,7 +85,7 @@ main <- function() {
       facet_wrap(vars(type), scales = "free_y") +
       labs(x = "Cluster", y = "Number/Fraction of primary alignments",
            title = sprintf("%s", opt$outPrefix)) +
-      theme_bw()
+      theme_cowplot(10)
     ggsave(sprintf("%s_cluster_flagstat.pdf", opt$outPrefix), 
       height = 4, width = 6)
   
