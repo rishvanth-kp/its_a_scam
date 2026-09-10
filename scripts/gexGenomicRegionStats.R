@@ -14,8 +14,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 
-suppressMessages(library("optparse"))
 suppressMessages(library("tidyverse"))
+suppressMessages(library("optparse"))
+suppressMessages(library("cowplot"))
 
 main <- function() {
 
@@ -57,7 +58,7 @@ main <- function() {
     geom_boxplot(mapping = aes(x = region, y = value), outlier.size = 0.5) +
     labs(x = "Genomic Region", y = "Percent of bases",
          title = sprintf("%s", opt$outPrefix)) +
-    theme_bw()
+    theme_cowplot(10)
   ggsave(sprintf("%s_gex_feature_counts.pdf", opt$outPrefix), 
     height = 4, width = 6)
 
@@ -81,7 +82,7 @@ main <- function() {
       facet_wrap(vars(region), scales = "free_y") +
       labs(x = "Cluster", y = "Percent of bases",
            title = sprintf("%s", opt$outPrefix)) +
-      theme_bw()
+      theme_cowplot(10)
     ggsave(sprintf("%s_cluster_gex_feature_counts.pdf", opt$outPrefix), 
       height = 4, width = 6)
   }

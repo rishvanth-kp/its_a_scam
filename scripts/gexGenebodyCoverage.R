@@ -15,9 +15,11 @@
 # General Public License for more details.
 
 suppressMessages(library("viridis"))
+suppressMessages(library("cowplot"))
 suppressMessages(library("optparse"))
 suppressMessages(library("pheatmap"))
 suppressMessages(library("tidyverse"))
+suppressMessages(library("RColorBrewer"))
 
 main <- function() {
 
@@ -65,6 +67,36 @@ main <- function() {
     # keep only the cells that have a cluster ID
     gb <- gb[gb$barcode %in% id$barcode, ]
   
+    # plot summary over all cells in a cluster
+    gb.cluster <- gb %>% 
+      left_join(id) %>% 
+      select(barcode, cluster, everything())
+
+    gb.summary <- gb.cluster %>% 
+      group_by(cluster) %>% 
+      summarise(across(where(is.numeric), sum)) %>% 
+      ungroup() 
+  
+    gb.summary[, 2:ncol(gb.summary)] <- 
+      (gb.summary[, 2:ncol(gb.summary)] / rowSums(gb.summary[, 2:ncol(gb.summary)])) * 100
+
+    gb.summary <- gb.summary %>% 
+      pivot_longer(!cluster, names_to="gene.body", values_to = "count")
+
+    cluster.col <- brewer.pal(length(unique(id$cluster)), "Set1")
+    names(cluster.col) <- levels(id$cluster)
+
+
+    ## plot cluster summary
+    ggplot(data = gb.summary) + 
+      geom_line(mapping = aes(x = as.numeric(gene.body), y = count, 
+        group = cluster, color = cluster)) +
+      labs(x = "Gene body (5' - 3')", y = "Fraction of reads",
+        title = sprintf("%s", opt$outPrefix)) +
+      scale_colour_manual(values = cluster.col) +
+      theme_cowplot(10)
+    ggsave(sprintf("%s_cluster_genebody_cov_summary.pdf", opt$outPrefix), 
+      height = 5, width = 5)
  
     # format for plotting
     gb <- column_to_rownames(gb, var = "barcode")
@@ -74,9 +106,11 @@ main <- function() {
     rownames(anno) <- id$barcode
 
     # plot with cluster annotation
+    cluster.col <- list(cluster = cluster.col)
     pdf(sprintf("%s_cluster_genebody_cov.pdf", opt$outPrefix), 
       height = 6, width = 8)
-    pheatmap(gb, cluster_cols = FALSE, annotation_row = anno, 
+    pheatmap(gb, cluster_cols = FALSE, annotation_row = anno,
+      annotation_color = cluster.col,  border_color = NA, 
       show_rownames = FALSE, show_colnames = FALSE,
       color = viridis(100))
     dev.off() 
