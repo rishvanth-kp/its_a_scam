@@ -4,38 +4,37 @@
 **A**nalysis **M**ethod (It's a scam) is a collection of programs to
 pre-process and quality control single cell data.
 
-The era of designing bioinformatic pipelines using open source
+The era of designing bioinformatic pipelines using open-source
 tools is giving way to monolithic, and often proprietary, tools designed
 for end-to-end analysis. While these tools can be convenient for going
 from sequencing data to an almost complete data analysis "in a few
-clicks", they are severely limiting to perform any custom analysis. We
+clicks", they severely limit any custom analysis. We
 developed its_a_scam for processing and quality control of single cell
 genomic data, freeing users from the reliance on proprietary tools for
 single cell data analysis.
 
-its_a_scam is built of top on `gcatlib` and `HTSlib`, and provides tools
-for wide range of single cell data processing and quality control.  It's
-a scam can be used in conjugation with commonly used open source tools
-to build entire single cell analysis pipelines. 
+its_a_scam is built on top of `gcatlib` and `HTSlib`, and provides tools
+for a wide range of single cell data processing and quality control.  It's
+a scam can be used in conjunction with commonly used open-source tools
+to build entire single cell analysis pipelines.
 
 ## Documentation
-The documentation of its_a_scam and a detailed description of analysis
-procedure are at <https://its-a-scam.readthedocs.io/>
+The documentation of its_a_scam and detailed descriptions of the analysis
+procedures are at <https://its-a-scam.readthedocs.io/>.
 
 ## Getting started
 After installation, its_a_scam can be used for scRNA-seq and scATAC-seq
-count matrix generation and quality control. Refer to following
+count matrix generation and quality control. Refer to the following
 documents to get started:
 
 1. [10x scATAC-seq count matrix generation](
 https://its-a-scam.readthedocs.io/en/latest/10x_atac_seq/).
 
-1. scRNA-seq count matrix generation: There are several well
-designed tools already available for this task. We describe the procedure 
+1. scRNA-seq count matrix generation: There are several well-designed
+tools already available for this task. We describe the procedure
 to get started with using STARsolo for [10x data](
 https://its-a-scam.readthedocs.io/en/latest/10x_gex/) and for
-[Parse data](https://its-a-scam.readthedocs.io/en/latest/10x_gex/) for
-Parse data.
+[Parse data](https://its-a-scam.readthedocs.io/en/latest/parse_wt/).
 
 1. [scATAC-seq quality control](
 https://its-a-scam.readthedocs.io/en/latest/10x_atac_seq_qc/).
@@ -45,17 +44,17 @@ https://its-a-scam.readthedocs.io/en/latest/sc_gex_qc/).
 
 ## Installation
 
-##### Preparation
-It's a scam is dependent on `HTSlib` and `gcatlib`. `HTSlib` can be
-downloaded from [here](https://www.htslib.org/download/) and 
-can be installed by following the procedure under 
-'Basic Installation' described 
-[here](https://github.com/samtools/htslib/blob/develop/INSTALL)
+### Preparation
+It's a scam depends on `HTSlib` and `gcatlib`. `HTSlib` can be
+downloaded from [here](https://www.htslib.org/download/) and
+can be installed by following the procedure under
+'Basic Installation' described
+[here](https://github.com/samtools/htslib/blob/develop/INSTALL).
 
-The installation for `gcatlib` is described 
-[here](https://github.com/rishvanth-kp/gcatlib). 
+The installation for `gcatlib` is described
+[here](https://github.com/rishvanth-kp/gcatlib).
 
-`its_a_scam` can be obtained from 
+`its_a_scam` can be obtained from
 [here](https://github.com/rishvanth-kp/its_a_scam/releases).
 
 Untar the source files using:
@@ -66,22 +65,23 @@ tar -xf its_a_scam-x.y.z.tar.gz
 Create a build directory with:
 ```
 cd its_a_scam-x.y.z
-mkdir build 
+mkdir build
 cd build
 ```
 
-##### Configure
+### Configure
 
 `its_a_scam` is installed using the `autotools` build system.  The first
 step is to run a configuration script to generate the required
 Makefiles. The parameters to `configure` will vary based on where the
 dependent libraries are installed, and where we would like `its_a_scam`
-to be installed. 
+to be installed.
 
 
 1) The most likely scenario, where `HTSlib` and `gcatlib` are not in the
-the standard system paths (typically `/usr/bin` and `/usr/lib`), and to
-install its_a_scam in a non-standard path:
+standard system paths (typically `/usr/include` and `/usr/lib`, or
+`/usr/local/include` and `/usr/local/lib`), and to install its_a_scam in
+a non-standard path:
 
 ```
 ../configure --prefix=path_to_install_its_a_scam \
@@ -91,8 +91,9 @@ install its_a_scam in a non-standard path:
 
 
 2) If `HTSlib` and `gcatlib` are installed in the standard system paths
-(typically `/usr/bin` and `/usr/lib`), and if we would like `its_a_scam`
-to be installed in the standard system paths, use the following: 
+(typically `/usr/include` and `/usr/lib`, or `/usr/local/include` and
+`/usr/local/lib`), and if we would like `its_a_scam` to be installed in
+the standard system paths, use the following:
 
 ```
 ../configure
@@ -102,7 +103,7 @@ to be installed in the standard system paths, use the following:
 the `configure` script should be executed with:
 
 ```
-../configure \ 
+../configure \
   CPPFLAGS='-I/path_to_htslib/include -I/path_to_gcatlib/include' \
   LDFLAGS='-L/path_to_htslib/lib -L/path_to_gcatlib/lib'
 ```
@@ -116,50 +117,52 @@ and `gcatlib` are in the standard system paths use:
 
 
 Of note, if you have cloned the Git repo, it does not include the
-`configure` script. This can be generated by executing:
+`configure` script. This can be generated by executing the following in
+the top-level `its_a_scam` directory (not in `build`):
 ```
 autoreconf -i
 ```
 After which the configuration can proceed as usual.
 
 
-##### Build
+### Build
 
 The configuration is now complete and the build system is ready to
 compile all the programs with:
 ```
 make [-j threads]
 ```
-This will generate the programs into the `build` directory.
+This will generate the programs in the `build/src` directory.
 
-##### Install (optional)
+### Install (optional)
 
 Finally (optionally), install its_a_scam with:
 ```
 make install
 ```
-This will copy all the programs into `installation_path/bin`.
+This will copy all the programs into `path_to_install_its_a_scam/bin`
+(or `/usr/local/bin` if `--prefix` was not given).
 
 
-##### Testing
+### Testing
 
 The installation can be tested by running any executable. On successful
-installation the you will an output describing the program's arguments. 
+installation, you will see an output describing the program's arguments.
 
-If you get the following error message 
-`error while loading shared libraries: libhts.so.3: cannot open shared object file: No such file or directory `, 
+If you get the following error message
+`error while loading shared libraries: libhts.so.3: cannot open shared object file: No such file or directory`,
 it likely means that `HTSlib` is in a non-standard path and that is not
-know to the program. This can be fixed adding the path to
-`LD_LIBRARY_PATH` environment variables:
+known to the program. This can be fixed by adding the path to the
+`LD_LIBRARY_PATH` environment variable:
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path_to_htslib/lib/
 ```
 
 
 ## Contact
-Rishvanth Prabakar: kaliapp@cshl.edu. Please let me know any issues,
+Rishvanth Prabakar: kaliapp@cshl.edu. Please let me know of any issues,
 feedback, or ways to improve this tool. If you would like any other
-metrics or programs added in, please let me know those as well. 
+metrics or programs added in, please let me know those as well.
 
 ## Copyright and License Information
 Copyright (C) 2025 Rishvanth Prabakar
