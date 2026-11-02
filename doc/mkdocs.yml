@@ -35,7 +35,7 @@ nav:
       - 10x GEX: 10x_gex.md
       - 10x ATAC-seq: 10x_atac_seq.md
       - 10x ATAC-seq quick start: 10x_atac_seq_quick_start.md
-      - Parse Bioscience WT: parse_wt.md
+      - Parse Biosciences WT: parse_wt.md
     - Quality control:
       - scATAC-seq: 10x_atac_seq_qc.md
       - scRNA-seq: sc_gex_qc.md
